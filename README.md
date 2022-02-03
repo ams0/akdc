@@ -1,39 +1,114 @@
-# My new repo
+# AKDC
 
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](code_of_conduct.md)
 
-> My new repo description ...
+- Create a k3d cluster in an Azure VM
 
-## Overview
+## Setup
 
-Add project overview ...
+> From Azure Cloud Shell
 
-### Engineering Docs
+- Add to your .bashrc
 
-- Team Working [Agreement](.github/WorkingAgreement.md)
-- Team [Engineering Practices](.github/EngineeringPractices.md)
-- CSE Engineering Fundamentals [Playbook](https://github.com/Microsoft/code-with-engineering-playbook)
+```bash
 
-## How to file issues and get help  
+# Flux needs a PAT for the repo
+export AKDC_PAT=YourPAT
 
-This project uses GitHub Issues to track bugs and feature requests. Please search the existing issues before filing new issues to avoid duplicates. For new issues, file your bug or feature request as a new issue.
+# helper function to ssh by store name
+ss() {
+  # run ssh using the ips file
+  ssh akdc@$(cat ips | grep $1 | tail -1 | cut -f2)
+}
 
-For help and questions about using this project, please open a GitHub issue.
+# source the changes
+source $HOME/.bashrc
+
+```
+
+- Clone this repo
+
+```bash
+
+# clone this repo
+git clone https://github.com/bartr/akdc
+cd akdc
+
+```
+
+- Set env variables
+
+```bash
+
+# set this value (if not set in .bashrc)
+export AKDC_PAT=YourPAT
+
+# check the value
+echo $AKDC_PAT
+
+```
+
+- Create the k3d cluster
+
+- Valid params (case sensitive!)
+
+```text
+Region	State	City
+central	tx		austin
+central	tx		dallas
+central	tx		houston
+central	mo		kc
+central	mo		stlouis
+east	ga		athens
+east	ga		atlanta
+east	nc		charlotte
+east	nc		raleigh
+west	ca		la
+west	ca		sd
+west	ca		sfo
+west	wa		seattle
+
+Number - 101, 102, 103
+
+```
+
+```bash
+
+# run create-cluster.sh
+./create-cluster.sh Region State City Number [Azure Region: centralus]
+
+```
+
+## Check Status
+
+- Wait for VM and k3d to install
+
+```bash
+
+# ssh into the VM
+# use the full store name Region-State-City-Number
+ss akdc@central-tx-austin-101
+
+# check the VM setup status
+# wait for "complete"
+cat status
+
+# force Flux to sync
+sync
+
+```
+
+## Support
+
+This project uses GitHub Issues to track bugs and feature requests. Please search the existing issues before filing new issues to avoid duplicates.  For new issues, file your bug or feature request as a new issue.
 
 ## Contributing
 
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit <https://cla.opensource.microsoft.com>
+This project welcomes contributions and suggestions and has adopted the [Contributor Covenant Code of Conduct](https://www.contributor-covenant.org/version/2/1/code_of_conduct.html).
 
-When you submit a pull request, a CLA bot will automatically determine whether you need to provide a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions provided by the bot. You will only need to do this once across all repos using our CLA.
-
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+For more information see [Contributing.md](./.github/CONTRIBUTING.md)
 
 ## Trademarks
 
-This project may contain trademarks or logos for projects, products, or services.
-
-Authorized use of Microsoft trademarks or logos is subject to and must follow [Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
-
-Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
-
-Any use of third-party trademarks or logos are subject to those third-party's policies.
+This project may contain trademarks or logos for projects, products, or services. Any use of third-party trademarks or logos are subject to those third-party's policies.
