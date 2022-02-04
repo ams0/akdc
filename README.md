@@ -19,7 +19,7 @@ export AKDC_PAT=YourPAT
 # helper function to ssh by store name
 ss() {
   # run ssh using the ips file
-  ssh akdc@$(cat ips | grep $1 | tail -1 | cut -f2)
+  ssh -p 2222 akdc@$(cat ips | grep $1 | tail -1 | cut -f2)
 }
 
 # source the changes
@@ -40,9 +40,6 @@ cd akdc
 - Set env variables
 
 ```bash
-
-# set this value (if not set in .bashrc)
-export AKDC_PAT=YourPAT
 
 # check the value
 echo $AKDC_PAT
@@ -99,7 +96,7 @@ Number - 101, 102, 103
 ```bash
 # ssh into the VM
 # use the partial store name City-Number
-ss akdc@austin-101
+ss austin-101
 
 # check the VM setup status
 # wait for "complete"
@@ -111,7 +108,7 @@ sync
 # check for flux pods
 kubectl get pods -n flux-system
 
-# reinstall flux on the VM
+# reinstall flux on the VM if required
 ./flux-reset.sh
 
 # exit the VM ssh shell
