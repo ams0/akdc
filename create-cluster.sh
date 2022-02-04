@@ -46,11 +46,8 @@ IP=$(az vm create \
   -o tsv \
   --custom-data cluster-$Store.sh)
 
-echo "$Store  $IP"
-echo -e "$City-$Number\t$IP" >> ips
-
 # delete SSH rule
-az network nsg rule delete -g $Store --nsg-name $StoreNSG -o table --name default-allow-ssh
+az network nsg rule delete -g $Store --nsg-name ${Store}NSG -o table --name default-allow-ssh
 
 # For more security, replace --source-address-prefixes * with your IP or CIDR
 
@@ -65,3 +62,5 @@ az network nsg rule create \
 --access allow \
 --priority 1202
 
+echo "$Store  $IP"
+echo -e "$City-$Number\t$IP" >> ips
