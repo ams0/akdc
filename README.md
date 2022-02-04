@@ -19,7 +19,7 @@ export AKDC_PAT=YourPAT
 # helper function to ssh by store name
 ss() {
   # run ssh using the ips file
-  ssh -p 2222 akdc@$(cat ips | grep $1 | tail -1 | cut -f2)
+  ssh -p 2222 -o "StrictHostKeyChecking=no" akdc@$(cat ips | grep $1 | tail -1 | cut -f2)
 }
 
 # source the changes
