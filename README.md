@@ -87,7 +87,7 @@ Number - 101, 102, 103
 ```bash
 
 # check all servers in ips file
-./check.sh
+./flux-check.sh
 
 ```
 
