@@ -294,18 +294,14 @@ echo "Flux bootstrap" >> status
 cat << EOF > flux-reset.sh
 #!/bin/bash
 
-flux uninstall --silent
-
 flux bootstrap git \
 --url=https://github.com/retaildevcrews/edge-gitops \
---username=bartr \
 --password={{pat}} \
 --token-auth=true \
 --path=./deploy/{{store}}
 
 flux create source git gitops \
 --url=https://github.com/retaildevcrews/edge-gitops \
--u=bartr \
 --branch=main \
 --password {{pat}}
 
@@ -337,43 +333,10 @@ EOF
 chmod +x flux-reset.sh
 chown -R ${ME}:${ME} /home/${ME}
 
-flux bootstrap git \
---url=https://github.com/retaildevcrews/edge-gitops \
---username=bartr \
---password={{pat}} \
---token-auth=true \
---path=./deploy/{{store}}
-
-echo "flux add repo" >> status
-flux create source git gitops \
---url=https://github.com/retaildevcrews/edge-gitops \
--u=bartr \
---branch=main \
---password {{pat}}
-
-echo "flux add kustomizations" >> status
-flux create kustomization store \
---source GitRepository/gitops \
---path=./deploy/{{store}} \
---prune true \
---interval 1m
-
-flux create kustomization district \
---source GitRepository/gitops \
---path=./deploy/{{district}} \
---prune true \
---interval 1m
-
-flux create kustomization region \
---source GitRepository/gitops \
---path=./deploy/{{region}} \
---prune true \
---interval 1m
-
-echo "flux reconcile" >> status
-flux reconcile source git gitops
-
-kubectl get pods -A
+# intermitten failures due to timing
+echo "sleeping" >> status
+sleep 60
+./flux-reset.sh
 
 echo "" >> status
 echo "check cluster" >> status
