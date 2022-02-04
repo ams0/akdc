@@ -49,6 +49,8 @@ echo $AKDC_PAT
 
 ```
 
+> The scripts directory has scripts for creating and deleting groups of clusters
+
 - Create the k3d cluster
 
 - Valid params (case sensitive!)
@@ -83,12 +85,21 @@ Number - 101, 102, 103
 ## Check Status
 
 - Wait for VM and k3d to install
+  - This usually takes 10-15 minutes total
 
 ```bash
 
+# check all servers in ips file
+./check.sh
+
+```
+
+- If a server fails
+
+```bash
 # ssh into the VM
-# use the full store name Region-State-City-Number
-ss akdc@central-tx-austin-101
+# use the partial store name City-Number
+ss akdc@austin-101
 
 # check the VM setup status
 # wait for "complete"
@@ -96,6 +107,15 @@ cat status
 
 # force Flux to sync
 sync
+
+# check for flux pods
+kubectl get pods -n flux-system
+
+# reinstall flux on the VM
+./flux-reset.sh
+
+# exit the VM ssh shell
+exit
 
 ```
 
