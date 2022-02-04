@@ -287,7 +287,7 @@ echo "waiting for cluster to start" >> status
 sleep 20
 kubectl wait node --for condition=ready --all --timeout=30s
 sleep 20
-kubectl wait pod -A --all --for condition=ready --timeout=30s
+kubectl wait pod -A --all --for condition=ready --timeout=90s
 sleep 20
 
 echo "bootstrap Flux" >> status
