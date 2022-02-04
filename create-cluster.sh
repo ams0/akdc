@@ -48,3 +48,20 @@ IP=$(az vm create \
 
 echo "$Store  $IP"
 echo -e "$City-$Number\t$IP" >> ips
+
+# delete SSH rule
+az network nsg rule delete -g $Store --nsg-name $StoreNSG -o table --name default-allow-ssh
+
+# For more security, replace --source-address-prefixes * with your IP or CIDR
+
+# create SSH rule on port 2222
+az network nsg rule create \
+-g $Store \
+--nsg-name ${Store}NSG \
+-n SSH-http \
+--description "SSH http https" \
+--destination-port-ranges 2222 80 443 \
+--protocol tcp \
+--access allow \
+--priority 1202
+
