@@ -281,14 +281,15 @@ k3d cluster create \
 cp /root/.kube/config /home/${ME}/.kube/config
 chown -R ${ME}:${ME} /home/${ME}
 
-echo "waiting for cluster to start" >> status
-
 # we need the sleep command to prevent intermittent timing failures
+echo "sleeping" >> status
 sleep 10
+
+echo "waiting for cluster to start" >> status
 kubectl wait node --for condition=ready --all --timeout=30s
 kubectl wait deploy -n kube-system coredns --for condition=available --timeout=30s
 
-echo "bootstrap Flux" >> status
+echo "Flux bootstrap" >> status
 
 cat << EOF > flux-reset.sh
 #!/bin/bash
@@ -336,9 +337,47 @@ EOF
 chmod +x flux-reset.sh
 chown -R ${ME}:${ME} /home/${ME}
 
-./flux-reset.sh
+flux bootstrap git \
+--url=https://github.com/retaildevcrews/edge-gitops \
+--username=bartr \
+--password={{pat}} \
+--token-auth=true \
+--path=./deploy/{{store}}
 
-echo "complete" >> status
+echo "flux add repo" >> status
+flux create source git gitops \
+--url=https://github.com/retaildevcrews/edge-gitops \
+-u=bartr \
+--branch=main \
+--password {{pat}}
+
+echo "flux add kustomizations" >> status
+flux create kustomization store \
+--source GitRepository/gitops \
+--path=./deploy/{{store}} \
+--prune true \
+--interval 1m
+
+flux create kustomization district \
+--source GitRepository/gitops \
+--path=./deploy/{{district}} \
+--prune true \
+--interval 1m
+
+flux create kustomization region \
+--source GitRepository/gitops \
+--path=./deploy/{{region}} \
+--prune true \
+--interval 1m
+
+echo "flux reconcile" >> status
+flux reconcile source git gitops
+
+kubectl get pods -A
+
 echo "" >> status
 echo "check cluster" >> status
 echo "  k get po -A" >> status
+echo "" >> status
+
+echo "complete" >> status
