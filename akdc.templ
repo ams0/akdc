@@ -291,7 +291,7 @@ kubectl wait deploy -n kube-system coredns --for condition=available --timeout=3
 
 echo "Flux bootstrap" >> status
 
-cat << EOF > flux-reset.sh
+cat << EOF > flux-setup.sh
 #!/bin/bash
 
 flux bootstrap git \
@@ -333,10 +333,8 @@ EOF
 chmod +x flux-reset.sh
 chown -R ${ME}:${ME} /home/${ME}
 
-# intermitten failures due to timing
-echo "sleeping" >> status
-sleep 60
-./flux-reset.sh
+# setup flux
+./flux-setup.sh
 
 echo "" >> status
 echo "check cluster" >> status
