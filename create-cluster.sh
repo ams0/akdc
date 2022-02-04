@@ -63,4 +63,4 @@ az network nsg rule create \
 --priority 1202
 
 echo "$Store  $IP"
-echo -e "$City-$Number\t$IP" >> ips
+echo -e "$Store\t$IP" >> ips

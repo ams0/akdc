@@ -2,17 +2,17 @@
 
 cd ..
 
-./create-cluster.sh east ga athens 101 &
-./create-cluster.sh east ga athens 102 &
+./create-cluster.sh east ga athens 104 &
+./create-cluster.sh east ga athens 105 &
 
-./create-cluster.sh east ga atlanta 101 &
-./create-cluster.sh east ga atlanta 102 &
+./create-cluster.sh east ga atlanta 104 &
+./create-cluster.sh east ga atlanta 105 &
 
-./create-cluster.sh central tx austin 101 &
-./create-cluster.sh central tx austin 102 &
+./create-cluster.sh central tx austin 104 &
+./create-cluster.sh central tx austin 105 &
 
-./create-cluster.sh central tx dallas 101 &
-./create-cluster.sh central tx dallas 102 &
+./create-cluster.sh central tx dallas 104 &
+./create-cluster.sh central tx dallas 105 &
 
-./create-cluster.sh west wa seattle 101 &
-./create-cluster.sh west wa seattle 102 &
+./create-cluster.sh west wa seattle 104 &
+./create-cluster.sh west wa seattle 105 &
