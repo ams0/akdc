@@ -3,11 +3,33 @@
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](code_of_conduct.md)
 
-- Create a k3d cluster in an Azure VM(s)
-  - [Readme](./vms/README.md)
+> Best Practice - set AKDC_PAT as a Codespaces secret
 
-- Inner-loop Kubernetes Developer Experience
-  - [Readme](./local-cluster/README.md)
+- Export a valid GitHub PAT for Flux
+  - Flux will use this PAT to connect to the GitHub repo
+  - Flux needs write access
+
+```bash
+
+export AKDC_PAT=YourValidGitHubPAT
+
+```
+
+- Validate the PAT
+
+```bash
+
+  git clone https://${AKDC_PAT}@github.com/retaildevcrews/edge-gitops ../gitops
+  
+```
+
+## Inner-loop Kubernetes Developer Experience
+
+- [Readme](./inner-loop/README.md)
+
+## Create a k3d cluster in an Azure VM(s)
+
+- [Readme](./azure-vms/README.md)
 
 ## Support
 

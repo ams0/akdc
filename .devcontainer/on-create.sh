@@ -9,7 +9,7 @@ dotnet restore src/gen-gitops
 #git clone https://github.com/microsoft/webvalidate /workspaces/webvalidate
 
 # copy grafana.db to /grafana
-sudo cp local-cluster/grafanadata/grafana.db /grafana
+sudo cp inner-loop/grafanadata/grafana.db /grafana
 sudo chown -R 472:0 /grafana
 
 # create local registry

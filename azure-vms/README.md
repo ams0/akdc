@@ -1,38 +1,13 @@
 # AKDC
 
-- Create a k3d cluster in an Azure VM
+- Create a k3d cluster in one or more Azure VM(s)
+  - Bootstrap the cluster with Flux for GitOps
 
 ## Setup
 
 > From GitHub Codespaces
 
-- CD to the vms directory
-
-```bash
-
-cd vms
-
-```
-
-- Add to your .zshrc
-
-```bash
-
-# Flux needs a PAT for the repo
-export AKDC_PAT=YourPAT
-
-```
-
-- Check env variables
-
-```bash
-
-# check the value
-echo $AKDC_PAT
-
-```
-
-- Login to Azure
+## Login to Azure
 
 ```bash
 
@@ -40,13 +15,26 @@ az login --use-device-code
 
 ```
 
+## CD to the azure-vms directory
+
+```bash
+
+cd azure-vms
+
+```
+
+## Create the k3d cluster
+
 > The vms/scripts directory has scripts for creating and deleting groups of clusters
 
-- Create the k3d cluster
+- The VM will use `$HOME/.ssh/id_rsa` for SSH on port 2222
+  - An SSH key will be generated if one doesn't exist
+  - To reuse an existing SSH key, copy `id_rsa` and `id_rsa.pub` to `$HOME/.ssh`
 
 - Valid params (case sensitive!)
 
 ```text
+
 Region    State  City       Number
 central   tx     austin     104 or 105
 central   tx     dallas
@@ -61,6 +49,8 @@ west      ca     la
 west      ca     sd
 west      ca     sfo
 west      wa     seattle
+
+Example: ./create-cluster.sh central tx austin 104
 
 ```
 
@@ -89,6 +79,8 @@ west      wa     seattle
 ```bash
 # ssh into the VM
 # use the partial store name City-Number
+# ss is a function injected into #HOME/.zshrc during Codespaces creation
+
 ss austin-105
 
 # check the VM setup status
@@ -102,7 +94,7 @@ sync
 kubectl get pods -n flux-system
 
 # reinstall flux on the VM if required
-./flux-reset.sh
+./flux-setup.sh
 
 # exit the VM ssh shell
 exit

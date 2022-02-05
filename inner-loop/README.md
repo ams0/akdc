@@ -1,12 +1,12 @@
 # K8s with Codespaces
 
-- Inner-loop Kubernetes Developer Experience using GitHub Codespaces
+> Inner-loop Kubernetes Developer Experience using GitHub Codespaces
 
-## Start in local-cluster directory
+## Start in inner-loop directory
 
 ```bash
 
-cd local-cluster
+cd inner-loop
 
 ```
 
@@ -14,6 +14,11 @@ cd local-cluster
 
 ```bash
 
+# make all runs
+  # make delete
+  # make create
+  # make bootstrap
+  # make jumpbox
 make all
 
 ```
@@ -28,13 +33,7 @@ make deploy
 
 ## Add GitOps as a Store Cluster
 
-- export a valid GitHub PAT
-
-```bash
-
-export PAT=YourValidGitHubPAT
-
-```
+> This allows you to locally debug store config issues
 
 - setup Flux for GitOps
 
@@ -47,6 +46,9 @@ export PAT=YourValidGitHubPAT
 - Valid params (case sensitive!)
 
 ```text
+
+Example: ./setup-flux central tx austin 104
+
 Region    State  City       Number
 central   tx     austin     104 or 105
 central   tx     dallas
@@ -64,7 +66,9 @@ west      wa     seattle
 
 ```
 
-## Other commands
+## Other make commands
+
+- We use make to implement and document various cluster management tasks
 
 ```bash
 
