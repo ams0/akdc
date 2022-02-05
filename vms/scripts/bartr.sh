@@ -2,6 +2,9 @@
 
 cd ..
 
+# remove the IP list
+rm -f ips
+
 ./create-cluster.sh east ga athens 104 &
 ./create-cluster.sh east ga athens 105 &
 

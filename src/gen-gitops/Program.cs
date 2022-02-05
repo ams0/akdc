@@ -134,6 +134,9 @@ namespace gen_gitops
 
                 Directory.CreateDirectory(path);
                 File.WriteAllText(file, JsonSerializer.Serialize(cfg, SerializerOptions));
+
+                // create the flux-check namespace
+                File.WriteAllText(Path.Combine(path, "check-flux.yaml"), GetFluxCheck());
             }
 
             foreach (District d in Districts)
@@ -229,6 +232,17 @@ namespace gen_gitops
             Console.Error.WriteLine(msg);
             Console.ResetColor();
             return 1;
+        }
+
+        private static string GetFluxCheck()
+        {
+            return @"apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    name: flux-check
+  name: flux-check
+";
         }
     }
 

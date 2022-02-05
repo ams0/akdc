@@ -287,7 +287,8 @@ sleep 10
 
 echo "waiting for cluster to start" >> status
 kubectl wait node --for condition=ready --all --timeout=30s
-kubectl wait deploy -n kube-system coredns --for condition=available --timeout=30s
+sleep 10
+kubectl wait pod -l k8s-app=kube-dns -n kube-system --for condition=ready --timeout 30s
 
 echo "Flux bootstrap" >> status
 
