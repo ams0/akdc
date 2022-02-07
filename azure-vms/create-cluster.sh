@@ -64,3 +64,5 @@ az network nsg rule create \
 
 echo "$Store  $IP"
 echo -e "$Store\t$IP" >> ips
+
+rm -f cluster-$Store.sh
