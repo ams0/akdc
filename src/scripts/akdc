@@ -1,0 +1,93 @@
+#!/bin/bash
+
+function akdc_usage() {
+    echo "Usage: akdc"
+    echo "    check   -- check status on each server"
+    echo "    exec    -- execute a bash command on each server"
+    echo "    flux    -- flux commands"
+    echo "    groups  -- show Azure groups"
+    echo "    ssh     -- ssh into a cluster by server name"
+}
+
+# execute a bash command on all IPs
+function akdc_exec() {
+    for line in $(cat ips | sort | cut -f2);
+    do
+        ssh -p 2222 -o "StrictHostKeyChecking=no" -o ConnectTimeout=5 akdc@$line $@
+    done
+}
+
+# run ssh using the ips file
+function akdc_ssh() {
+    ssh -p 2222 -o "StrictHostKeyChecking=no" akdc@$(cat ips | grep $1 | tail -1 | cut -f 2)
+}
+
+### main akdc function
+if [ $# == 0 ]
+then
+    akdc_usage
+    exit 0
+fi
+
+case $1 in
+    check)
+        case $2 in
+            flux)
+                akdc_exec 'if [[ $(kubectl get ns) == *"flux-check"* ]]; then echo "$(hostname) success"; else echo "$(hostname) failed"; fi'
+                ;;
+            ngsa)
+                akdc_exec 'if [[ $(kubectl get pods -A) == *"ngsa-memory"* ]]; then echo "$(hostname) found"; else echo "$(hostname) not found"; fi'
+                ;;
+            setup)
+                akdc_exec 'echo "$(hostname) $(cat status | tail -1)"'
+                ;;
+            *)
+                echo "Usage: akdc check command"
+                echo "    flux   -- check flux status on each server"
+                echo "    ngsa   -- check ngsa status on each server"
+                echo "    setup  -- check setup status on each server"
+                ;;
+        esac
+        ;;
+    exec)
+        akdc_exec $2
+        ;;
+    flux)
+        case $2 in
+            setup)
+                akdc_exec 'if [[ $(kubectl get ns) == *"flux-check"* ]]; then echo "$(hostname) success"; else echo "$(hostname) failed" && ./flux-setup.sh; fi'
+                ;;
+
+            reconcile)
+                akdc_exec flux reconcile source git gitops
+                ;;
+
+            *)
+                echo "Usage: akdc $1 command"
+                echo "Commands"
+                echo "   setup      -- run flux reconcile on each server"
+                echo "   reconcile  -- setup flux on each server if needed"
+                ;;
+        esac
+        ;;
+
+    groups)
+        az group list -o table | sort | grep -e central- -e east- -e west-
+        ;;
+
+    ssh)
+        if [ $# != 2 ]
+        then
+            echo "Usage: akdc $1 ServerName"
+            echo "Valid servers"
+            cat ips | sort | cut -f1
+            exit 1
+        fi
+
+        akdc_ssh $2
+        ;;
+
+    *)
+        akdc_usage
+        ;;
+esac

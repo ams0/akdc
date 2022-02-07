@@ -3,8 +3,11 @@
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](code_of_conduct.md)
 
+- Open this repo in Codespaces
+
 > Best Practice - set AKDC_PAT as a Codespaces secret
 
+>>>>>>> 4db5b518c0faaa2cbde54c3480f70cb6a4530c1f
 - Export a valid GitHub PAT for Flux
   - Flux will use this PAT to connect to the GitHub repo
   - Flux needs write access
@@ -20,6 +23,7 @@ export AKDC_PAT=YourValidGitHubPAT
 ```bash
 
   git clone https://${AKDC_PAT}@github.com/retaildevcrews/edge-gitops ../gitops
+  ls -alF ../gitops/deploy
   
 ```
 
