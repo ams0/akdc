@@ -281,11 +281,11 @@ k3d cluster create \
 cp /root/.kube/config /home/${ME}/.kube/config
 chown -R ${ME}:${ME} /home/${ME}
 
+echo "waiting for cluster to start" >> status
+
 # we need the sleep command to prevent intermittent timing failures
-echo "sleeping" >> status
 sleep 10
 
-echo "waiting for cluster to start" >> status
 kubectl wait node --for condition=ready --all --timeout=30s
 sleep 10
 kubectl wait pod -l k8s-app=kube-dns -n kube-system --for condition=ready --timeout 30s

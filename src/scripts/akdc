@@ -17,6 +17,14 @@ function akdc_exec() {
     done
 }
 
+# execute a bash command on all IPs in background
+function akdc_exec_task() {
+    for line in $(cat ips | sort | cut -f2);
+    do
+        ssh -p 2222 -o "StrictHostKeyChecking=no" -o ConnectTimeout=5 akdc@$line $@ &
+    done
+}
+
 # run ssh using the ips file
 function akdc_ssh() {
     ssh -p 2222 -o "StrictHostKeyChecking=no" akdc@$(cat ips | grep $1 | tail -1 | cut -f 2)
@@ -55,11 +63,11 @@ case $1 in
     flux)
         case $2 in
             setup)
-                akdc_exec 'if [[ $(kubectl get ns) == *"flux-check"* ]]; then echo "$(hostname) success"; else echo "$(hostname) failed" && ./flux-setup.sh; fi'
+                akdc_exec_task 'if [[ $(kubectl get ns) == *"flux-check"* ]]; then echo "$(hostname) success"; else echo "$(hostname) failed" && ./flux-setup.sh; fi'
                 ;;
 
             reconcile)
-                akdc_exec flux reconcile source git gitops
+                akdc_exec_task flux reconcile source git gitops
                 ;;
 
             *)

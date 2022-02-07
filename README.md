@@ -7,7 +7,6 @@
 
 > Best Practice - set AKDC_PAT as a Codespaces secret
 
->>>>>>> 4db5b518c0faaa2cbde54c3480f70cb6a4530c1f
 - Export a valid GitHub PAT for Flux
   - Flux will use this PAT to connect to the GitHub repo
   - Flux needs write access
