@@ -36,21 +36,15 @@ cd azure-vms
 ```text
 
 Region    State  City       Number
-central   tx     austin     104 or 105
-central   tx     dallas
+central   tx     dallas     104 or 105
 central   tx     houston
-central   mo     kc
 central   mo     stlouis
 east      ga     athens
-east      ga     atlanta
 east      nc     charlotte
-east      nc     raleigh
 west      ca     la
-west      ca     sd
 west      ca     sfo
-west      wa     seattle
 
-Example: ./create-cluster.sh central tx austin 104
+Example: ./create-cluster.sh central tx dallas 104
 
 ```
 
@@ -61,15 +55,23 @@ Example: ./create-cluster.sh central tx austin 104
 
 ```
 
-## Check Status
+## Check Setup
 
-- Wait for VM and k3d to install
-  - This usually takes 10-15 minutes total
+- Run until `complete` is the status for each server
 
 ```bash
 
 # check all servers in ips file
-./flux-check.sh
+akdc check setup
+
+```
+
+## Check Flux Setup
+
+```bash
+
+# check all servers in ips file
+akdc check flux
 
 ```
 
@@ -77,26 +79,11 @@ Example: ./create-cluster.sh central tx austin 104
   - Flux is failing when creating multiple clusters due to a timing issue on the git repo
 
 ```bash
-# ssh into the VM
-# use the partial store name City-Number
-# ss is a function injected into #HOME/.zshrc during Codespaces creation
 
-ss austin-105
+# setup flux if missing
+akdc flux setup
 
-# check the VM setup status
-# wait for "complete"
-cat status
-
-# force Flux to sync
-sync
-
-# check for flux pods
-kubectl get pods -n flux-system
-
-# reinstall flux on the VM if required
-./flux-setup.sh
-
-# exit the VM ssh shell
-exit
+# check for flux
+akdc check flux
 
 ```

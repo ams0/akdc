@@ -1,8 +1,8 @@
 #!/bin/bash
 
-if [ -z $PAT ]
+if [ -z $AKDC_PAT ]
 then
-  echo "Please export PAT=ValidGitOpsPAT"
+  echo "Please export AKDC_PAT=ValidGitOpsPAT"
   exit 1
 fi
 
@@ -23,7 +23,7 @@ fi
 # bootstrap flux
 flux bootstrap git \
 --url=https://github.com/retaildevcrews/edge-gitops \
---password=$PAT \
+--password=$AKDC_PAT \
 --token-auth=true \
 --path=./deploy/$Store
 
@@ -31,7 +31,7 @@ flux bootstrap git \
 flux create source git gitops \
 --url=https://github.com/retaildevcrews/edge-gitops \
 --branch=main \
---password $PAT
+--password $AKDC_PAT
 
 # add the store kustomization
 flux create kustomization store \

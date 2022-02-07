@@ -21,14 +21,18 @@ export AKDC_PAT=YourValidGitHubPAT
 
 ```bash
 
-  git clone https://${AKDC_PAT}@github.com/retaildevcrews/edge-gitops ../gitops
-  ls -alF ../gitops/deploy
+  git clone https://${AKDC_PAT}@github.com/retaildevcrews/edge-gitops /workspaces/gitops
+  ls -alF /workspaces/gitops/deploy
   
 ```
 
 ## Inner-loop Kubernetes Developer Experience
 
 - [Readme](./inner-loop/README.md)
+
+## Outer-loop Kubernetes Developer Experience
+
+- [Readme](./outer-loop/README.md)
 
 ## Create a k3d cluster in an Azure VM(s)
 
