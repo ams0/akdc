@@ -4,7 +4,7 @@
 
 echo "$(date)    post-create start" >> ~/status
 
-# clone repos
+# pull repos
 git -C /workspaces/ngsa pull
 git -C /workspaces/webvalidate pull
 git -C /workspaces/ngsa-app pull

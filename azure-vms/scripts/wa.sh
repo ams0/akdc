@@ -2,6 +2,6 @@
 
 cd ..
 
-./create-cluster.sh west wa seattle 101 &
-./create-cluster.sh west wa seattle 102 &
-./create-cluster.sh west wa seattle 103 &
+./create-cluster.sh west wa seattle 101 westus &
+./create-cluster.sh west wa seattle 102 westus &
+./create-cluster.sh west wa seattle 103 westus &

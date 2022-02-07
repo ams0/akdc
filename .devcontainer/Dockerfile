@@ -7,7 +7,8 @@ FROM ghcr.io/cse-labs/k3d:latest
 ARG USERNAME=vscode
 
 # install flux
-RUN mkdir -p $HOME/.local/bin && \
+RUN echo "$(date)    docker build start" >> /home/$USERNAME/status && \
+    mkdir -p $HOME/.local/bin && \
     curl -s https://fluxcd.io/install.sh | bash  && \
     chmod +x /usr/local/bin/flux && \
     mkdir -p /home/$USERNAME/.oh-my-zsh/completions && \
