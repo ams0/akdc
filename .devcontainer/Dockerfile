@@ -12,4 +12,5 @@ RUN mkdir -p $HOME/.local/bin && \
     chmod +x /usr/local/bin/flux && \
     mkdir -p /home/$USERNAME/.oh-my-zsh/completions && \
     flux completion zsh > /home/$USERNAME/.oh-my-zsh/completions/_flux && \
+    echo "$(date)    docker build complete" >> /home/$USERNAME/status && \
     chown -R $USERNAME:$USERNAME /home/$USERNAME
