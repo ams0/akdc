@@ -54,6 +54,7 @@ function _akdc_check(){
         'Check commands' \
         'flux[check flux status on each server]' \
         'ngsa[check ngsa status on each server]' \
+        'retries[check flux retries on each server]' \
         'setup[check setup status on each server]'
     ;;
   esac

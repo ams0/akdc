@@ -41,13 +41,16 @@ case $1 in
     check)
         case $2 in
             flux)
-                akdc_exec 'if [[ $(kubectl get ns) == *"flux-check"* ]]; then echo "$(hostname) success"; else echo "$(hostname) failed"; fi'
+                akdc_exec_task 'if [[ $(kubectl get ns) == *"flux-check"* ]]; then echo "$(hostname) success"; else echo "$(hostname) failed"; fi'
                 ;;
             ngsa)
-                akdc_exec 'if [[ $(kubectl get pods -A) == *"ngsa-memory"* ]]; then echo "$(hostname) found"; else echo "$(hostname) not found"; fi'
+                akdc_exec_task 'if [[ $(kubectl get pods -A) == *"ngsa-memory"* ]]; then echo "$(hostname) found"; else echo "$(hostname) not found"; fi'
+                ;;
+            retries)
+                akdc_exec_task 'echo "$(hostname) $(cat status | grep -e retries | tail -1)"'
                 ;;
             setup)
-                akdc_exec 'echo "$(hostname) $(cat status | tail -1)"'
+                akdc_exec_task 'echo "$(hostname) $(cat status | tail -1)"'
                 ;;
             *)
                 echo "Usage: akdc check command"

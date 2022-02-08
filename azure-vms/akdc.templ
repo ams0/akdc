@@ -292,14 +292,36 @@ kubectl wait pod -l k8s-app=kube-dns -n kube-system --for condition=ready --time
 
 echo "Flux bootstrap" >> status
 
-cat << EOF > flux-setup.sh
+cat << "EOF" > flux-setup.sh
 #!/bin/bash
 
-flux bootstrap git \
---url=https://github.com/retaildevcrews/edge-gitops \
---password={{pat}} \
---token-auth=true \
---path=./deploy/{{store}}
+sleep_seconds=0
+status_code=1
+retry_count=0
+
+until [ $status_code == 0 ]; do
+
+    if [ $retry_count .gt 0 ]
+    then
+      echo "retrying flux bootstrap - $retry_count" >> /home/akdc/status
+      sleep $sleep_seconds
+    fi
+
+    retry_count=$((retry_count + 1))
+
+    flux bootstrap git \
+    --url=https://github.com/retaildevcrews/edge-gitops \
+    --password={{pat}} \
+    --token-auth=true \
+    --path=./deploy/{{store}}
+
+    status_code=$?
+
+    sleep_seconds=30
+done
+
+retry_count=$((retry_count - 1))
+echo "flux retries: $retry_count" >> /home/akdc/status
 
 flux create source git gitops \
 --url=https://github.com/retaildevcrews/edge-gitops \
