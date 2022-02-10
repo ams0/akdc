@@ -301,7 +301,7 @@ retry_count=0
 
 until [ $status_code == 0 ]; do
 
-    if [ $retry_count .gt 0 ]
+    if [ $retry_count -gt 0 ]
     then
       echo "retrying flux bootstrap - $retry_count" >> /home/akdc/status
       sleep $sleep_seconds
