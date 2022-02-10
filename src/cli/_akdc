@@ -52,8 +52,10 @@ function _akdc_check(){
     cmds)
       _values \
         'Check commands' \
+        'dapr[check dapr status on each server]' \
         'flux[check flux status on each server]' \
         'ngsa[check ngsa status on each server]' \
+        'radius[check radius status on each server]' \
         'retries[check flux retries on each server]' \
         'setup[check setup status on each server]'
     ;;

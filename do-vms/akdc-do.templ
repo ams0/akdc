@@ -340,6 +340,16 @@ chown -R ${ME}:${ME} /home/${ME}
 # setup flux
 ./flux-setup.sh
 
+# install Dapr
+echo "installing dapr" >> status
+wget -q https://raw.githubusercontent.com/dapr/cli/master/install/install.sh -O - | /bin/bash
+dapr init -k --enable-mtls=false --wait
+
+# install Radius
+echo "installing radius" >> status
+wget -q "https://get.radapp.dev/tools/rad/install.sh" -O - | /bin/bash
+rad env init kubernetes -n radius-system
+
 echo "" >> status
 echo "check cluster" >> status
 echo "  k get po -A" >> status

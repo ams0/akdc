@@ -40,6 +40,9 @@ fi
 case $1 in
     check)
         case $2 in
+            dapr)
+                akdc_exec_task 'if [[ $(kubectl get ns) == *"dapr-system"* ]]; then echo "$(hostname) success"; else echo "$(hostname) failed"; fi'
+                ;;
             flux)
                 akdc_exec_task 'if [[ $(kubectl get ns) == *"flux-check"* ]]; then echo "$(hostname) success"; else echo "$(hostname) failed"; fi'
                 ;;
@@ -49,14 +52,19 @@ case $1 in
             retries)
                 akdc_exec_task 'echo "$(hostname) $(cat status | grep -e retries | tail -1)"'
                 ;;
+            radius)
+                akdc_exec_task 'if [[ $(kubectl get ns) == *"radius-system"* ]]; then echo "$(hostname) success"; else echo "$(hostname) failed"; fi'
+                ;;
             setup)
                 akdc_exec_task 'echo "$(hostname) $(cat status | tail -1)"'
                 ;;
             *)
                 echo "Usage: akdc check command"
-                echo "    flux   -- check flux status on each server"
-                echo "    ngsa   -- check ngsa status on each server"
-                echo "    setup  -- check setup status on each server"
+                echo "    dapr    -- check dapr status on each server"
+                echo "    flux    -- check flux status on each server"
+                echo "    ngsa    -- check ngsa status on each server"
+                echo "    radius  -- check radius status on each server"
+                echo "    setup   -- check setup status on each server"
                 ;;
         esac
         ;;
