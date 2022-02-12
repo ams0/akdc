@@ -2,11 +2,12 @@
 
 cd ..
 
-./create-cluster.sh west ca east 101 westus &
-./create-cluster.sh west ca east 102 westus &
-./create-cluster.sh west ca east 103 westus &
-./create-cluster.sh west ca east 104 westus &
-./create-cluster.sh west ca east 105 westus &
+# hattan using for testing
+#./create-cluster.sh west ca east 101 westus &
+#./create-cluster.sh west ca east 102 westus &
+#./create-cluster.sh west ca east 103 westus &
+#./create-cluster.sh west ca east 104 westus &
+#./create-cluster.sh west ca east 105 westus &
 
 ./create-cluster.sh west ca la 101 westus &
 ./create-cluster.sh west ca la 102 westus &

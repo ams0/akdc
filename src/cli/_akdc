@@ -15,6 +15,7 @@ function _akdc(){
       _values \
         "commands" \
         "check[check status on each server]" \
+        "delete[delete an Azure Resource Group]" \
         "exec[execute a command on each server]" \
         "flux[flux commands]" \
         "groups[show Azure groups]" \
@@ -27,6 +28,9 @@ function _akdc(){
       case $line[1] in
         check)
           _akdc_check
+        ;;
+        delete)
+          _akdc_delete
         ;;
         flux)
           _akdc_flux
@@ -48,7 +52,6 @@ function _akdc_check(){
 
   case $state in
     # define "sub-commands"
-    # bartr new (dotnet spring ts)
     cmds)
       _values \
         'Check commands' \
@@ -71,12 +74,27 @@ function _akdc_flux(){
 
   case $state in
     # define "sub-commands"
-    # bartr new (dotnet spring ts)
     cmds)
       _values \
         'Flux commands' \
         'reconcile[run flux reconcile on each server]' \
         'setup[setup flux on each server if needed]'
+    ;;
+  esac
+}
+
+function _akdc_delete(){
+  local line state
+
+  _arguments \
+    '1: :->cmds' \
+    '*::arg:->args'
+
+  case $state in
+    # define "sub-commands"
+    cmds)
+      _arguments \
+        '1:Select a server:($(cat ips | sort | cut -f1))'
     ;;
   esac
 }
@@ -90,7 +108,6 @@ function _akdc_ssh(){
 
   case $state in
     # define "sub-commands"
-    # bartr new (dotnet spring ts)
     cmds)
       _arguments \
         '1:Select a server:($(cat ips | sort | cut -f1))'

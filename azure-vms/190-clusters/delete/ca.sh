@@ -2,6 +2,13 @@
 
 cd ..
 
+# hattan using for testing
+#az group delete -y --no-wait -g  west-ca-east-101 &
+#az group delete -y --no-wait -g  west-ca-east-102 &
+#az group delete -y --no-wait -g  west-ca-east-103 &
+#az group delete -y --no-wait -g  west-ca-east-104 &
+#az group delete -y --no-wait -g  west-ca-east-105 &
+
 az group delete -y --no-wait -g  west-ca-la-101 &
 az group delete -y --no-wait -g  west-ca-la-102 &
 az group delete -y --no-wait -g  west-ca-la-103 &
@@ -25,12 +32,6 @@ az group delete -y --no-wait -g  west-ca-sd-102 &
 az group delete -y --no-wait -g  west-ca-sd-103 &
 az group delete -y --no-wait -g  west-ca-sd-104 &
 az group delete -y --no-wait -g  west-ca-sd-105 &
-
-az group delete -y --no-wait -g  west-ca-east-101 &
-az group delete -y --no-wait -g  west-ca-east-102 &
-az group delete -y --no-wait -g  west-ca-east-103 &
-az group delete -y --no-wait -g  west-ca-east-104 &
-az group delete -y --no-wait -g  west-ca-east-105 &
 
 az group delete -y --no-wait -g  west-ca-north-101 &
 az group delete -y --no-wait -g  west-ca-north-102 &
