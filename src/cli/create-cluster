@@ -12,12 +12,6 @@ source "${DirName}/lib/logger.sh"
 me=$(basename "$0")
 
 # Input Configurations
-Region=${1}
-State=${2}
-City=${3}
-Number=${4}
-District=${Region}-${State}-${City}
-Store=${District}-${Number}
 DnsRecordTTL="1"
 DnsZoneResourceGroup="tld"
 DefaultLocation="centralus"
@@ -29,66 +23,69 @@ declare Location="$DefaultLocation"
 declare DnsZone
 declare UseSSL=false
 declare ShowHelp=false
-declare CertCRTPath
-declare CertKeyPath
+declare CertCRTPath=~/.ssh/certs.pem
+declare CertKeyPath=~/.ssh/certs.key
+declare Quiet=false
+declare Repo=retaildevcrews/edge-gitops
+declare Cluster
 
 # shellcheck disable=2034
 declare DEBUG_FLAG=false
 
 # register arguments
+shArgs.arg "Cluster" -c --cluster PARAMETER true
 shArgs.arg "DnsZone" -z --zone PARAMETER true
-shArgs.arg "CertCRTPath" -c --cert PARAMETER true
+shArgs.arg "CertCRTPath" -p --pem PARAMETER true
 shArgs.arg "CertKeyPath" -k --key PARAMETER true
 shArgs.arg "Location" -l --location PARAMETER true
+shArgs.arg "Repo" -r --repo PARAMETER true
 shArgs.arg "UseSSL" -s --ssl FLAG true
+shArgs.arg "Quiet" -q --quiet FLAG true
 shArgs.arg "ShowHelp" -h --help FLAG true
 shArgs.arg "DEBUG_FLAG" -d --debug FLAG true
 
 # parse inputs
 shArgs.parse "$@"
 
-FQDN="$Store.$DnsZone"
-
-# location is a special case as it can be passed in as the fifth argument or as --location (via shArg)
-# todo - remove this and force -l for location
-if [[ "$5" != -* ]] ; then
-  if [[ "$5" != "" ]]; then
-    Location=${5}
-  fi
-fi
+FQDN="$Cluster.$DnsZone"
 
 main() {
-  # todo - add quiet or verbose flag to control output
-  #banner
+  if [ "$Quiet" != "true" ]; then
+    banner
+  fi
+
   validate_input
-  #print_context
 
-  _information "Creating VM ${Store}"
+  if [ "$Quiet" != "true" ]; then
+    print_context
+  fi
 
-  # create the RG
-  local rgTags="server=$Store"
+  _information "Creating VM ${Cluster}"
+
+  # create the RG tags
+  local rgTags="server=$Cluster"
 
   if [ -n "$DnsZone" ]; then
     rgTags="$rgTags zone=$DnsZone"
   fi
 
   # create the install script from the template
-  # replace the host, pat, district and region
-  rm -f cluster-"${Store}".sh
+  # replace the cluster, repo, pat, and fqdn
+  rm -f "cluster-${Cluster}.sh"
+
   sed "s/{{pat}}/$AKDC_PAT/g" "$Templ" | \
-      sed "s/{{store}}/$Store/g" | \
-      sed "s/{{district}}/$District/g" | \
-      sed "s/{{fqdn}}/$FQDN/g" | \
-      sed "s/{{region}}/$Region/g" \
-      > cluster-"$Store".sh
+    sed "s/{{cluster}}/$Cluster/g" | \
+    sed "s/{{fqdn}}/$FQDN/g" | \
+    sed "s~{{repo}}~$Repo~g" \
+    > "cluster-${Cluster}.sh"
 
   # shellcheck disable=2086
-  az group create -l "$Location" -n "$Store" --tags $rgTags
+  az group create -l "$Location" -n "$Cluster" --tags $rgTags
 
   IP=$(az vm create \
-    -g "$Store" \
+    -g "$Cluster" \
     --admin-username akdc \
-    -n "$Store" \
+    -n "$Cluster" \
     --size standard_D2as_v5 \
     --image Canonical:0001-com-ubuntu-server-focal:20_04-lts-gen2:latest \
     --os-disk-size-gb 128 \
@@ -97,21 +94,21 @@ main() {
     --public-ip-sku Standard \
     --query publicIpAddress \
     -o tsv \
-    --custom-data cluster-"$Store".sh)
+    --custom-data cluster-"$Cluster".sh)
 
-  echo -e "$Store\t$IP" >> ips
+  echo -e "$Cluster\t$IP" >> ips
 
-  _information "VM Created $Store  $IP"
+  _information "VM Created $Cluster  $IP"
 
   _information "Deleting default SSH rule"
-  az network nsg rule delete -g "$Store" --nsg-name "${Store}"NSG -o table --name default-allow-ssh
+  az network nsg rule delete -g "$Cluster" --nsg-name "${Cluster}"NSG -o table --name default-allow-ssh
 
   # For more security, replace --source-address-prefixes * with your IP or CIDR
 
   _information "Creating SSH rule on port 2222"
   az network nsg rule create \
-    -g "$Store" \
-    --nsg-name "${Store}"NSG \
+    -g "$Cluster" \
+    --nsg-name "${Cluster}"NSG \
     -n SSH-http \
     --description "SSH http https" \
     --destination-port-ranges 2222 80 443 \
@@ -121,7 +118,7 @@ main() {
 
   if [ -n "$DnsZone" ]; then
     _information "Configuring DNS"
-    _information "DnsZone: $DnsZone Name: $Store"
+    _information "DnsZone: $DnsZone Name: $Cluster"
     upsert_dns_record
     
     if [ "$UseSSL" == "true" ]; then
@@ -133,11 +130,11 @@ main() {
   # validate ssh connectivity
   _information "connecting to VM with ssh"
   ssh -p 2222 -o "StrictHostKeyChecking=no" "akdc@$IP" 'cloud-init status'
-  _success "VM Creation Complete! $Store  $IP"
+  _success "VM Creation Complete! $Cluster  $IP"
 
-  _success "akdc ssh $Store"
+  _success "akdc ssh $Cluster"
   
-  rm -f cluster-"$Store".sh
+  rm -f cluster-"$Cluster".sh
 }
 
 validate_input() {
@@ -150,26 +147,21 @@ validate_input() {
     usage
   fi
 
-  if [ "$_argLength" -lt 4 ]; then
-    _error "Missing input parameters"
+  if [ -z "$Cluster" ]; then
+    _error "You must specify the cluster name with --cluster or -c"
     usage
   fi
 
   if [ "$UseSSL" == "true" ]; then
-    if [ -z "$CertCRTPath" ]; then
-      _error "SSL Cert .pem path is a required argument when using --ssl"
-      usage
-    fi
-
-    if [ -z "$CertKeyPath" ]; then
-      _error "SSL Cert .key path is a required argument when using --ssl"
+    if [ -z "$DnsZone" ]; then
+      _error "DNS Zone (--zone) is a required argument when using --ssl"
       usage
     fi
   fi
 }
 
-# todo - this isn't currently used
 wait_for_cloud_init_completion() {
+  # this isn't currently used
   local ip=$1
   _information "Waiting for cloud init to complete."
 
@@ -184,37 +176,32 @@ wait_for_cloud_init_completion() {
 }
 
 tool_installed() {
-  tool=$1
-    local jqStatusMessage
+  local tool="$1"
+  local statusMessage
 
-    if [ -x "$(command -v "$tool")" ]; then
-        jqStatusMessage="(installed - you're good to go!)"
-    else
-        jqStatusMessage="\e[31m(not installed)\e[0m"
-    fi
+  if [ -x "$(command -v "$tool")" ]; then
+      statusMessage="(installed - you're good to go!)"
+  else
+      statusMessage="\e[31m(not installed)\e[0m"
+  fi
 
-    echo "$jqStatusMessage"
+  echo "$statusMessage"
 }
 
 usage() {
     local jqStatusMessage && jqStatusMessage=$(tool_installed "jq")
     local sedStatusMessage && sedStatusMessage=$(tool_installed "sed")
 
-    _helpText="  Usage: $me Region State City Store-Number AzureRegion
+    _helpText="  Usage: $me --cluster myClusterName [options][flags]
 
-  Positional Arguments
-          Region        Required
-           State        Required
-            City        Required
-    Store-Number        Required
-     AzureRegion        Optional. Defaults to centralus if not supplied
-
-  Optional Named Arguments
-    -z | --zone       <dns domain>          The dns domain to be configured on this VM. If omitted DNS will not configured. This script assumes an Azure zone with the domain as it's name.
-    -s | --ssl                              Configure an SSL cert for this domain. Cert and Key must be provied
-    -l | --location   <Azure Location>      An alternative to specifying the AzureRegion via a named argument instead of the 5th postional argument.
-    -c | --cert       <path to .pem file>   File Path to SSL Cert .pem file. Only required if --ssl is used
-    -k | --key        <path to .key file>   File Path to SSL Cert .key file. Only required if --ssl is used. This must be a decrypted key!
+  Options and Flags
+    -c | --cluster   <K8sCluster Name>     Kubernetes Cluster Name (required)
+    -l | --location  <Azure Location>      Azure Location (default: centralus)
+    -r | --repo      <GitOps Repo Name>    The GitOps repo name (default: retaildevcrews/edge-gitops)
+    -z | --zone      <dns domain>          The dns domain to be configured on this VM
+    -s | --ssl                             Configure an SSL cert for this domain. PEM and Key can be provided
+    -p | --pem       <path to .pem file>   File Path to SSL Cert .pem file (default: ~/.ssh/certs.pem)
+    -k | --key       <path to .key file>   File Path to SSL Cert .key file (default: ~/.ssh/certs.key)
 
   dependencies:
     -jq $jqStatusMessage
@@ -245,24 +232,24 @@ copy_cert_files_to_vm() {
 
 upsert_dns_record() {
    OLD_IP=$(az network dns record-set a list \
-  --query "[?name=='$Store'].{IP:aRecords}" \
+  --query "[?name=='$Cluster'].{IP:aRecords}" \
   --resource-group "$DnsZoneResourceGroup" \
   --zone-name "$DnsZone"  -o json | jq -r '.[].IP[].ipv4Address')
 
   az network dns record-set a add-record \
     -g "$DnsZoneResourceGroup" \
     -z "$DnsZone" \
-    -n "$Store" \
+    -n "$Cluster" \
     -a "$IP" \
     --ttl $DnsRecordTTL
 
   if [[ -n "$OLD_IP" ]]; then
-    _information "Removing old IP: $OLD_IP from record $Store"
+    _information "Removing old IP: $OLD_IP from record $Cluster"
 
     az network dns record-set a remove-record \
       -g "$DnsZoneResourceGroup" \
       -z "$DnsZone" \
-      -n "$Store" \
+      -n "$Cluster" \
       -a "$OLD_IP"
   fi
 }
@@ -279,18 +266,17 @@ print_context() {
   echo "        Tenant Id: $tenantId"
   echo "             User: $userName"
 
-  _information "  @Store Context"
-  echo "             Region: $Region"
-  echo "              State: $State"
-  echo "               City: $City"
-  echo "             Number: $Number"
-  echo "           Location: $Location"
-  echo "           District: $District"
-  echo "              Store: $Store"
+  _information "  @Cluster Context"
+  echo "            Cluster: $Cluster"
+  echo "               FQDN: $FQDN"
+  echo "     Azure Location: $Location"
+  echo "        GitOps Repo: $Repo"
   echo "            DnsZone: $DnsZone"
   echo " DNS Resource Group: $DnsZoneResourceGroup"
   echo "            DNS TTL: $DnsRecordTTL"
-  echo "               FQDN: $FQDN"
+  echo "            Use SSL: $UseSSL"
+  echo "           SSL .pem: $CertCRTPath"
+  echo "           SSL .key: $CertKeyPath"
 }
 
 main

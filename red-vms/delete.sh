@@ -12,6 +12,7 @@ echo "uncomment the commands before running"
 # akdc delete west-ca-sd-102
 # akdc delete west-wa-seattle-101
 # akdc delete west-wa-seattle-102
+# akdc delete corp-monitoring-101
 
 # remove old ips
 # rm -f "$(dirname "${BASH_SOURCE[0]}")/ips"

@@ -2,7 +2,7 @@
 
 ####### do not change these values #######
 export ME=akdc
-export FQDN={{fqdn}}
+export FQDN="{{fqdn}}"
 ###################################
 
 export DEBIAN_FRONTEND=noninteractive
@@ -15,17 +15,19 @@ mkdir -p /home/${ME}/.ssh
 #cp /root/.ssh/authorized_keys /home/${ME}/.ssh
 ### end DO
 
-cd /home/${ME}
+cd /home/${ME} || exit
 
 echo "$(date)  starting" >> status
 
 echo "${ME} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/akdc
 
 # upgrade sshd security
-echo "" >> /etc/ssh/sshd_config
-echo "ClientAliveInterval 120" >> /etc/ssh/sshd_config
-echo "Port 2222" >> /etc/ssh/sshd_config
-echo "Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr" >> /etc/ssh/sshd_config
+{
+  echo ""
+  echo "ClientAliveInterval 120"
+  echo "Port 2222"
+  echo "Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr"
+} >> /etc/ssh/sshd_config
 
 # restart sshd
 systemctl restart sshd
@@ -51,33 +53,37 @@ git clone --depth=1 https://github.com/ohmybash/oh-my-bash.git .oh-my-bash
 cp .oh-my-bash/templates/bashrc.osh-template .bashrc
 
 # add to .bashrc
-echo "" >> .bashrc
-echo "alias k='kubectl'" >> .bashrc
-echo "alias kga='kubectl get all'" >> .bashrc
-echo "alias kgaa='kubectl get all --all-namespaces'" >> .bashrc
-echo "alias kaf='kubectl apply -f'" >> .bashrc
-echo "alias kdelf='kubectl delete -f'" >> .bashrc
-echo "alias kl='kubectl logs'" >> .bashrc
-echo "alias kccc='kubectl config current-context'" >> .bashrc
-echo "alias kcgc='kubectl config get-contexts'" >> .bashrc
-echo "alias kj='kubectl exec -it jumpbox -- bash -l'" >> .bashrc
-echo "alias kje='kubectl exec -it jumpbox -- '" >> .bashrc
-echo "alias sync='flux reconcile source git gitops && kubectl get pods -A'" >> .bashrc
+# shellcheck disable=2016
+{
+  echo ""
+  echo "alias k='kubectl'"
+  echo "alias kga='kubectl get all'"
+  echo "alias kgaa='kubectl get all --all-namespaces'"
+  echo "alias kaf='kubectl apply -f'"
+  echo "alias kdelf='kubectl delete -f'"
+  echo "alias kl='kubectl logs'"
+  echo "alias kccc='kubectl config current-context'"
+  echo "alias kcgc='kubectl config get-contexts'"
+  echo "alias kj='kubectl exec -it jumpbox -- bash -l'"
+  echo "alias kje='kubectl exec -it jumpbox -- '"
+  echo "alias sync='flux reconcile source git gitops && kubectl get pods -A'"
 
-echo "" >> .bashrc
-echo "alias ipconfig='ip -4 a show eth0 | grep inet | sed \"s/inet//g\" | sed \"s/ //g\" | cut -d / -f 1'" >> .bashrc
+  echo ""
+  echo "alias ipconfig='ip -4 a show eth0 | grep inet | sed \"s/inet//g\" | sed \"s/ //g\" | cut -d / -f 1'"
 
-echo "" >> .bashrc
-echo 'export PIP=$(ipconfig | tail -n 1)' >> .bashrc
-echo 'export PATH="$PATH:/usr/local/istio/bin:$HOME/.dotnet/tools:$HOME/go/bin"' >> .bashrc
-echo "export FQDN=$FQDN" >> .bashrc
+  echo ""
+  echo 'export PIP=$(ipconfig | tail -n 1)'
+  echo 'export PATH="$PATH:/usr/local/istio/bin:$HOME/.dotnet/tools:$HOME/go/bin"'
+  echo "export FQDN=$FQDN"
 
-echo "" >> .bashrc
-echo 'complete -F __start_kubectl k' >> .bashrc
-echo 'complete -F __start_kubectl kl' >> .bashrc
+  echo ""
+  echo 'complete -F __start_kubectl k'
+  echo 'complete -F __start_kubectl kl'
+} >> .bashrc
 
 # set the IP address
-export PIP=$(ip -4 a show eth0 | grep inet | sed "s/inet//g" | sed "s/ //g" | cut -d '/' -f 1 | tail -n 1)
+# shellcheck disable=2155
+export PIP="$(ip -4 a show eth0 | grep inet | sed "s/inet//g" | sed "s/ //g" | cut -d '/' -f 1 | tail -n 1)"
 
 chown -R ${ME}:${ME} /home/${ME}
 
@@ -151,7 +157,7 @@ flux completion bash > /etc/bash_completion.d/flux
 echo "$(date)  installing k9s" >> status
 
 VERSION=$(curl -i https://github.com/derailed/k9s/releases/latest | grep "location: https://github.com/" | rev | cut -f 1 -d / | rev | sed 's/\r//')
-wget https://github.com/derailed/k9s/releases/download/$VERSION/k9s_Linux_x86_64.tar.gz
+wget "https://github.com/derailed/k9s/releases/download/${VERSION}/k9s_Linux_x86_64.tar.gz"
 tar -zxvf k9s_Linux_x86_64.tar.gz -C /usr/local/bin
 rm -f k9s_Linux_x86_64.tar.gz
 
@@ -252,9 +258,6 @@ rad env init kubernetes -n radius-system
 
 echo "$(date)  flux bootstrap" >> status
 
-# todo - need to make github repo a param
-### make sure to change this before running red-vms/create
-
 cat << "EOF" > flux-setup.sh
 #!/bin/bash
 
@@ -273,10 +276,10 @@ until [ $status_code == 0 ]; do
     retry_count=$((retry_count + 1))
 
     flux bootstrap git \
-    --url=https://github.com/retaildevcrews/edge-gitops \
+    --url=https://github.com/{{repo}} \
     --password={{pat}} \
     --token-auth=true \
-    --path=flux-system
+    --path=./bootstrap
 
     status_code=$?
 
@@ -287,31 +290,19 @@ retry_count=$((retry_count - 1))
 echo "flux retries: $retry_count" >> /home/akdc/status
 
 flux create source git gitops \
---url=https://github.com/retaildevcrews/edge-gitops \
+--url=https://github.com/{{repo}} \
 --branch=main \
 --password {{pat}}
 
-flux create kustomization store \
---source GitRepository/gitops \
---path=./deploy/{{store}} \
---prune true \
---interval 1m
-
 flux create kustomization bootstrap \
 --source GitRepository/gitops \
---path=./bootstrap/{{store}} \
+--path=./bootstrap/{{cluster}} \
 --prune true \
 --interval 1m
 
-flux create kustomization district \
+flux create kustomization store \
 --source GitRepository/gitops \
---path=./deploy/{{district}} \
---prune true \
---interval 1m
-
-flux create kustomization region \
---source GitRepository/gitops \
---path=./deploy/{{region}} \
+--path=./deploy/{{cluster}} \
 --prune true \
 --interval 1m
 

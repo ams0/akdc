@@ -4,6 +4,9 @@
 
 echo "$(date)    post-create start" >> ~/status
 
+alias mk='cd /workspaces/akdc/src/go-cli && make && cd $OLDPWD'
+echo "alias mk='cd /workspaces/akdc/src/go-cli && make && cd $OLDPWD'" >> ~/.zshrc
+
 # remove repos
 rm -rf /workspaces/ngsa
 

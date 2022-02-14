@@ -10,3 +10,4 @@ curl https://west-ca-sd-101.cseretail.com/tinybench/17; echo "  west-ca-sd-101" 
 curl https://west-ca-sd-102.cseretail.com/tinybench/17; echo "  west-ca-sd-102" &
 curl https://west-wa-seattle-101.cseretail.com/tinybench/17; echo "  west-wa-seattle-101" &
 curl https://west-wa-seattle-102.cseretail.com/tinybench/17; echo "  west-wa-seattle-102" &
+curl https://corp-monitoring-101.cseretail.com/tinybench/17; echo "  corp-monitoring-101" &

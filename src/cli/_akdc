@@ -15,11 +15,12 @@ function _akdc(){
       _values \
         "commands" \
         "check[check status on each server]" \
+        "create[create a new cluster]" \
         "delete[delete an Azure Resource Group]" \
         "exec[execute a command on each server]" \
-        "flux[flux commands]" \
         "groups[show Azure groups]" \
-        "ssh[name ssh into a cluster by server name]"
+        "ssh[name ssh into a cluster by server name]" \
+        "sync[sync (reconcile) flux on each cluster]"
     ;;
 
    # call the sub-command functions
@@ -31,9 +32,6 @@ function _akdc(){
         ;;
         delete)
           _akdc_delete
-        ;;
-        flux)
-          _akdc_flux
         ;;
         ssh)
           _akdc_ssh
@@ -62,24 +60,6 @@ function _akdc_check(){
         'retries[check flux retries on each server]' \
         'setup[check setup status on each server]' \
         'ssl[curl tinybench via https on each server]'
-    ;;
-  esac
-}
-
-function _akdc_flux(){
-  local line state
-
-  _arguments \
-    '1: :->cmds' \
-    '*::arg:->args'
-
-  case $state in
-    # define "sub-commands"
-    cmds)
-      _values \
-        'Flux commands' \
-        'reconcile[run flux reconcile on each server]' \
-        'setup[setup flux on each server if needed]'
     ;;
   esac
 }
