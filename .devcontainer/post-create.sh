@@ -32,4 +32,9 @@ echo "$ID_RSA_PUB" | base64 -d > "$HOME"/.ssh/id_rsa.pub
 chmod 600 "$HOME"/.ssh/id*
 chmod 600 "$HOME"/.ssh/certs.*
 
+# azure cli bug hot fix
+# todo - remove after cli is fixed
+sudo apt-get remove -y azure-cli
+sudo apt-get install -y azure-cli=2.32.0-1~bullseye
+
 echo "$(date)    post-create complete" >> ~/status
