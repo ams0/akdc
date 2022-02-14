@@ -8,10 +8,11 @@ echo "$(date)    on-create start" >> ~/status
 dotnet restore src/gen-gitops
 
 # add cli to path
-echo 'export PATH=$PATH:/workspaces/akdc/src/cli' >> $HOME/.zshrc
+# shellcheck disable=SC2016
+echo 'export PATH=$PATH:/workspaces/akdc/src/cli' >> "$HOME"/.zshrc
 
 # add akdc completions
-cp src/cli/_akdc $HOME/.oh-my-zsh/completions
+cp src/cli/_akdc "$HOME"/.oh-my-zsh/completions
 unfunction _akdc && autoload -Uz _akdc && compinit
 
 # clone repos

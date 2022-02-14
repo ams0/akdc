@@ -20,9 +20,9 @@ export AKDC_PAT=YourValidGitHubPAT
 - Validate the PAT
 
 ```bash
-
-  git clone https://${AKDC_PAT}@github.com/retaildevcrews/edge-gitops /workspaces/gitops
-  ls -alF /workspaces/gitops/deploy
+rm -rf /workspaces/gitops  
+git clone https://${AKDC_PAT}@github.com/retaildevcrews/edge-gitops /workspaces/gitops
+ls -alF /workspaces/gitops/deploy
   
 ```
 

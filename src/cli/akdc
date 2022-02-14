@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 function akdc_usage() {
     echo "Usage: akdc"
     echo "    check   -- check status on each server"
@@ -12,23 +13,28 @@ function akdc_usage() {
 
 # execute a bash command on all IPs
 function akdc_exec() {
+    # shellcheck disable=2002,SC2013
+
     for line in $(cat ips | sort | cut -f2);
     do
-        ssh -p 2222 -o "StrictHostKeyChecking=no" -o ConnectTimeout=5 akdc@$line $@
+        ssh -p 2222 -o "StrictHostKeyChecking=no" -o ConnectTimeout=5 akdc@"$line" "$@"
     done
 }
 
 # execute a bash command on all IPs in background
 function akdc_exec_task() {
+    # shellcheck disable=2002,SC2013
+
     for line in $(cat ips | sort | cut -f2);
     do
-        ssh -p 2222 -o "StrictHostKeyChecking=no" -o ConnectTimeout=5 akdc@$line $@ &
+        ssh -p 2222 -o "StrictHostKeyChecking=no" -o ConnectTimeout=5 akdc@"$line" "$@" &
     done
 }
 
 # run ssh using the ips file
 function akdc_ssh() {
-    ssh -p 2222 -o "StrictHostKeyChecking=no" akdc@$(cat ips | grep $1 | tail -1 | cut -f 2)
+    # shellcheck disable=2002,SC2013
+    ssh -p 2222 -o "StrictHostKeyChecking=no" akdc@"$(cat ips | grep "$1" | tail -1 | cut -f 2)"
 }
 
 ### main akdc function
@@ -38,6 +44,7 @@ then
     exit 0
 fi
 
+# shellcheck disable=2002,2016
 case $1 in
     check)
         case $2 in
@@ -48,7 +55,7 @@ case $1 in
                 akdc_exec_task 'if [[ $(kubectl get ns) == *"flux-check"* ]]; then echo "$(hostname) success"; else echo "$(hostname) failed"; fi'
                 ;;
             ngsa)
-                akdc_exec_task 'if [[ $(kubectl get pods -A) == *"ngsa-memory"* ]]; then echo "$(hostname) found"; else echo "$(hostname) not found"; fi'
+                akdc_exec_task 'if [[ $(kubectl get pods -A) == *"ngsa"* ]]; then echo "$(hostname) found"; else echo "$(hostname) not found"; fi'
                 ;;
             retries)
                 akdc_exec_task 'echo "$(hostname) $(cat status | grep -e retries | tail -1)"'
@@ -59,18 +66,22 @@ case $1 in
             setup)
                 akdc_exec_task 'echo "$(hostname) $(cat status | tail -1)"'
                 ;;
+            ssl)
+                akdc_exec_task 'echo "$(hostname) $(curl -s https://$(hostname).cseretail.com/tinybench/17)"'
+                ;;
             *)
                 echo "Usage: akdc check command"
-                echo "    dapr    -- check dapr status on each server"
-                echo "    flux    -- check flux status on each server"
-                echo "    ngsa    -- check ngsa status on each server"
-                echo "    radius  -- check radius status on each server"
-                echo "    setup   -- check setup status on each server"
+                echo "    dapr     -- check dapr status on each server"
+                echo "    flux     -- check flux status on each server"
+                echo "    ngsa     -- check ngsa status on each server"
+                echo "    radius   -- check radius status on each server"
+                echo "    setup    -- check setup status on each server"
+                echo "    ssl      -- curl tinybench via https on each server"
                 ;;
         esac
         ;;
     exec)
-        akdc_exec $2
+        akdc_exec "$2"
         ;;
     flux)
         case $2 in
@@ -104,7 +115,7 @@ case $1 in
             exit 1
         fi
 
-        akdc_ssh $2
+        akdc_ssh "$2"
         ;;
     delete)
         if [ $# != 2 ]; then
@@ -112,17 +123,19 @@ case $1 in
             echo "Valid servers"
             cat ips | sort | cut -f1
             exit 1
-        fi  
+        fi
+
         serverName=$2
         response=$(az group list --query "[?tags.server == '$serverName']" -o json)
-        resourceGroupName=$(echo $response | jq -r '.[].name')
-        zone=$(echo $response | jq -r '.[].tags.zone')
+        resourceGroupName=$(echo "$response" | jq -r '.[].name')
+        zone=$(echo "$response" | jq -r '.[].tags.zone')
+
         echo "Deleting Resource Group: $resourceGroupName"
-        az group delete -n $resourceGroupName --yes --no-wait
-        
+        az group delete -n "$resourceGroupName" --yes --no-wait
+
         if [ "$zone" != "null" ]; then
             echo "Deleting Record: $resourceGroupName in Zone:$zone"
-            az network dns record-set a delete -n $resourceGroupName -g tld -z $zone --yes    
+            az network dns record-set a delete -g tld -z "$zone" --yes -n "$resourceGroupName"
         fi
         ;;
     *)
