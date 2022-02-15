@@ -200,7 +200,7 @@ namespace gen_gitops
         {
             const string header = "#!/bin/bash\n\n";
             const string cd = "# change to this directory\ncd $(dirname \"${BASH_SOURCE[0]}\")\ncd ..\n\n";
-            const string ssl = $" -z {domainName} --ssl -k ~/.ssh/certs.key -c ~/.ssh/certs.pem";
+            const string ssl = $" -z {domainName} --ssl";
 
             Directory.CreateDirectory("scripts");
             Directory.SetCurrentDirectory("scripts");
@@ -211,7 +211,7 @@ namespace gen_gitops
 
             foreach (Store s in Stores)
             {
-                create += $"create-cluster {s.Region} {s.State} {s.City} {s.Number} -l {s.AzureRegion}";
+                create += $"akdc create {s.Name} -l {s.AzureRegion}";
 
                 if (GenerateSsl)
                 {
@@ -224,7 +224,7 @@ namespace gen_gitops
                 curl += $"curl https://{s.Name}.{domainName}/tinybench/17; echo \"  {s.Name}\" &\n";
             }
 
-            delete += "\n\n# remove IPs\nrm $(dirname \"${ BASH_SOURCE[0]}\"/ips)\n";
+            delete += "\n\n# remove IPs\nrm -f $(dirname \"${ BASH_SOURCE[0]}\"/ips)\n";
 
             // save the files
             File.WriteAllText("create.sh", create);

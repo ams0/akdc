@@ -6,6 +6,8 @@ function _akdc(){
 
   # the first command will parse into "cmds"
   _arguments \
+    '--help[Display help and usage]' \
+    '--version[Display version info]' \
     '1: :->cmds' \
     '*::arg:->args'
 
@@ -29,6 +31,9 @@ function _akdc(){
       case $line[1] in
         check)
           _akdc_check
+        ;;
+        create)
+          _akdc_create
         ;;
         delete)
           _akdc_delete
@@ -60,6 +65,40 @@ function _akdc_check(){
         'retries[check flux retries on each server]' \
         'setup[check setup status on each server]' \
         'ssl[curl tinybench via https on each server]'
+    ;;
+  esac
+}
+
+function _akdc_create(){
+  local line state
+  _arguments \
+    "--cluster+[Kubernetes cluster name (root)]" \
+    '--group+[Azure resource group name]' \
+    '--key+[Path to SSL .key file (default "~/.ssh/certs.key")]' \
+    '--location+[Azure location (default "centralus")]' \
+    '--pem+[Path to SSL .pem file (default "~/.ssh/certs.pem")]' \
+    '--quiet[Quiet mode]' \
+    '--repo+[GitOps repo name (default "retaildevcrews/edge-gitops")]' \
+    '--ssl[Use SSL cert (must specify --zone)]' \
+    '--zone+[DNS domain name]' \
+    '1: :->cmds' \
+    '*: :->args'
+
+  case $state in
+    # define arguments
+    args)
+      _arguments \
+        '--cluster+[Kubernetes cluster name (args)]' \
+        '--group+[Azure resource group name]' \
+        '--key+[Path to SSL .key file (default "~/.ssh/certs.key")]' \
+        '--location+[Azure location (default "centralus")]' \
+        '--pem+[Path to SSL .pem file (default "~/.ssh/certs.pem")]' \
+        '--quiet[Quiet mode]' \
+        '--repo+[GitOps repo name (default "retaildevcrews/edge-gitops")]' \
+        '--ssl[Use SSL cert (must specify --zone)]' \
+        '--zone+[DNS domain name]' \
+        '1: :->cmds' \
+        '*: :->args'
     ;;
   esac
 }

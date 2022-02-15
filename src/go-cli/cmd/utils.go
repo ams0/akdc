@@ -5,6 +5,7 @@
 package cmd
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -23,8 +24,20 @@ func shellExec(cmd string) {
 	shell.Run()
 }
 
+// execute a bash command and return stdout
+func shellExecOut(cmd string) string {
+	shell := exec.Command("bash", "-c", cmd)
+
+	var out bytes.Buffer
+	shell.Stdout = &out
+
+	shell.Run()
+
+	return out.String()
+}
+
 // read the ips file
-func readHostsIps() []string {
+func readhostIPs() []string {
 	content, err := ioutil.ReadFile("ips")
 
 	if err != nil {
@@ -37,7 +50,7 @@ func readHostsIps() []string {
 	for _, line := range lines {
 		ip := strings.Split(line, "\t")
 
-		if (len(ip) > 1) {
+		if len(ip) > 1 {
 			ips = append(ips, line)
 		}
 	}
@@ -47,29 +60,29 @@ func readHostsIps() []string {
 
 // run a command on all clusters
 func execClusters(cmd string) {
-	hostsIps := readHostsIps()
+	hostIPs := readhostIPs()
 
 	ch := make(chan string)
 
-	for _, hostIp := range hostsIps {
+	for _, hostIP := range hostIPs {
 		// todo - generalize and pass in function
-		cols := strings.Split(hostIp, "\t")
+		cols := strings.Split(hostIP, "\t")
 
-		if (len(cols) > 1) {
+		if len(cols) > 1 {
 			go execCluster(cols[0], cols[1], cmd, ch)
 		}
 	}
 
 	// todo - add timeout
-	for i := 0; i < len(hostsIps); i++ {
-		<- ch
+	for i := 0; i < len(hostIPs); i++ {
+		<-ch
 	}
 }
 
 // run a command on one cluster via ssh
 func execCluster(host string, ip string, cmd string, ch chan string) {
 	cmd = fmt.Sprintf("ssh -p 2222 -o \"StrictHostKeyChecking=no\" -o ConnectTimeout=5 akdc@%s %s", ip, cmd)
-	
+
 	shellExec(cmd)
 
 	ch <- host

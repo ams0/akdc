@@ -10,13 +10,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-
-
 // rootCmd represents the base command and adds commands, options, and flags
 var rootCmd = &cobra.Command{
 	Use:   "akdc",
 	Short: "Retail Edge CLI",
-	Long: `Retail Edge CLI`,
+	Long:  `Retail Edge CLI`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

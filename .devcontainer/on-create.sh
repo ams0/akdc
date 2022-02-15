@@ -39,4 +39,7 @@ docker pull mcr.microsoft.com/dotnet/sdk:6.0
 # install cobra
 go install github.com/spf13/cobra/cobra@latest
 
+# install golint
+go install golang.org/x/lint/golint@latest
+
 echo "$(date)    on-create complete" >> ~/status

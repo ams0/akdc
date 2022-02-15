@@ -12,7 +12,7 @@ import (
 var checkCmd = &cobra.Command{
 	Use:   "check",
 	Short: "check cluster status",
-	Long: `check cluster status`,
+	Long:  `check cluster status`,
 }
 
 func init() {

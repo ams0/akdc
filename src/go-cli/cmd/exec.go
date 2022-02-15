@@ -28,7 +28,7 @@ var execCmd = &cobra.Command{
 			return
 		}
 
-		command = command[1:len(command)-1]
+		command = command[1 : len(command)-1]
 
 		execClusters(command)
 	},

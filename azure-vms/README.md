@@ -37,27 +37,11 @@ cd azure-vms
 
 > Our Codespaces installation automatically installs a "shared" ssh key
 
-- Valid params (case sensitive!)
-
-  ```text
-
-  Region    State  City       Number
-  central   tx     dallas     104 or 105
-  central   tx     houston
-  central   mo     stlouis
-  east      ga     athens
-  east      nc     charlotte
-  west      ca     la
-  west      ca     sfo
-
-  Example: ./create-cluster.sh central tx dallas 104
-
-  ```
 
 ```bash
 
-# run create-cluster.sh
-create-cluster Region State City Number -l centralus
+# run akdc create
+akdc create central-tx-dallas-105 -l centralus
 
 ```
 
@@ -88,7 +72,7 @@ akdc check flux
 
 - A DNS zone and SSL cert can be used with the cluster setup to provide an ingress for http and https access to the clusters
 - In order to use a zone, you must specify --zone with a zone name
-  - `create-cluster` assumes the zone is both a domain and also an Azure Zone name
+  - `akdc` assumes the zone is both a domain and also an Azure Zone name
 
 ## Add ssl certs
 
@@ -215,7 +199,7 @@ akdc check flux
   # change to your DNS zone
   export AKDC_ZONE=cseretail.com
 
-  create-cluster west ca east 105 -l westus --zone "$AKDC_ZONE" --ssl -c ~/.ssh/certs.pem -k ~/.ssh/akdc/certs.key 
+  akdc create west-ca-east-105 -l westus --zone "$AKDC_ZONE" --ssl
 
   ```
 

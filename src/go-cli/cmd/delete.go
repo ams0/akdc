@@ -21,11 +21,11 @@ var deleteCmd = &cobra.Command{
 			return
 		}
 
-        fmt.Println("Deleting Resource Group")
-        shellExec(fmt.Sprintf("az group delete -n %s --yes --no-wait", args[0]))
+		fmt.Println("Deleting Resource Group")
+		shellExec(fmt.Sprintf("az group delete -n %s --yes --no-wait", args[0]))
 
 		fmt.Println("Deleting DNS Record")
-        shellExec(fmt.Sprintf("az network dns record-set a delete -g tld -z cseretail.com --yes -n %s", args[0]))
+		shellExec(fmt.Sprintf("az network dns record-set a delete -g tld -z cseretail.com --yes -n %s", args[0]))
 
 	},
 }

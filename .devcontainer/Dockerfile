@@ -6,6 +6,8 @@ FROM ghcr.io/cse-labs/k3d:latest
 # some images require specific values
 ARG USERNAME=vscode
 
+ENV GOPATH /home/${USERNAME}/go
+
 # log docker build start
 RUN echo "$(date)    docker build start" >> /home/${USERNAME}/status
 

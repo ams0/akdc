@@ -12,7 +12,7 @@ import (
 var groupsCmd = &cobra.Command{
 	Use:   "groups",
 	Short: "list Azure resource groups",
-	Long: `list Azure resource groups`,
+	Long:  `list Azure resource groups`,
 	Run: func(cmd *cobra.Command, args []string) {
 		shellExec("az group list -o table | sort | grep -e central- -e east- -e west- -e corp- -e retail-edge")
 	},
