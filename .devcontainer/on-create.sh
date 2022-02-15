@@ -2,23 +2,25 @@
 
 # this runs as part of pre-build
 
-echo "$(date)    on-create start" >> ~/status
+echo "$(date)    on-create start" >> "$HOME/status"
 
 # do this early to avoid the popup
 dotnet restore src/gen-gitops
 
-# add cli to path
-# shellcheck disable=SC2016
-echo 'export PATH=$PATH:/workspaces/akdc/src/cli' >> "$HOME"/.zshrc
+{
+    # add cli to path
+    echo "export PATH=\$PATH:/workspaces/akdc/src/cli"
+    echo "alias mk='cd /workspaces/akdc/src/go-cli && make && cd \$OLDPWD'"
+
+    # todo - hot fix - this is set to /go upstream
+    echo "export GOPATH=\$HOME/go"
+} >> "$HOME/.zshrc"
 
 # add akdc completions
-cp src/cli/_akdc "$HOME"/.oh-my-zsh/completions
-unfunction _akdc && autoload -Uz _akdc && compinit
-
-# clone repos
-git clone https://github.com/retaildevcrews/edge-ngsa /workspaces/ngsa
-git clone https://github.com/microsoft/webvalidate /workspaces/webvalidate
-git clone https://github.com/retaildevcrews/ngsa-app /workspaces/ngsa-app
+cp src/cli/_akdc "$HOME/.oh-my-zsh/completions"
+unfunction _akdc
+autoload -Uz _akdc
+compinit
 
 # copy grafana.db to /grafana
 sudo cp inner-loop/grafanadata/grafana.db /grafana
@@ -42,4 +44,4 @@ go install github.com/spf13/cobra/cobra@latest
 # install golint
 go install golang.org/x/lint/golint@latest
 
-echo "$(date)    on-create complete" >> ~/status
+echo "$(date)    on-create complete" >> "$HOME/status"
