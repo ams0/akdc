@@ -14,6 +14,6 @@ var checkRadiusCmd = &cobra.Command{
 	Short: "check radius status on each cluster",
 	Long:  `check radius status on each cluster`,
 	Run: func(cmd *cobra.Command, args []string) {
-		execClusters("'if [[ $(kubectl get ns) == *\"radius-system\"* ]]; then echo \"$(hostname) success\"; else echo \"$(hostname) failed\"; fi'")
+		execClusters("'if [[ $(kubectl get ns) == *\"radius-system\"* ]]; then echo \"$(hostname) success\"; else echo \"$(hostname) failed\"; fi'", grep)
 	},
 }

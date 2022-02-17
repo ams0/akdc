@@ -10,6 +10,39 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// option variables
+// common across several commands
+var dryRun bool
+var region string
+var tag string
+var zone string
+
+// used by check, exec, sync and test commands
+var grep string
+
+// mainly for create command
+var cluster string
+var group string
+var location string
+var repo string
+var pem string
+var key string
+var quiet bool
+var ssl bool
+
+// mainly for test commands
+var verbose bool
+var fileIntegration string
+var fileLoad string
+var duration int
+var sleep int
+var port int
+var random bool
+var logFormat string
+var summary string
+var maxErrors int
+var delayStart int
+
 // rootCmd represents the base command and adds commands, options, and flags
 var rootCmd = &cobra.Command{
 	Use:   "akdc",
@@ -26,6 +59,7 @@ func Execute() {
 	}
 }
 
+// initialize the root command
 func init() {
 	rootCmd.AddCommand(checkCmd)
 	rootCmd.AddCommand(createCmd)
@@ -34,4 +68,5 @@ func init() {
 	rootCmd.AddCommand(groupsCmd)
 	rootCmd.AddCommand(sshCmd)
 	rootCmd.AddCommand(syncCmd)
+	rootCmd.AddCommand(testCmd)
 }

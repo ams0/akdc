@@ -14,6 +14,6 @@ var checkSetupCmd = &cobra.Command{
 	Short: "check setup status on each cluster",
 	Long:  `check setup status on each cluster`,
 	Run: func(cmd *cobra.Command, args []string) {
-		execClusters("'echo \"$(hostname) $(cat status | tail -1)\"'")
+		execClusters("'echo \"$(hostname) $(cat status | tail -1)\"'", grep)
 	},
 }

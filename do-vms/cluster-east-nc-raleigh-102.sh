@@ -261,7 +261,7 @@ until [ $status_code == 0 ]; do
     retry_count=$((retry_count + 1))
 
     flux bootstrap git \
-    --url https://github.com/{{repo}} \
+    --url https://github.com/retaildevcrews/red-gitops \
     --password $(cat /home/akdc/.ssh/akdc.pat) \
     --token-auth true \
     --path ./bootstrap
@@ -275,19 +275,19 @@ retry_count=$((retry_count - 1))
 echo "flux retries: $retry_count" >> /home/akdc/status
 
 flux create source git gitops \
---url https://github.com/{{repo}} \
+--url https://github.com/retaildevcrews/red-gitops \
 --branch main \
 --password $(cat /home/akdc/.ssh/akdc.pat) \
 
 flux create kustomization bootstrap \
 --source GitRepository/gitops \
---path ./bootstrap/{{cluster}} \
+--path ./bootstrap/east-nc-raleigh-102 \
 --prune true \
 --interval 1m
 
 flux create kustomization apps \
 --source GitRepository/gitops \
---path ./deploy/{{cluster}} \
+--path ./deploy/east-nc-raleigh-102 \
 --prune true \
 --interval 1m
 
@@ -311,7 +311,7 @@ rm -f .ssh/certs.pem
 rm -f .ssh/certs.key
 
 # setup flux
-./flux-setup.sh
+#./flux-setup.sh
 
 echo "$(date)  complete" >> status
 echo "complete" >> status

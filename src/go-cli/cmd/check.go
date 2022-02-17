@@ -24,4 +24,6 @@ func init() {
 	checkCmd.AddCommand(checkSetupCmd)
 	checkCmd.AddCommand(checkSslCmd)
 	checkCmd.PersistentFlags().String("async", "a", "run checks asynchronously")
+
+	checkCmd.PersistentFlags().StringVarP(&grep, "grep", "g", "", "grep conditional to filter by host")
 }

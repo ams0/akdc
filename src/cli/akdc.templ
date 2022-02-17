@@ -9,9 +9,9 @@ export DEBIAN_FRONTEND=noninteractive
 export HOME=/root
 
 ### Needed for Digital Ocean
-useradd -m -s /bin/bash ${ME}
-mkdir -p /home/${ME}/.ssh
-cp /root/.ssh/authorized_keys /home/${ME}/.ssh
+#useradd -m -s /bin/bash ${ME}
+#mkdir -p /home/${ME}/.ssh
+#cp /root/.ssh/authorized_keys /home/${ME}/.ssh
 ### end DO
 
 cp /usr/share/zoneinfo/America/Chicago /etc/localtime

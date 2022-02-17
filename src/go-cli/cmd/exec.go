@@ -30,6 +30,10 @@ var execCmd = &cobra.Command{
 
 		command = command[1 : len(command)-1]
 
-		execClusters(command)
+		execClusters(command, grep)
 	},
+}
+
+func init() {
+	execCmd.Flags().StringVarP(&grep, "grep", "g", "", "grep conditional to filter by host")
 }

@@ -23,7 +23,6 @@ Store=${District}-${Number}
 # replace the host, pat, district and region
 rm -f cluster-$Store.sh
 sed "s/{{pat}}/$AKDC_PAT/g" ./akdc-do.templ | \
-    sed "s/{{store}}/$Store/g" | \
-    sed "s/{{district}}/$District/g" | \
-    sed "s/{{region}}/$Region/g" \
+    sed "s/{{cluster}}/$Store/g" | \
+    sed "s~{{repo}}~retaildevcrews/red-gitops~g" \
     > cluster-$Store.sh

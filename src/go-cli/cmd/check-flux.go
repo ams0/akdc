@@ -14,6 +14,6 @@ var checkFluxCmd = &cobra.Command{
 	Short: "check flux status on each cluster",
 	Long:  `check flux status on each cluster`,
 	Run: func(cmd *cobra.Command, args []string) {
-		execClusters("'if [[ $(kubectl get ns) == *\"flux-check\"* ]]; then echo \"$(hostname) success\"; else echo \"$(hostname) failed\"; fi'")
+		execClusters("'if [[ $(kubectl get ns) == *\"flux-check\"* ]]; then echo \"$(hostname) success\"; else echo \"$(hostname) failed\"; fi'", grep)
 	},
 }

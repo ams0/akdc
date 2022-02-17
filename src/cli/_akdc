@@ -22,7 +22,8 @@ function _akdc(){
         "exec[execute a command on each server]" \
         "groups[show Azure groups]" \
         "ssh[name ssh into a cluster by server name]" \
-        "sync[sync (reconcile) flux on each cluster]"
+        "sync[sync (reconcile) flux on each cluster]" \
+        "test[run integration or load tests on each cluster]"
     ;;
 
    # call the sub-command functions
@@ -41,7 +42,28 @@ function _akdc(){
         ssh)
           _akdc_ssh
         ;;
+        test)
+          _akdc_test
+        ;;
       esac
+    ;;
+  esac
+}
+
+function _akdc_test(){
+  local line state
+
+  _arguments \
+    '1: :->cmds' \
+    '*::arg:->args'
+
+  case $state in
+    # define "sub-commands"
+    cmds)
+      _values \
+        'test commands' \
+        'integration[run an integration test on each cluster]' \
+        'load[run a load test on each cluster]'
     ;;
   esac
 }

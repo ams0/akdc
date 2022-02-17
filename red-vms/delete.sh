@@ -14,5 +14,6 @@ echo "uncomment the commands before running"
 # akdc delete west-wa-seattle-102
 # akdc delete corp-monitoring-101
 
-# remove old ips
-# rm -f "$(dirname "${BASH_SOURCE[0]}")/ips"
+# add Digital Ocean clusters
+#echo -e "east-nc-raleigh-101\t138.197.79.242" > "$(dirname "${BASH_SOURCE[0]}")/ips"
+#echo -e "east-nc-raleigh-102\t209.97.144.124" >> "$(dirname "${BASH_SOURCE[0]}")/ips"

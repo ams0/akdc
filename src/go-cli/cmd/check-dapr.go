@@ -14,6 +14,6 @@ var daprCmd = &cobra.Command{
 	Short: "check dapr status on each cluster",
 	Long:  `check dapr status on each cluster`,
 	Run: func(cmd *cobra.Command, args []string) {
-		execClusters("'if [[ $(kubectl get ns) == *\"dapr-system\"* ]]; then echo \"$(hostname) success\"; else echo \"$(hostname) failed\"; fi'")
+		execClusters("'if [[ $(kubectl get ns) == *\"dapr-system\"* ]]; then echo \"$(hostname) success\"; else echo \"$(hostname) failed\"; fi'", grep)
 	},
 }

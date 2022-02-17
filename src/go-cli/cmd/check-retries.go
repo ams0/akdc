@@ -14,6 +14,6 @@ var checkRetriesCmd = &cobra.Command{
 	Short: "check number of retries on each cluster",
 	Long:  `check number of retries on each cluster`,
 	Run: func(cmd *cobra.Command, args []string) {
-		execClusters("'echo \"$(hostname) $(cat status | grep -e retries | tail -1)\"'")
+		execClusters("'echo \"$(hostname) $(cat status | grep -e retries | tail -1)\"'", grep)
 	},
 }

@@ -14,6 +14,10 @@ var syncCmd = &cobra.Command{
 	Short: "sync (reconcile) flux on each cluster",
 	Long:  `sync (reconcile) flux on each cluster`,
 	Run: func(cmd *cobra.Command, args []string) {
-		execClusters("flux reconcile source git gitops")
+		execClusters("flux reconcile source git gitops", grep)
 	},
+}
+
+func init() {
+	syncCmd.Flags().StringVarP(&grep, "grep", "g", "", "grep conditional to filter by host")
 }

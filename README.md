@@ -13,16 +13,17 @@
 
 ```bash
 
-export AKDC_PAT=YourValidGitHubPAT
+echo "YourValidGitHubPAT" > ~/.ssh/akdc.pat
+chmod 600 ~/.ssh/akdc.pat
 
 ```
 
 - Validate the PAT
 
 ```bash
-rm -rf /workspaces/gitops  
-git clone https://${AKDC_PAT}@github.com/retaildevcrews/edge-gitops /workspaces/gitops
-ls -alF /workspaces/gitops/deploy
+rm -rf /workspaces/edge-gitops  
+git clone https://$(cat ~/.ssh/akdc.pat)@github.com/retaildevcrews/edge-gitops /workspaces/edge-gitops
+ls -alF /workspaces/edge-gitops/deploy
   
 ```
 

@@ -6,8 +6,9 @@ package cmd
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
-	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -37,14 +38,20 @@ func shellExecOut(cmd string) string {
 }
 
 // read the ips file
-func readhostIPs() []string {
-	content, err := ioutil.ReadFile("ips")
+func readHostIPs(grep string) []string {
+	command := "cat ips | sort"
 
-	if err != nil {
-		return nil
+	if grep != "" {
+		err := checkForBadChars(grep, "grep")
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		command += " | grep " + grep
 	}
 
-	lines := strings.Split(string(content), "\n")
+	lines := strings.Split(string(shellExecOut(command)), "\n")
+
 	var ips []string = nil
 
 	for _, line := range lines {
@@ -59,13 +66,12 @@ func readhostIPs() []string {
 }
 
 // run a command on all clusters
-func execClusters(cmd string) {
-	hostIPs := readhostIPs()
+func execClusters(cmd string, grep string) {
+	hostIPs := readHostIPs(grep)
 
 	ch := make(chan string)
 
 	for _, hostIP := range hostIPs {
-		// todo - generalize and pass in function
 		cols := strings.Split(hostIP, "\t")
 
 		if len(cols) > 1 {
@@ -86,4 +92,20 @@ func execCluster(host string, ip string, cmd string, ch chan string) {
 	shellExec(cmd)
 
 	ch <- host
+}
+
+// check for dangerous characters sent to bash
+func checkForBadChars(source string, param string) error {
+
+	if source != "" {
+		badChars := "|&;<>"
+
+		for _, ch := range badChars {
+			if strings.Contains(source, string(ch)) {
+				return errors.New(fmt.Sprintf("Invalid character in parameter %s", param))
+			}
+		}
+	}
+
+	return nil
 }

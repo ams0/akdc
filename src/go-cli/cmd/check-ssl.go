@@ -15,6 +15,6 @@ var checkSslCmd = &cobra.Command{
 	Short: "curl tinybench via https on each server",
 	Long:  `curl tinybench via https on each server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		execClusters("'echo \"$(curl -s https://$(hostname).cseretail.com/tinybench/17)  $(hostname)\"'")
+		execClusters("'echo \"$(curl -s https://$(hostname).cseretail.com/heartbeat/17)  $(hostname)\"'", grep)
 	},
 }

@@ -5,4 +5,5 @@
 
 ## Setup
 
-- This is currently manual setup
+- This is currently a manual setup from the DO portal
+- `create-scripts.sh` will generate the setup script to paste into the `User Data` of the portal

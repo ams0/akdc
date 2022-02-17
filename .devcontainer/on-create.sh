@@ -10,7 +10,7 @@ dotnet restore src/gen-gitops
 {
     # add cli to path
     echo "export PATH=\$PATH:/workspaces/akdc/src/cli"
-    echo "alias mk='cd /workspaces/akdc/src/go-cli && make && cd \$OLDPWD'"
+    echo "alias mk='cd /workspaces/akdc/src/go-cli && make; cd \$OLDPWD'"
 
     # todo - hot fix - this is set to /go upstream
     echo "export GOPATH=\$HOME/go"
@@ -18,8 +18,7 @@ dotnet restore src/gen-gitops
 
 # add akdc completions
 cp src/cli/_akdc "$HOME/.oh-my-zsh/completions"
-unfunction _akdc
-autoload -Uz _akdc
+unfunction _akdc && autoload -Uz _akdc
 compinit
 
 # copy grafana.db to /grafana
@@ -43,5 +42,15 @@ go install github.com/spf13/cobra/cobra@latest
 
 # install golint
 go install golang.org/x/lint/golint@latest
+
+# clone repos
+pushd ..
+git clone https://github.com/microsoft/webvalidate
+git clone https://github.com/microsoft/ngsa-app
+git clone https://github.com/retaildevcrews/edge-apps
+git clone https://github.com/retaildevcrews/edge-gitops
+git clone https://github.com/retaildevcrews/red-apps
+git clone https://github.com/retaildevcrews/red-gitops
+popd || exit
 
 echo "$(date)    on-create complete" >> "$HOME/status"
