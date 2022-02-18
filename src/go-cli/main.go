@@ -4,7 +4,7 @@
 
 package main
 
-import "github.com/spf13/akdc/cmd"
+import "akdc/cmd"
 
 // execute the root command in cmd/root.go
 func main() {

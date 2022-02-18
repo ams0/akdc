@@ -1,4 +1,4 @@
-module github.com/spf13/akdc
+module akdc
 
 go 1.17
 

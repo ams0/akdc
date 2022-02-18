@@ -57,7 +57,7 @@ var testLoadCmd = &cobra.Command{
 // add command specific options
 func init() {
 	testLoadCmd.Flags().StringVarP(&fileLoad, "file", "f", "./webv/benchmark.json", "Test file to use")
-	testLoadCmd.Flags().IntVarP(&duration, "duration", "", 0, "Test duration (seconds)")
+	testLoadCmd.Flags().IntVarP(&duration, "duration", "", 10, "Test duration (seconds)")
 	testLoadCmd.Flags().IntVarP(&delayStart, "delay-start", "", 0, "Delay test start (seconds)")
 	testLoadCmd.Flags().IntVarP(&sleep, "sleep", "l", 0, "Sleep (ms) between each request")
 }

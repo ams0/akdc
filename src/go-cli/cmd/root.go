@@ -68,5 +68,6 @@ func init() {
 	rootCmd.AddCommand(groupsCmd)
 	rootCmd.AddCommand(sshCmd)
 	rootCmd.AddCommand(syncCmd)
+	rootCmd.AddCommand(targetsCmd)
 	rootCmd.AddCommand(testCmd)
 }

@@ -4,6 +4,9 @@
 
 echo "$(date)    post-create start" >> "$HOME/status"
 
+# alias for updating completion
+alias akc='cp /$CODESPACE_VSCODE_FOLDER/$RepositoryName/src/cli/_akdc "$HOME/.oh-my-zsh/completions" && unfunction _akdc && autoload -Uz _akdc'
+
 # save ssl certs
 mkdir -p "$HOME/.ssh"
 echo "$INGRESS_KEY" | base64 -d > "$HOME/.ssh/certs.key"

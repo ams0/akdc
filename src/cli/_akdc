@@ -23,6 +23,7 @@ function _akdc(){
         "groups[show Azure groups]" \
         "ssh[name ssh into a cluster by server name]" \
         "sync[sync (reconcile) flux on each cluster]" \
+        "targets[manage GitOps targets]" \
         "test[run integration or load tests on each cluster]"
     ;;
 
@@ -41,6 +42,9 @@ function _akdc(){
         ;;
         ssh)
           _akdc_ssh
+        ;;
+        targets)
+          _akdc_targets
         ;;
         test)
           _akdc_test
@@ -64,6 +68,27 @@ function _akdc_test(){
         'test commands' \
         'integration[run an integration test on each cluster]' \
         'load[run a load test on each cluster]'
+    ;;
+  esac
+}
+
+function _akdc_targets(){
+  local line state
+
+  _arguments \
+    '1: :->cmds' \
+    '*::arg:->args'
+
+  case $state in
+    # define "sub-commands"
+    cmds)
+      _values \
+        'targets commands' \
+        'add[add a GitOps target]' \
+        'clear[clear all GitOps targets]' \
+        'list[list GitOps targets]' \
+        'push[push the changes to GitHub]' \
+        'remove[remove a GitOps target]'
     ;;
   esac
 }

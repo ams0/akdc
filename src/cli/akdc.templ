@@ -251,47 +251,53 @@ retry_count=0
 
 until [ $status_code == 0 ]; do
 
-    if [ $retry_count -gt 0 ]
-    then
-      echo "$(date)  retrying flux bootstrap - $retry_count" >> status
-      echo "retrying flux bootstrap - $retry_count"
-      sleep $sleep_seconds
-    fi
+  if [ $retry_count -gt 0 ]
+  then
+    flux uninstall -s
+    echo "$(date)  retrying flux bootstrap - $retry_count" >> status
+    echo "retrying flux bootstrap - $retry_count"
+    sleep $sleep_seconds
+  fi
 
-    retry_count=$((retry_count + 1))
+  retry_count=$((retry_count + 1))
 
-    flux bootstrap git \
-    --url https://github.com/{{repo}} \
-    --password $(cat /home/akdc/.ssh/akdc.pat) \
-    --token-auth true \
-    --path ./bootstrap
+  flux bootstrap git \
+  --url https://github.com/{{repo}} \
+  --password $(cat /home/akdc/.ssh/akdc.pat) \
+  --token-auth true \
+  --path ./bootstrap/{{cluster}}
 
-    status_code=$?
+  status_code=$?
+  echo "$(date)  flux bootstrap status code: $status_code" >> status
 
-    echo "flux status code: $status_code"
+  retry_count=$((retry_count - 1))
+  echo "flux retries: $retry_count"
+  echo "$(date)  flux retries: $retry_count" >> status
+
+  flux create source git gitops \
+  --url https://github.com/{{repo}} \
+  --branch main \
+  --password $(cat /home/akdc/.ssh/akdc.pat) \
+
+  flux create kustomization bootstrap \
+  --source GitRepository/gitops \
+  --path ./bootstrap/{{cluster}} \
+  --prune true \
+  --interval 1m
+
+  flux create kustomization apps \
+  --source GitRepository/gitops \
+  --path ./deploy/{{cluster}} \
+  --prune true \
+  --interval 1m
+
+  flux reconcile source git gitops
+
+  kubectl get ns flux-system
+  status_code=$?
+  echo "flux-system ns status code: $status_code"
+  echo "$(date)  flux-system ns status code: $status_code" >> status
 done
-
-retry_count=$((retry_count - 1))
-echo "flux retries: $retry_count" >> /home/akdc/status
-
-flux create source git gitops \
---url https://github.com/{{repo}} \
---branch main \
---password $(cat /home/akdc/.ssh/akdc.pat) \
-
-flux create kustomization bootstrap \
---source GitRepository/gitops \
---path ./bootstrap/{{cluster}} \
---prune true \
---interval 1m
-
-flux create kustomization apps \
---source GitRepository/gitops \
---path ./deploy/{{cluster}} \
---prune true \
---interval 1m
-
-flux reconcile source git gitops
 
 kubectl get pods -A
 

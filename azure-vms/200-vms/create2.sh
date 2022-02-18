@@ -3,6 +3,11 @@
 # change to this directory
 cd "$(dirname "${BASH_SOURCE[0]}")" || exit
 
+akdc create -c east-ga-albany-101 -q -l eastus &
+akdc create -c east-ga-albany-102 -q -l eastus &
+akdc create -c east-ga-albany-103 -q -l eastus &
+akdc create -c east-ga-albany-104 -q -l eastus &
+akdc create -c east-ga-albany-105 -q -l eastus &
 akdc create -c east-nc-charlotte-101 -q -l eastus &
 akdc create -c east-nc-charlotte-102 -q -l eastus &
 akdc create -c east-nc-charlotte-103 -q -l eastus &
