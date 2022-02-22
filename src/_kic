@@ -1,0 +1,83 @@
+#compdef _kic kic
+
+# main function - called via the compdef definition
+function _kic(){
+  local line state
+
+  # the first command will parse into "cmds"
+  _arguments \
+    '--help[Display help and usage]' \
+    '--version[Display version info]' \
+    '1: :->cmds' \
+    '*::arg:->args'
+
+  case $state in
+    # define the top level commands
+    cmds)
+      _values \
+        "commands" \
+        "all[create and bootstrap a local k3d cluster and deploy the apps]" \
+        "app[build and deploy a local sample app]" \
+        "check[check status on the local cluster]" \
+        "clean[remove the apps from the local cluster]" \
+        "create[create a local k3d cluster]" \
+        "delete[delete the local k3d cluster]" \
+        "deploy[deploy the apps to the local cluster]" \
+        "jumpbox[deploy a jumpbox to the local cluster]" \
+        "test[run cluster tests]" \
+        "webv[build and deploy a local WebValidate app]"
+    ;;
+
+   # call the sub-command functions
+    # the function names use "breadcrumb" naming to avoid collision
+    args)
+      case $line[1] in
+        check)
+          _kic_check
+        ;;
+        test)
+          _kic_test
+        ;;
+      esac
+    ;;
+  esac
+}
+
+function _kic_test(){
+  local line state
+
+  _arguments \
+    '1: :->cmds' \
+    '*::arg:->args'
+
+  case $state in
+    # define "sub-commands"
+    cmds)
+      _values \
+        'test commands' \
+        'integration[run an integration test on each cluster]' \
+        'load[run a load test on each cluster]'
+    ;;
+  esac
+}
+
+function _kic_check(){
+  local line state
+
+  _arguments \
+    '1: :->cmds' \
+    '*::arg:->args'
+
+  case $state in
+    # define "sub-commands"
+    cmds)
+      _values \
+        'Check commands' \
+        'all[check status on the local k3d cluster]' \
+        'grafana[check Grafana status on the k3d local cluster]' \
+        'ngsa[check NGSA status on the k3d local cluster]' \
+        'prometheus[check Prometheus status on the k3d local cluster]' \
+        'webv[check WebValidate status on the k3d local cluster]' \
+    ;;
+  esac
+}

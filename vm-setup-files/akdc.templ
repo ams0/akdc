@@ -1,26 +1,32 @@
 #!/bin/sh
 
 ####### do not change these values #######
-export ME=akdc
-export FQDN="{{fqdn}}"
+export AKDC_ME=akdc
+export AKDC_FQDN="{{fqdn}}"
+export AKDC_DEBUG="{{debug}}"
+export AKDC_DAPR="{{debug}}"
+export AKDC_REPO="{{repo}}"
+export AKDC_CLUSTER="{{cluster}}"
 ###################################
 
 export DEBIAN_FRONTEND=noninteractive
 export HOME=/root
 
 ### Needed for Digital Ocean
-useradd -m -s /bin/bash ${ME}
-mkdir -p /home/${ME}/.ssh
-cp /root/.ssh/authorized_keys /home/${ME}/.ssh
+#useradd -m -s /bin/bash ${AKDC_ME}
+#mkdir -p /home/${AKDC_ME}/.ssh
+#cp /root/.ssh/authorized_keys /home/${AKDC_ME}/.ssh
 ### end DO
 
 cp /usr/share/zoneinfo/America/Chicago /etc/localtime
 
-cd /home/${ME} || exit
+cd /home/${AKDC_ME} || exit
 
 echo "$(date +'%Y-%m-%d %H:%M:%S')  starting" >> status
 
-echo "${ME} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/akdc
+echo "${AKDC_ME} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/akdc
+
+touch .sudo_as_admin_successful
 
 # upgrade sshd security
 {
@@ -54,9 +60,11 @@ git config --system core.pager more
 git clone --depth=1 https://github.com/ohmybash/oh-my-bash.git .oh-my-bash
 cp .oh-my-bash/templates/bashrc.osh-template .bashrc
 
-# add to .bashrc
+# add to /etc/bash.bashrc
 # shellcheck disable=2016
 {
+  echo ""
+  echo "shopt -s expand_aliases"
   echo ""
   echo "alias k='kubectl'"
   echo "alias kga='kubectl get all'"
@@ -69,21 +77,24 @@ cp .oh-my-bash/templates/bashrc.osh-template .bashrc
   echo "alias kj='kubectl exec -it jumpbox -- bash -l'"
   echo "alias kje='kubectl exec -it jumpbox -- '"
   echo "alias sync='flux reconcile source git gitops && kubectl get pods -A'"
+  echo "alias ht='http https://\$AKDC_FQDN/heartbeat/17'"
 
   echo ""
-  echo "alias ipconfig='ip -4 a show eth0 | grep inet | sed \"s/inet//g\" | sed \"s/ //g\" | cut -d / -f 1'"
-
-  echo ""
-  echo 'export PIP=$(ipconfig | tail -n 1)'
   echo 'export PATH="$PATH:/usr/local/istio/bin:$HOME/.dotnet/tools:$HOME/go/bin"'
-  echo "export FQDN=$FQDN"
+  echo "export AKDC_CLUSTER=$AKDC_CLUSTER"
+  echo "export AKDC_REPO=$AKDC_REPO"
+  echo "export AKDC_FQDN=$AKDC_FQDN"
+  echo "export AKDC_DEBUG=$AKDC_DEBUG"
 
   echo ""
   echo 'complete -F __start_kubectl k'
   echo 'complete -F __start_kubectl kl'
-} >> .bashrc
+} >> /etc/bash.bashrc
 
-chown -R ${ME}:${ME} /home/${ME}
+# source .bashrc for non-interactive logins
+sed -i "s/\[ -z \"\$PS1\" ] && return//" /etc/bash.bashrc
+
+chown -R ${AKDC_ME}:${AKDC_ME} /home/${AKDC_ME}
 
 # make some system dirs
 mkdir -p /etc/docker
@@ -94,11 +105,12 @@ chown -R 472:0 /grafana
 
 # create / add to groups
 groupadd docker
-usermod -aG sudo ${ME}
-usermod -aG admin ${ME}
-usermod -aG docker ${ME}
-gpasswd -a ${ME} sudo
+usermod -aG sudo ${AKDC_ME}
+usermod -aG admin ${AKDC_ME}
+usermod -aG docker ${AKDC_ME}
+gpasswd -a ${AKDC_ME} sudo
 
+echo "$(date +'%Y-%m-%d %H:%M:%S')  flux retries:" >> status
 echo "$(date +'%Y-%m-%d %H:%M:%S')  installing base" >> status
 apt-get update
 apt-get install -y apt-utils dialog apt-transport-https ca-certificates net-tools
@@ -134,74 +146,6 @@ kubectl completion bash > /etc/bash_completion.d/kubectl
 echo "$(date +'%Y-%m-%d %H:%M:%S')  installing k3d" >> status
 wget -q -O - https://raw.githubusercontent.com/rancher/k3d/main/install.sh | TAG=v4.4.8 bash
 
-echo "$(date +'%Y-%m-%d %H:%M:%S')  creating registry" >> status
-# create local registry
-chown -R ${ME}:${ME} /home/${ME}
-docker network create k3d
-k3d registry create registry.localhost --port 5500
-docker network connect k3d k3d-registry.localhost
-
-echo "$(date +'%Y-%m-%d %H:%M:%S')  creating k3d cluster" >> status
-
-cat << EOF > k3d.yaml
-apiVersion: k3d.io/v1alpha2
-kind: Simple
-servers: 1
-network: k3d
-kubeAPI:
-  hostIP: "0.0.0.0"
-  hostPort: "6443"
-volumes:
-  - volume: /prometheus:/prometheus
-    nodeFilters:
-      - server[0]
-  - volume: /grafana:/grafana
-    nodeFilters:
-      - server[0]
-ports:
-  - port: 443:443
-    nodeFilters:
-      - loadbalancer
-  - port: 80:80 
-    nodeFilters:
-      - loadbalancer
-  - port: 30000:30000
-    nodeFilters:
-      - server[0]
-  - port: 30080:30080
-    nodeFilters:
-      - server[0]
-  - port: 30088:30088
-    nodeFilters:
-      - server[0]
-  - port: 32000:32000
-    nodeFilters:
-      - server[0]
-
-options:
-  k3d:
-    wait: true
-    timeout: "60s"
-  k3s:
-    extraServerArgs:
-      - --tls-san=127.0.0.1
-    extraAgentArgs: []
-  kubeconfig:
-    updateDefaultKubeconfig: true
-    switchCurrentContext: true
-EOF
-
-# change ownership
-chown -R ${ME}:${ME} /home/${ME}
-
-k3d cluster create \
---registry-use k3d-registry.localhost:5500 \
---config k3d.yaml 
-
-# copy kube config file
-cp /root/.kube/config /home/${ME}/.kube/config
-chown -R ${ME}:${ME} /home/${ME}
-
 echo "$(date +'%Y-%m-%d %H:%M:%S')  installing flux" >> status
 curl -s https://fluxcd.io/install.sh | bash
 flux completion bash > /etc/bash_completion.d/flux
@@ -211,7 +155,7 @@ flux completion bash > /etc/bash_completion.d/flux
 #mv istio* istio
 #chmod -R 755 istio
 #cp istio/tools/istioctl.bash /etc/bash_completion.d
-#chown -R ${ME}:${ME} /home/${ME}
+#chown -R ${AKDC_ME}:${AKDC_ME} /home/${AKDC_ME}
 #mv istio /usr/local
 
 echo "$(date +'%Y-%m-%d %H:%M:%S')  installing k9s" >> status
@@ -220,98 +164,84 @@ wget "https://github.com/derailed/k9s/releases/download/${VERSION}/k9s_Linux_x86
 tar -zxvf k9s_Linux_x86_64.tar.gz -C /usr/local/bin
 rm -f k9s_Linux_x86_64.tar.gz
 
+echo "$(date +'%Y-%m-%d %H:%M:%S')  creating registry" >> status
+# create local registry
+chown -R ${AKDC_ME}:${AKDC_ME} /home/${AKDC_ME}
+docker network create k3d
+k3d registry create registry.localhost --port 5500
+docker network connect k3d k3d-registry.localhost
+
 # upgrade Ubuntu
 echo "$(date +'%Y-%m-%d %H:%M:%S')  upgrading" >> status
 apt-get update
 apt-get upgrade -y
 apt-get autoremove -y
 
-echo "$(date +'%Y-%m-%d %H:%M:%S')  waiting for cluster to start" >> status
-kubectl wait node --for condition=ready --all --timeout=30s
+echo "$(date +'%Y-%m-%d %H:%M:%S')  creating k3d cluster" >> status
 
-echo "$(date +'%Y-%m-%d %H:%M:%S')  installing dapr" >> status
-wget -q https://raw.githubusercontent.com/dapr/cli/master/install/install.sh -O - | /bin/bash
-dapr init -k --enable-mtls=false --wait
+# change ownership
+chown -R ${AKDC_ME}:${AKDC_ME} /home/${AKDC_ME}
 
-echo "$(date +'%Y-%m-%d %H:%M:%S')  installing radius" >> status
-wget -q "https://get.radapp.dev/tools/rad/install.sh" -O - | /bin/bash
-rad env init kubernetes -n radius-system
+# wait for k3d.yaml to be copied
+if [ ! -f ./k3d.yaml ]
+then
+  echo "$(date +'%Y-%m-%d %H:%M:%S')  waiting for k3d.yaml" >> status
+  echo "waiting for k3d.yaml"
+  sleep 30
+fi
+
+# change ownership
+chown -R ${AKDC_ME}:${AKDC_ME} /home/${AKDC_ME}
+
+# fail if k3d.yaml isn't present
+if [ ! -f ./k3d.yaml ]
+then
+  echo "$(date +'%Y-%m-%d %H:%M:%S')  k3d.yaml not found" >> status
+  echo "failed (k3d.yaml not found)"
+  exit 1
+fi
+
+k3d cluster create \
+--registry-use k3d-registry.localhost:5500 \
+--config k3d.yaml 
+
+# copy kube config file
+cp /root/.kube/config /home/${AKDC_ME}/.kube/config
+chown -R ${AKDC_ME}:${AKDC_ME} /home/${AKDC_ME}
+
+if [ "$AKDC_DAPR" = "true" ]
+then
+  echo "$(date +'%Y-%m-%d %H:%M:%S')  installing dapr" >> status
+  wget -q https://raw.githubusercontent.com/dapr/cli/master/install/install.sh -O - | /bin/bash
+  dapr init -k --enable-mtls=false --wait
+
+  echo "$(date +'%Y-%m-%d %H:%M:%S')  installing radius" >> status
+  wget -q "https://get.radapp.dev/tools/rad/install.sh" -O - | /bin/bash
+  rad env init kubernetes -n radius-system
+fi
 
 echo "$(date +'%Y-%m-%d %H:%M:%S')  waiting for pods to start" >> status
 kubectl wait pod -l k8s-app=kube-dns -n kube-system --for condition=ready --timeout 30s
 
-echo "$(date +'%Y-%m-%d %H:%M:%S')  flux bootstrap" >> status
+echo "$(date +'%Y-%m-%d %H:%M:%S')  running scripts" >> status
 
-cat << "EOF" > flux-setup.sh
-#!/bin/bash
-
-sleep_seconds=30
-status_code=1
-retry_count=0
-
-until [ $status_code == 0 ]; do
-
-    if [ $retry_count -gt 0 ]
-    then
-      echo "$(date +'%Y-%m-%d %H:%M:%S')  retrying flux bootstrap - $retry_count" >> status
-      echo "retrying flux bootstrap - $retry_count"
-      sleep $sleep_seconds
-    fi
-
-    retry_count=$((retry_count + 1))
-
-    flux bootstrap git \
-    --url https://github.com/{{repo}} \
-    --password $(cat /home/akdc/.ssh/akdc.pat) \
-    --token-auth true \
-    --path ./bootstrap
-
-    status_code=$?
-
-    echo "flux status code: $status_code"
-done
-
-retry_count=$((retry_count - 1))
-echo "flux retries: $retry_count" >> /home/akdc/status
-
-flux create source git gitops \
---url https://github.com/{{repo}} \
---branch main \
---password $(cat /home/akdc/.ssh/akdc.pat) \
-
-flux create kustomization bootstrap \
---source GitRepository/gitops \
---path ./bootstrap/{{cluster}} \
---prune true \
---interval 1m
-
-flux create kustomization apps \
---source GitRepository/gitops \
---path ./deploy/{{cluster}} \
---prune true \
---interval 1m
-
-flux reconcile source git gitops
-
-kubectl get pods -A
-
-EOF
-
-# change ownership
-chmod +x flux-setup.sh
-chmod 600 ~/.ssh/akdc.pat
-chown -R ${ME}:${ME} /home/${ME}
-
-# create the tls secret
-# this has to be installed before flux
-kubectl create secret tls ssl-cert --cert .ssh/certs.pem --key .ssh/certs.key
-
-# remove the certs
-rm -f .ssh/certs.pem
-rm -f .ssh/certs.key
+# run akdc-pre.sh
+if [ -f ./akdc-pre.sh ]
+then
+  ./akdc-pre.sh
+fi
 
 # setup flux
-./flux-setup.sh
+if [ -f ./flux-setup.sh ]
+then
+  ./flux-setup.sh
+fi
+
+# run akdc-post.sh
+if [ -f ./akdc-post.sh ]
+then
+  ./akdc-post.sh
+fi
 
 echo "$(date +'%Y-%m-%d %H:%M:%S')  complete" >> status
 echo "complete" >> status

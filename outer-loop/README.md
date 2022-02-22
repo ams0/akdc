@@ -10,16 +10,13 @@ cd outer-loop
 
 ```
 
-## Create and bootstrap k3d cluster
+## Create the k3d cluster
+
+> kic is the Kubernetes in Codespaces CLI
 
 ```bash
 
-# make all runs
-  # make delete
-  # make create
-  # make bootstrap
-  # make jumpbox
-make all
+kic create
 
 ```
 
@@ -52,29 +49,39 @@ west      ca     sfo
 
 ```
 
-## Other make commands
+## Other CLI commands
 
-- We use make to implement and document various cluster management tasks
+- `kic` implements various cluster management tasks
 
 ```bash
 
-make
+kic
 
 ```
 
 - Output
 
 ```text
+Kubernetes in Codespaces CLI
+
 Usage:
-   make all              - create and bootstrap a cluster and deploy the apps
-   make create           - create a k3d cluster
-   make delete           - delete the k3d cluster
-   make bootstrap        - deploy monitoring and logging
-   make flux             - deploy Flux for GitOps
-   make reconcile        - force Flux reconcile
-   make check            - check the endpoints with curl
-   make test             - run a WebValidate test
-   make load-test        - run a 60 second WebValidate test
-   make jumpbox          - deploy a 'jumpbox' pod
+  kic [command]
+
+Available Commands:
+  all         create and bootstrap a local k3d cluster and deploy the apps
+  app         build and deploy a local app docker image
+  check       check status on the local k3d cluster
+  clean       remove the apps from the local k3d cluster
+  create      create a new local k3d cluster
+  delete      delete the local k3d cluster
+  deploy      deploy the apps to the local k3d cluster
+  jumpbox     deploy a 'jumpbox' to the local k3d cluster
+  test        run cluster tests
+  webv        build and deploy a local WebV docker image
+
+Flags:
+  -h, --help   help for kic
+
+Use "kic [command] --help" for more information about a command.
 
 ```

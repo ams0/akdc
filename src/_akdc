@@ -107,11 +107,11 @@ function _akdc_check(){
         'Check commands' \
         'dapr[check dapr status on each server]' \
         'flux[check flux status on each server]' \
+        'heartbeat[check https heartbeat on each server]' \
         'ngsa[check ngsa status on each server]' \
         'radius[check radius status on each server]' \
         'retries[check flux retries on each server]' \
-        'setup[check setup status on each server]' \
-        'ssl[curl tinybench via https on each server]'
+        'setup[check setup status on each server]'
     ;;
   esac
 }
@@ -120,6 +120,7 @@ function _akdc_create(){
   local line state
   _arguments \
     "--cluster+[Kubernetes cluster name (root)]" \
+    "--debug[Create VM in debug mode]" \
     '--group+[Azure resource group name]' \
     '--key+[Path to SSL .key file (default "~/.ssh/certs.key")]' \
     '--location+[Azure location (default "centralus")]' \

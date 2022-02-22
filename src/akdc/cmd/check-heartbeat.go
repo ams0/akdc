@@ -10,10 +10,10 @@ import (
 
 // checkSslCmd checks each cluster for DNS and SSL setup
 // tinybench is our "heartbeat" application deployed as part of bootstrap
-var checkSslCmd = &cobra.Command{
-	Use:   "ssl",
-	Short: "curl tinybench via https on each server",
-	Long:  `curl tinybench via https on each server`,
+var checkHeartbeatCmd = &cobra.Command{
+	Use:   "heartbeat",
+	Short: "check https heartbeat on each server",
+	Long:  `check https heartbeat on each server`,
 	Run: func(cmd *cobra.Command, args []string) {
 		execClusters("'echo \"$(curl -s https://$(hostname).cseretail.com/heartbeat/17)  $(hostname)\"'", grep)
 	},

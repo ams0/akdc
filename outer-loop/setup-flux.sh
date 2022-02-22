@@ -1,56 +1,37 @@
 #!/bin/bash
 
-if [ -z $AKDC_PAT ]
+if [ ! -f "$HOME/.ssh/akdc.pat" ]
 then
-  echo "Please export AKDC_PAT=ValidGitOpsPAT"
+  echo "Please export AKDC_PAT to $HOME/.ssh/akdc.pat"
   exit 1
 fi
 
 # create variables from command line
-Region=${1:-$REGION}
-State=${2:-$STATE}
-City=${3:-$CITY}
-Number=${4:-$NUMBER}
-District=$Region-$State-$City
-Store=$District-$Number
+Cluster=${1}
 
-if [ -z $Region ] || [ -z $State ] || [ -z $City ] || [ -z $Number ]
+if [ -z "$Cluster" ]
 then
-  echo "Usage: $0 Region State City Number"
+  echo "Usage: $0 ClusterName"
   exit 1
 fi
 
 # bootstrap flux
 flux bootstrap git \
---url=https://github.com/retaildevcrews/edge-gitops \
---password=$AKDC_PAT \
---token-auth=true \
---path=./deploy/$Store
+--url https://github.com/retaildevcrews/edge-gitops \
+--password "$(cat "$HOME"/.ssh/akdc.pat)" \
+--token-auth true \
+--path "./dev/$Cluster"
 
 # add the GitOps repo
 flux create source git gitops \
---url=https://github.com/retaildevcrews/edge-gitops \
---branch=main \
---password $AKDC_PAT
+--url https://github.com/retaildevcrews/edge-gitops \
+--branch main \
+--password "$(cat "$HOME"/.ssh/akdc.pat)"
 
-# add the store kustomization
-flux create kustomization store \
+# add the apps kustomization
+flux create kustomization apps \
 --source GitRepository/gitops \
---path=./deploy/$Store \
---prune true \
---interval 1m
-
-# add the district kustomization
-flux create kustomization district \
---source GitRepository/gitops \
---path=./deploy/$District \
---prune true \
---interval 1m
-
-# add the region kustomization
-flux create kustomization region \
---source GitRepository/gitops \
---path=./deploy/$Region \
+--path "./apps/$Cluster" \
 --prune true \
 --interval 1m
 

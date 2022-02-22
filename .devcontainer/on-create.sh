@@ -2,24 +2,34 @@
 
 # this runs as part of pre-build
 
-echo "$(date)    on-create start" >> "$HOME/status"
+echo "$(date +'%Y-%m-%d %H:%M:%S')    on-create start" >> "$HOME/status"
 
 # do this early to avoid the popup
 dotnet restore src/gen-gitops
 
+export REPO_BASE=$PWD
+
+mkdir -p "$HOME/.ssh"
+mkdir -p "$HOME/.oh-my-zsh/completions"
+
+# add cli completions
+cp src/_* "$HOME/.oh-my-zsh/completions"
+
 {
     # add cli to path
-    echo "export PATH=\$PATH:/workspaces/akdc/src/cli"
-    echo "alias mk='cd /workspaces/akdc/src/go-cli && make; cd \$OLDPWD'"
+    echo "export PATH=\$PATH:$REPO_BASE/bin"
 
-    # todo - hot fix - this is set to /go upstream
+    # create aliases
+    echo "alias ma='cd $REPO_BASE/src/akdc && make; cd \$OLDPWD'"
+    echo "alias mk='cd $REPO_BASE/src/kic && make; cd \$OLDPWD'"
+    echo "alias akc='cp $REPO_BASE/src/_akdc ~/.oh-my-zsh/completions && unfunction _akdc && autoload -Uz _akdc'"
+    echo "alias kicc='cp $REPO_BASE/src/_kic ~/.oh-my-zsh/completions && unfunction _kic; autoload -Uz _kic'"
+
+    echo "export REPO_BASE=$PWD"
+    echo "compinit"
+
     echo "export GOPATH=\$HOME/go"
 } >> "$HOME/.zshrc"
-
-# add akdc completions
-cp src/cli/_akdc "$HOME/.oh-my-zsh/completions"
-unfunction _akdc && autoload -Uz _akdc
-compinit
 
 # copy grafana.db to /grafana
 sudo cp inner-loop/grafanadata/grafana.db /grafana
@@ -53,4 +63,4 @@ git clone https://github.com/retaildevcrews/red-apps
 git clone https://github.com/retaildevcrews/red-gitops
 popd || exit
 
-echo "$(date)    on-create complete" >> "$HOME/status"
+echo "$(date +'%Y-%m-%d %H:%M:%S')    on-create complete" >> "$HOME/status"

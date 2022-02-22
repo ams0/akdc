@@ -18,11 +18,11 @@ var checkCmd = &cobra.Command{
 func init() {
 	checkCmd.AddCommand(daprCmd)
 	checkCmd.AddCommand(checkFluxCmd)
+	checkCmd.AddCommand(checkHeartbeatCmd)
 	checkCmd.AddCommand(checkNgsaCmd)
 	checkCmd.AddCommand(checkRadiusCmd)
 	checkCmd.AddCommand(checkRetriesCmd)
 	checkCmd.AddCommand(checkSetupCmd)
-	checkCmd.AddCommand(checkSslCmd)
 	checkCmd.PersistentFlags().String("async", "a", "run checks asynchronously")
 
 	checkCmd.PersistentFlags().StringVarP(&grep, "grep", "g", "", "grep conditional to filter by host")

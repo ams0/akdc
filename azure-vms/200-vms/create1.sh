@@ -83,6 +83,12 @@ akdc create -c central-tx-west-102 -q -l centralus &
 akdc create -c central-tx-west-103 -q -l centralus &
 akdc create -c central-tx-west-104 -q -l centralus &
 akdc create -c central-tx-west-105 -q -l centralus &
+
+akdc create -c east-ga-albany-101 -q -l eastus &
+akdc create -c east-ga-albany-102 -q -l eastus &
+akdc create -c east-ga-albany-103 -q -l eastus &
+akdc create -c east-ga-albany-104 -q -l eastus &
+akdc create -c east-ga-albany-105 -q -l eastus &
 akdc create -c east-ga-athens-101 -q -l eastus &
 akdc create -c east-ga-athens-102 -q -l eastus &
 akdc create -c east-ga-athens-103 -q -l eastus &
@@ -98,8 +104,3 @@ akdc create -c east-ga-north-102 -q -l eastus &
 akdc create -c east-ga-north-103 -q -l eastus &
 akdc create -c east-ga-north-104 -q -l eastus &
 akdc create -c east-ga-north-105 -q -l eastus &
-akdc create -c east-ga-south-101 -q -l eastus &
-akdc create -c east-ga-south-102 -q -l eastus &
-akdc create -c east-ga-south-103 -q -l eastus &
-akdc create -c east-ga-south-104 -q -l eastus &
-akdc create -c east-ga-south-105 -q -l eastus &

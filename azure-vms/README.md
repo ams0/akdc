@@ -48,7 +48,7 @@ akdc create -c central-tx-dallas-105 -l centralus
 
 - Run until `complete` is the status for each server
   - akdc is our CLI
-    - Add src/cli to your path
+    - Add $REPO_ROOT/bin to your path
       - Our Codespaces install does this automatically
 
         ```bash

@@ -2,5 +2,5 @@
 
 build :
 	@gofmt -s -w .
-	@go build -o ../cli/akdc main.go
+	@go build -o ../../bin/akdc main.go
 	# build complete

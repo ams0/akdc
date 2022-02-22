@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# change to this directory
+#cd "$(dirname "${BASH_SOURCE[0]}")" || exit
+
+kubectl apply -f deploy/ngsa-memory
+
+# deploy prometheus, grafana, and fluent bit
+kubectl apply -f ../deploy/bootstrap
+kubectl apply -R -f ../deploy/bootstrap
+
+# deploy WebV after the app starts
+kubectl wait pod ngsa-memory --for condition=ready --timeout=60s
+kubectl apply -f deploy/webv
+kubectl wait pod webv --for condition=ready --timeout=30s

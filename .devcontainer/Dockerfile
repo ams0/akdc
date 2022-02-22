@@ -7,10 +7,13 @@ FROM ghcr.io/cse-labs/k3d:latest
 ARG USERNAME=vscode
 
 # log docker build start
-RUN echo "$(date)    docker build start" >> "/home/${USERNAME}/status"
+RUN echo "$(date +'%Y-%m-%d %H:%M:%S')    docker build start" >> "/home/${USERNAME}/status"
+
+RUN apt-get update && \
+    apt-get upgrade -y
 
 # change ownership
 RUN chown -R ${USERNAME}:${USERNAME} "/home/${USERNAME}"
 
 # log completion - make sure this is last
-RUN echo "$(date)    docker build complete" >> "/home/${USERNAME}/status"
+RUN echo "$(date +'%Y-%m-%d %H:%M:%S')    docker build complete" >> "/home/${USERNAME}/status"

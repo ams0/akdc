@@ -12,6 +12,7 @@ import (
 
 // option variables
 // common across several commands
+var debug bool
 var dryRun bool
 var region string
 var tag string
