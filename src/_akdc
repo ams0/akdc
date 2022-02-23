@@ -108,6 +108,7 @@ function _akdc_check(){
         'dapr[check dapr status on each server]' \
         'flux[check flux status on each server]' \
         'heartbeat[check https heartbeat on each server]' \
+        'logs[display the setup logs on each server]' \
         'ngsa[check ngsa status on each server]' \
         'radius[check radius status on each server]' \
         'retries[check flux retries on each server]' \
@@ -127,8 +128,7 @@ function _akdc_create(){
     '--pem+[Path to SSL .pem file (default "~/.ssh/certs.pem")]' \
     '--quiet[Quiet mode]' \
     '--repo+[GitOps repo name (default "retaildevcrews/edge-gitops")]' \
-    '--ssl[Use SSL cert (must specify --zone)]' \
-    '--zone+[DNS domain name]' \
+    '--ssl[SSL domain name]' \
     '1: :->cmds' \
     '*: :->args'
 
@@ -143,8 +143,7 @@ function _akdc_create(){
         '--pem+[Path to SSL .pem file (default "~/.ssh/certs.pem")]' \
         '--quiet[Quiet mode]' \
         '--repo+[GitOps repo name (default "retaildevcrews/edge-gitops")]' \
-        '--ssl[Use SSL cert (must specify --zone)]' \
-        '--zone+[DNS domain name]' \
+        '--ssl[SSL domain name' \
         '1: :->cmds' \
         '*: :->args'
     ;;

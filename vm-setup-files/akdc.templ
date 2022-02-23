@@ -80,13 +80,14 @@ cp .oh-my-bash/templates/bashrc.osh-template .bashrc
   echo "alias ht='http https://\$AKDC_FQDN/heartbeat/17'"
 
   echo ""
-  echo 'export PATH="$PATH:/usr/local/istio/bin:$HOME/.dotnet/tools:$HOME/go/bin"'
+  echo 'export PATH="$PATH:$HOME/bin"'
   echo "export AKDC_CLUSTER=$AKDC_CLUSTER"
   echo "export AKDC_REPO=$AKDC_REPO"
   echo "export AKDC_FQDN=$AKDC_FQDN"
   echo "export AKDC_DEBUG=$AKDC_DEBUG"
 
   echo ""
+  echo "if [ -f /home/akdc/.oh.my.bash/completion/kic ]; then source /home/akdc/.oh.my.bash/completion/kic; fi"
   echo 'complete -F __start_kubectl k'
   echo 'complete -F __start_kubectl kl'
 } >> /etc/bash.bashrc
@@ -193,35 +194,19 @@ fi
 # change ownership
 chown -R ${AKDC_ME}:${AKDC_ME} /home/${AKDC_ME}
 
-# fail if k3d.yaml isn't present
-if [ ! -f ./k3d.yaml ]
+# run setup-k3d.sh
+if [ ! -f ./setup-k3d.sh ]
 then
   echo "$(date +'%Y-%m-%d %H:%M:%S')  k3d.yaml not found" >> status
-  echo "failed (k3d.yaml not found)"
+  echo "k3d.yaml not found"
   exit 1
 fi
 
-k3d cluster create \
---registry-use k3d-registry.localhost:5500 \
---config k3d.yaml 
+./setup-k3d.sh
 
 # copy kube config file
 cp /root/.kube/config /home/${AKDC_ME}/.kube/config
 chown -R ${AKDC_ME}:${AKDC_ME} /home/${AKDC_ME}
-
-if [ "$AKDC_DAPR" = "true" ]
-then
-  echo "$(date +'%Y-%m-%d %H:%M:%S')  installing dapr" >> status
-  wget -q https://raw.githubusercontent.com/dapr/cli/master/install/install.sh -O - | /bin/bash
-  dapr init -k --enable-mtls=false --wait
-
-  echo "$(date +'%Y-%m-%d %H:%M:%S')  installing radius" >> status
-  wget -q "https://get.radapp.dev/tools/rad/install.sh" -O - | /bin/bash
-  rad env init kubernetes -n radius-system
-fi
-
-echo "$(date +'%Y-%m-%d %H:%M:%S')  waiting for pods to start" >> status
-kubectl wait pod -l k8s-app=kube-dns -n kube-system --for condition=ready --timeout 30s
 
 echo "$(date +'%Y-%m-%d %H:%M:%S')  running scripts" >> status
 

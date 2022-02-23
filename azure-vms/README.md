@@ -69,9 +69,9 @@ akdc check flux
 
 ## Setup DNS and SSL
 
-- A DNS zone and SSL cert can be used with the cluster setup to provide an ingress for http and https access to the clusters
-- In order to use a zone, you must specify --zone with a zone name
-  - `akdc` assumes the zone is both a domain and also an Azure Zone name
+- A DNS domain and SSL cert can be used with the cluster setup to provide an ingress for http and https access to the clusters
+- In order to use a DNS, you must specify --ssl with a domain name
+  - `akdc` assumes the --ssl param is both a domain and also an Azure DNS domain name
 
 ## Add ssl certs
 
@@ -87,10 +87,10 @@ akdc check flux
 
   ```bash
 
-  # change to your DNS zone
+  # change to your DNS domain name
   export AKDC_ZONE=cseretail.com
 
-  akdc create west-ca-east-105 -l westus --zone "$AKDC_ZONE" --ssl
+  akdc create west-ca-east-105 -l westus --ssl "$AKDC_ZONE"
 
   ```
 

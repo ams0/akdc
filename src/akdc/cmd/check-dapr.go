@@ -9,7 +9,7 @@ import (
 )
 
 // daprCmd represents the dapr command
-var daprCmd = &cobra.Command{
+var checkDaprCmd = &cobra.Command{
 	Use:   "dapr",
 	Short: "check dapr status on each cluster",
 	Long:  `check dapr status on each cluster`,

@@ -31,6 +31,7 @@ func init() {
 	rootCmd.AddCommand(jumpboxCmd)
 	rootCmd.AddCommand(appCmd)
 	rootCmd.AddCommand(webvCmd)
+	rootCmd.AddCommand(syncCmd)
 
 	rootCmd.AddCommand(checkCmd)
 	rootCmd.AddCommand(testCmd)
@@ -117,6 +118,7 @@ var cleanCmd = addExecCommand("clean", "Remove the apps from the local k3d clust
 var jumpboxCmd = addExecCommand("jumpbox", "Deploy a 'jumpbox' to the local k3d cluster")
 var appCmd = addExecCommand("app", "Build and deploy a local NGSA docker image")
 var webvCmd = addExecCommand("webv", "Build and deploy a local WebV docker image")
+var syncCmd = addExecCommand("sync", "Force Flux to sync (reconcile) to the local cluster")
 
 func addParentCommand(name string, description string) *cobra.Command {
 	parentCmd := &cobra.Command{

@@ -29,7 +29,7 @@ var repo string
 var pem string
 var key string
 var quiet bool
-var ssl bool
+var ssl string
 
 // mainly for test commands
 var verbose bool

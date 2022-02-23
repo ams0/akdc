@@ -20,10 +20,17 @@ cp src/_* "$HOME/.oh-my-zsh/completions"
     echo "export PATH=\$PATH:$REPO_BASE/bin"
 
     # create aliases
+    # make akdc
     echo "alias ma='cd $REPO_BASE/src/akdc && make; cd \$OLDPWD'"
+
+    # make kic
     echo "alias mk='cd $REPO_BASE/src/kic && make; cd \$OLDPWD'"
-    echo "alias akc='cp $REPO_BASE/src/_akdc ~/.oh-my-zsh/completions && unfunction _akdc && autoload -Uz _akdc'"
-    echo "alias kicc='cp $REPO_BASE/src/_kic ~/.oh-my-zsh/completions && unfunction _kic; autoload -Uz _kic'"
+
+    # reload completions
+    echo "alias rec='cp $REPO_BASE/src/_* ~/.oh-my-zsh/completions && unfunction _akdc; unfunction _kic; autoload -Uz _akdc; autoload -Uz _kic'"
+    
+    # build kic2
+    echo "alias k2='cd /workspaces/akdc/src/kic2 && make; cd $OLDPWD'"
 
     echo "export REPO_BASE=$PWD"
     echo "compinit"
@@ -56,7 +63,7 @@ go install golang.org/x/lint/golint@latest
 # clone repos
 pushd ..
 git clone https://github.com/microsoft/webvalidate
-git clone https://github.com/microsoft/ngsa-app
+git clone https://github.com/retaildevcrews/ngsa-app
 git clone https://github.com/retaildevcrews/edge-apps
 git clone https://github.com/retaildevcrews/edge-gitops
 git clone https://github.com/retaildevcrews/red-apps

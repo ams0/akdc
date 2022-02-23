@@ -24,6 +24,7 @@ function _kic(){
         "delete[delete the local k3d cluster]" \
         "deploy[deploy the apps to the local cluster]" \
         "jumpbox[deploy a jumpbox to the local cluster]" \
+        "sync[force Flux to sync (reconcile) to the local cluster]" \
         "test[run cluster tests]" \
         "webv[build and deploy a local WebValidate app]"
     ;;

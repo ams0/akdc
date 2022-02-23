@@ -29,27 +29,22 @@ var createCmd = &cobra.Command{
 			return fmt.Errorf("Please export your GitOps PAT to %s before running akdc create", pat)
 		}
 
-		// validate ssl and dns
-		if ssl && zone == "" {
-			return fmt.Errorf("you must specify --zone to use --ssl")
-		}
-
-		if ssl && pem == "" {
-			return fmt.Errorf("you must specify --pem to use --ssl")
-		}
-
-		if ssl && key == "" {
-			return fmt.Errorf("you must specify --key to use --ssl")
-		}
-
-		// simple zone validation
-		if zone != "" {
-			if len(zone) < 3 {
-				return fmt.Errorf("invalid --zone")
+		// validate ssl and domain
+		if ssl != "" {
+			if pem == "" {
+				return fmt.Errorf("you must specify --pem to use --ssl")
 			}
 
-			if !strings.Contains(zone, ".") {
-				return fmt.Errorf("invalid --zone")
+			if key == "" {
+				return fmt.Errorf("you must specify --key to use --ssl")
+			}
+
+			if len(ssl) < 3 {
+				return fmt.Errorf("invalid --ssl")
+			}
+
+			if !strings.Contains(ssl, ".") {
+				return fmt.Errorf("invalid --ssl")
 			}
 		}
 
@@ -62,6 +57,13 @@ var createCmd = &cobra.Command{
 	},
 
 	Run: func(cmd *cobra.Command, args []string) {
+		// fail if the Azure Resource Group exists
+		if groupExists() {
+			cfmt.Error("Azure Resource Group exists")
+			fmt.Println("\nPlease use a different group or delete the group")
+			return
+		}
+
 		// create the azure resource group
 		createGroup()
 
@@ -87,6 +89,12 @@ var createCmd = &cobra.Command{
 	},
 }
 
+// check to see if the Azure Resource Group exists
+func groupExists() bool {
+	ex := shellExecOut("az group exists -g " + cluster)
+	return strings.HasPrefix(ex, "true")
+}
+
 var dapr bool
 
 // add akdc create specific flags
@@ -96,8 +104,7 @@ func init() {
 	createCmd.Flags().StringVarP(&group, "group", "g", "", "Azure resource group name")
 	createCmd.Flags().StringVarP(&location, "location", "l", "centralus", "Azure location")
 	createCmd.Flags().StringVarP(&repo, "repo", "r", "retaildevcrews/edge-gitops", "GitOps repo name")
-	createCmd.Flags().StringVarP(&zone, "zone", "z", "", "DNS domain name")
-	createCmd.Flags().BoolVarP(&ssl, "ssl", "s", false, "Use SSL cert (must specify --zone)")
+	createCmd.Flags().StringVarP(&ssl, "ssl", "s", "", "SSL domain name")
 	createCmd.Flags().StringVarP(&pem, "pem", "p", "~/.ssh/certs.pem", "Path to SSL .pem file")
 	createCmd.Flags().StringVarP(&key, "key", "k", "~/.ssh/certs.key", " Path to SSL .key file")
 	createCmd.Flags().BoolVarP(&dapr, "dapr", "", false, "Install Dapr and Radius")
@@ -128,8 +135,8 @@ func createGroup() {
 
 	rgTags := "akdc=true server=" + cluster
 
-	if zone != "" {
-		rgTags += " zone=" + zone
+	if ssl != "" {
+		rgTags += " zone=" + ssl
 	}
 
 	command := "az group create -l " + location + " -n " + group + " -o table --tags " + rgTags
@@ -153,7 +160,7 @@ func createVMSetupScript() {
 	command = strings.Replace(command, "{{cluster}}", cluster, -1)
 	command = strings.Replace(command, "{{dapr}}", strconv.FormatBool(dapr), -1)
 	command = strings.Replace(command, "{{debug}}", strconv.FormatBool(debug), -1)
-	command = strings.Replace(command, "{{fqdn}}", cluster+"."+zone, -1)
+	command = strings.Replace(command, "{{fqdn}}", cluster+"."+ssl, -1)
 	command = strings.Replace(command, "{{repo}}", repo, -1)
 	os.WriteFile("cluster-"+cluster+".sh", []byte(command), 0644)
 }
@@ -222,19 +229,19 @@ func createVM() string {
 
 // create DNS entry and copy SSL certs
 func createDNS(ip string) {
-	if zone != "" {
+	if ssl != "" {
 		cfmt.Info("Creating DNS Entry")
 
 		command := "az network dns record-set a list \\\n"
 		command += "--query \"[?name=='" + cluster + "'].{IP:aRecords}\" \\\n"
 		command += "--resource-group tld \\\n"
-		command += "--zone-name " + zone + " -o json | jq -r '.[].IP[].ipv4Address'"
+		command += "--zone-name " + ssl + " -o json | jq -r '.[].IP[].ipv4Address'"
 
 		oldIP := strings.TrimSpace(shellExecOut(command))
 
 		command = "az network dns record-set a add-record \\\n"
 		command += "-g tld \\\n"
-		command += "-z " + zone + " \\\n"
+		command += "-z " + ssl + " \\\n"
 		command += "-n " + cluster + " \\\n"
 		command += "-a " + ip + " \\\n"
 		command += "--ttl 10 -o table"
@@ -245,7 +252,7 @@ func createDNS(ip string) {
 
 			command = "az network dns record-set a remove-record \\\n"
 			command += "-g tld \\\n"
-			command += "-z " + zone + " \\\n"
+			command += "-z " + ssl + " \\\n"
 			command += "-n " + cluster + " \\\n"
 			command += "-a " + oldIP + " -o table"
 			shellExecOut(command)
@@ -254,7 +261,7 @@ func createDNS(ip string) {
 }
 
 // copy the files to the VM
-func scpFilesToVM(ip string, ssl bool) {
+func scpFilesToVM(ip string, ssl string) {
 	cfmt.Info("Waiting for sshd service to start")
 
 	// wait for sshd to start
@@ -268,7 +275,7 @@ func scpFilesToVM(ip string, ssl bool) {
 	scpToVM(ip, getParentDir()+"/vm-setup-files/akdc", "/home", 30, true)
 	scpToVM(ip, "~/.ssh/akdc.pat", "~/.ssh/akdc.pat", 30, false)
 
-	if ssl {
+	if ssl != "" {
 		scpToVM(ip, "~/.ssh/certs.pem", "~/.ssh/certs.pem", 30, false)
 		scpToVM(ip, "~/.ssh/certs.key", "~/.ssh/certs.key", 30, false)
 	}

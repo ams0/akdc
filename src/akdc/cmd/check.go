@@ -16,9 +16,10 @@ var checkCmd = &cobra.Command{
 }
 
 func init() {
-	checkCmd.AddCommand(daprCmd)
+	checkCmd.AddCommand(checkDaprCmd)
 	checkCmd.AddCommand(checkFluxCmd)
 	checkCmd.AddCommand(checkHeartbeatCmd)
+	checkCmd.AddCommand(checkLogsCmd)
 	checkCmd.AddCommand(checkNgsaCmd)
 	checkCmd.AddCommand(checkRadiusCmd)
 	checkCmd.AddCommand(checkRetriesCmd)
