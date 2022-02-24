@@ -26,12 +26,6 @@ cp src/_* "$HOME/.oh-my-zsh/completions"
     # make kic
     echo "alias mk='cd $REPO_BASE/src/kic && make; cd \$OLDPWD'"
 
-    # reload completions
-    echo "alias rec='cp $REPO_BASE/src/_* ~/.oh-my-zsh/completions && unfunction _akdc; unfunction _kic; autoload -Uz _akdc; autoload -Uz _kic'"
-    
-    # build kic-vm
-    echo "alias k2='cd /workspaces/akdc/src/kic-vm && make; cd \$OLDPWD'"
-
     echo "export REPO_BASE=$PWD"
     echo "compinit"
 

@@ -7,13 +7,14 @@ package cmd
 import (
 	"akdc/cfmt"
 	"fmt"
-	"github.com/spf13/cobra"
 	"log"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/spf13/cobra"
 )
 
 var createCmd = &cobra.Command{
@@ -96,6 +97,7 @@ func groupExists() bool {
 }
 
 var dapr bool
+var arcEnabled bool
 
 // add akdc create specific flags
 func init() {
@@ -110,6 +112,7 @@ func init() {
 	createCmd.Flags().BoolVarP(&dapr, "dapr", "", false, "Install Dapr and Radius")
 	createCmd.Flags().BoolVarP(&quiet, "quiet", "q", false, "Quiet mode")
 	createCmd.Flags().BoolVarP(&debug, "debug", "d", false, "Create VM in debug mode")
+	createCmd.Flags().BoolVarP(&arcEnabled, "arc", "a", false, "Connect kubernetes cluster to Azure via Azure ARC")
 }
 
 // get the path to the executable's parent
@@ -140,7 +143,11 @@ func createGroup() {
 	}
 
 	command := "az group create -l " + location + " -n " + group + " -o table --tags " + rgTags
-	shellExec(command)
+
+	err := shellExecE(command)
+	if err != nil {
+		cfmt.ExitError(err)
+	}
 }
 
 // create vm setup script
@@ -162,12 +169,15 @@ func createVMSetupScript() {
 	command = strings.Replace(command, "{{debug}}", strconv.FormatBool(debug), -1)
 	command = strings.Replace(command, "{{fqdn}}", cluster+"."+ssl, -1)
 	command = strings.Replace(command, "{{repo}}", repo, -1)
+	command = strings.Replace(command, "{{group}}", group, -1)
+	command = strings.Replace(command, "{{arcEnabled}}", strconv.FormatBool(arcEnabled), -1)
 	os.WriteFile("cluster-"+cluster+".sh", []byte(command), 0644)
 }
 
 // create Azure VM
 func createVM() string {
 	cfmt.Info("Creating Azure VM")
+	managedIdentityID := os.Getenv("AKDC_MI")
 
 	// create the setup script from the template
 	createVMSetupScript()
@@ -177,6 +187,10 @@ func createVM() string {
 	command += " -l " + location + " \\\n"
 	command += " -n " + cluster + " \\\n"
 	command += " --admin-username akdc \\\n"
+	if managedIdentityID != "" {
+		cfmt.Info("Found Managed Identity - assigning MI to VM")
+		command += " --assign-identity " + managedIdentityID + "\\\n"
+	}
 	command += " --size standard_D2as_v5 \\\n"
 	command += " --image Canonical:0001-com-ubuntu-server-focal:20_04-lts-gen2:latest \\\n"
 	command += " --os-disk-size-gb 128 \\\n"

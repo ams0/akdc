@@ -3,32 +3,32 @@ kicModule
 	check
 	Check status on the local k3d cluster
 
-kicCommand
+kicRunCommand
 	flux
 	Check Flux status on the local cluster
-	flux get kustomization
+	check-flux
 
-kicCommand
+kicRunCommand
 	heartbeat
 	Check heartbeat service on the local cluster
-	http https://$AKDC_FQDN/heartbeat/17
+	check-heartbeat
 
-kicCommand
+kicRunCommand
 	logs
-	Check Flux status on the local cluster
-	cat /var/log/cloud-init-output.log
+	Check logs on the local cluster
+	check-logs
 
-kicCommand
+kicRunCommand
 	ngsa
 	Check NGSA status on the local cluster
-	kubectl get po -n ngsa | grep ngsa
+	check-ngsa
 
-kicCommand
+kicRunCommand
 	setup
 	Check setup status on the local cluster
-	cat ~/status
+	check-setup
 
-kicCommand
+kicRunCommand
 	webv
 	Check WebV status on the local cluster
-	kubectl get po -n ngsa | grep webv
+	check-webv

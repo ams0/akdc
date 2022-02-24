@@ -3,4 +3,4 @@
 # change to this directory
 #cd "$(dirname "${BASH_SOURCE[0]}")" || exit
 
-git clone https://"$(cat ~/.ssh/akdc.pat)@github.com/${AKDC_REPO}" ~/gitops
+flux get kustomization

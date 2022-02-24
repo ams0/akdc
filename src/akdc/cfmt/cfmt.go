@@ -2,6 +2,8 @@ package cfmt
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
 	"runtime"
 )
 
@@ -25,6 +27,14 @@ func Info(msg ...interface{}) {
 func Error(msg ...interface{}) {
 	fmt.Print(Red)
 	fmt.Println(msg)
+	fmt.Print(Reset)
+}
+
+func ExitError(err error) {
+	fmt.Print(Red)
+	exitError := err.(*exec.ExitError)
+	fmt.Println(exitError)
+	os.Exit(2)
 	fmt.Print(Reset)
 }
 

@@ -71,4 +71,5 @@ func init() {
 	rootCmd.AddCommand(syncCmd)
 	rootCmd.AddCommand(targetsCmd)
 	rootCmd.AddCommand(testCmd)
+	rootCmd.AddCommand(getCmd)
 }

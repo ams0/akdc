@@ -30,7 +30,7 @@
 	// add labels
 	"portsAttributes": {
 		"30000": { "label": "Prometheus" },
-		"30080": { "label": "ngsa-app" },
+		"30080": { "label": "NGSA" },
 		"30088": { "label": "WebV" },
 		"32000": { "label": "Grafana" },
 	},
@@ -44,7 +44,9 @@
 		"gruntfuggly.todo-tree",
 		"mutantdino.resourcemonitor",
 		"humao.rest-client",
-		"timonwong.shellcheck"
+		"timonwong.shellcheck",
+		"golang.go"
+
 	],
 
 	"waitFor": "postCreateCommand",

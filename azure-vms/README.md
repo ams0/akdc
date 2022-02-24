@@ -118,3 +118,56 @@ akdc check flux
   # Edit or delete your ips file to remove the IP address
 
   ```
+
+## Azure ARC
+
+This project creates k3d clusters that are [Azure ARC enabled.](https://docs.microsoft.com/en-us/azure/azure-arc/kubernetes/overview)
+
+A service account named admin-user is provisioned during the create cluster process. This functionality provides a token that can be used to view Kubernetes workloads in the azure portal.
+
+To fetch the admin user token:
+
+- Create a cluster using akdc
+- Wait until the cluster setup is complete and `akdc check setup` shows `complete.`
+- Invoke `akdc get token` and not the token associated with the server that was just created.
+
+```shell
+
+$ akdc get token                     
+
+west-ca-east-104 - <token>
+```
+
+To view Kubernetes workloads in the portal:
+
+- Naviate to [the Azure Portal](https://portal.azure.com/.)
+- Go to the Kubernetes services Resource Type
+- Select the ARC enabled kubernetes cluster (eg. west-ca-east-104)
+- Under "Kubernetes resources (preview)", select Namespaces.
+- Paste the token collected from above `akdc get token` for the corresponding server.
+- Note: Each cluster/server will have a unique token and the session remains valid as long as the portal tab/window is open. If the tab is closed, the token will have to be fetched and provided to the portal again.
+
+- Once the token is validated, namespaces and other kubernetes resources will be available in the portal for that specific cluster.
+
+ ![Azure ARC k3d workloads](/assets/images/arc.png)
+
+## Debugging akdc
+
+The akdc tooling is built as go command line tool using the [cobra library](https://github.com/spf13/cobra). Included in this repo is a launch.json file as well as the go extension for vscode , which is included in the dev container/code space configuration.
+
+In order to debug, open this repo in a code space or vs code dev container. If prompted install the go cli tools by clicking the green "Install" button in vs code.
+
+[launch.json](../.vscode/launch.json) contains an args section. This is for passing in command line arguments normally used in the shell.
+
+Each argument should be on a separate line. For example the configuration corresponding to `akdc get token` would be:
+
+```json
+      "args": [
+        "get",
+        "token"
+      ]
+```
+
+At this point you can set a breakpoint at the desired location of the akdc go code and invoke the debugger using the F5 key.
+
+ ![Debug adkc go code](/assets/images/debug-akdc.png)

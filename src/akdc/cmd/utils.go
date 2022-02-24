@@ -25,6 +25,17 @@ func shellExec(cmd string) {
 	shell.Run()
 }
 
+// execute a bash command
+func shellExecE(cmd string) error {
+	shell := exec.Command("bash", "-c", cmd)
+
+	shell.Stdin = os.Stdin
+	shell.Stdout = os.Stdout
+	shell.Stderr = os.Stderr
+
+	return shell.Run()
+}
+
 // execute a bash command and return stdout
 func shellExecOut(cmd string) string {
 	shell := exec.Command("bash", "-c", cmd)

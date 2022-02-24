@@ -4,9 +4,11 @@
 export AKDC_ME=akdc
 export AKDC_FQDN="{{fqdn}}"
 export AKDC_DEBUG="{{debug}}"
-export AKDC_DAPR="{{debug}}"
+export AKDC_DAPR="{{dapr}}"
 export AKDC_REPO="{{repo}}"
 export AKDC_CLUSTER="{{cluster}}"
+export AKDC_ARC_ENABLED="{{arcEnabled}}"
+export AKDC_RESOURCE_GROUP="{{group}}"
 ###################################
 
 export DEBIAN_FRONTEND=noninteractive
@@ -85,6 +87,8 @@ cp .oh-my-bash/templates/bashrc.osh-template .bashrc
   echo "export AKDC_REPO=$AKDC_REPO"
   echo "export AKDC_FQDN=$AKDC_FQDN"
   echo "export AKDC_DEBUG=$AKDC_DEBUG"
+  echo "export AKDC_ARC_ENABLED=$AKDC_ARC_ENABLED"
+  echo "export AKDC_RESOURCE_GROUP=$AKDC_RESOURCE_GROUP"
 
   echo ""
   echo "if [ -f /home/akdc/.oh.my.bash/completion/kic ]; then source /home/akdc/.oh.my.bash/completion/kic; fi"
@@ -133,6 +137,10 @@ add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list
 
+# add az cli repo
+curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null
+echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
+
 apt-get update
 
 echo "$(date +'%Y-%m-%d %H:%M:%S')  installing docker" >> status
@@ -175,8 +183,13 @@ docker network connect k3d k3d-registry.localhost
 # upgrade Ubuntu
 echo "$(date +'%Y-%m-%d %H:%M:%S')  upgrading" >> status
 apt-get update
-apt-get upgrade -y
-apt-get autoremove -y
+
+# skip the upgrade if debugging
+if [ "$AKDC_DEBUG" != "true" ]
+then
+  apt-get upgrade -y
+  apt-get autoremove -y
+fi
 
 echo "$(date +'%Y-%m-%d %H:%M:%S')  creating k3d cluster" >> status
 
@@ -227,6 +240,17 @@ if [ -f ./akdc-post.sh ]
 then
   ./akdc-post.sh
 fi
+
+# configure azure arc
+if [  -f ./arc-setup.sh  ]
+then
+  ./arc-setup.sh
+fi
+
+# Create admin service account
+echo "$(date +'%Y-%m-%d %H:%M:%S')   create admin service account" >> status
+kubectl create serviceaccount admin-user
+kubectl create clusterrolebinding admin-user-binding --clusterrole cluster-admin --serviceaccount default:admin-user
 
 echo "$(date +'%Y-%m-%d %H:%M:%S')  complete" >> status
 echo "complete" >> status
