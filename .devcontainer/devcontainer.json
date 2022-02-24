@@ -12,13 +12,16 @@
 
 	// Set container specific settings
 	"settings": {
-		"terminal.integrated.defaultProfile.linux": "zsh"
+		"terminal.integrated.defaultProfile.linux": "zsh",
+		"files.trimTrailingWhitespace": true,
+		"files.trimFinalNewlines": true,
+		"files.insertFinalNewline": true
 	},
 
 	"hostRequirements": {
 		"cpus": 4
 	},
-	
+
 	// forward ports for the app
 	"forwardPorts": [
 		30000,
