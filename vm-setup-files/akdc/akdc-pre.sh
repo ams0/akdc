@@ -31,10 +31,6 @@ else
         kubectl create secret tls ssl-cert --cert .ssh/certs.pem --key .ssh/certs.key
     fi
 
-    # remove the certs
-    rm -f .ssh/certs.pem
-    rm -f .ssh/certs.key
-
     # create any bootstrap K8s resources
     if [ -d ./bootstrap ]
     then

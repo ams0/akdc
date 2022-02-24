@@ -31,9 +31,9 @@ ls -alF /workspaces/edge-gitops/deploy
 
 - [Readme](./inner-loop/README.md)
 
-## Outer-loop Kubernetes Developer Experience
+## Digital Twin Kubernetes Developer Experience using GitHub Codespaces
 
-- [Readme](./outer-loop/README.md)
+- [Readme](./digital-twin/README.md)
 
 ## Create a k3d cluster in an Azure VM(s)
 

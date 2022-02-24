@@ -29,8 +29,8 @@ cp src/_* "$HOME/.oh-my-zsh/completions"
     # reload completions
     echo "alias rec='cp $REPO_BASE/src/_* ~/.oh-my-zsh/completions && unfunction _akdc; unfunction _kic; autoload -Uz _akdc; autoload -Uz _kic'"
     
-    # build kic2
-    echo "alias k2='cd /workspaces/akdc/src/kic2 && make; cd $OLDPWD'"
+    # build kic-vm
+    echo "alias k2='cd /workspaces/akdc/src/kic-vm && make; cd \$OLDPWD'"
 
     echo "export REPO_BASE=$PWD"
     echo "compinit"
