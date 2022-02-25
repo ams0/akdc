@@ -50,10 +50,19 @@ docker pull mcr.microsoft.com/dotnet/sdk:6.0
 docker pull ghcr.io/cse-labs/webv-red:latest
 
 # install cobra
-go install github.com/spf13/cobra/cobra@latest
+go install -v github.com/spf13/cobra/cobra@latest
 
-# install golint
-go install golang.org/x/lint/golint@latest
+# install go modules
+go install -v golang.org/x/lint/golint@latest
+go install -v github.com/uudashr/gopkgs/v2/cmd/gopkgs@latest
+go install -v github.com/ramya-rao-a/go-outline@latest
+go install -v github.com/cweill/gotests/gotests@latest
+go install -v github.com/fatih/gomodifytags@latest
+go install -v github.com/josharian/impl@latest
+go install -v github.com/haya14busa/goplay/cmd/goplay@latest
+go install -v github.com/go-delve/delve/cmd/dlv@latest
+go install -v honnef.co/go/tools/cmd/staticcheck@latest
+go install -v golang.org/x/tools/gopls@latest
 
 # clone repos
 pushd ..
