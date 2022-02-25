@@ -47,6 +47,7 @@ docker pull mcr.microsoft.com/dotnet/aspnet:5.0-alpine
 docker pull mcr.microsoft.com/dotnet/sdk:5.0
 docker pull mcr.microsoft.com/dotnet/aspnet:6.0-alpine
 docker pull mcr.microsoft.com/dotnet/sdk:6.0
+docker pull ghcr.io/cse-labs/webv-red:latest
 
 # install cobra
 go install github.com/spf13/cobra/cobra@latest

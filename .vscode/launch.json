@@ -5,24 +5,22 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug akdc (golang)",
+      "name": "Debug akdc",
       "type": "go",
       "request": "launch",
       "mode": "auto",
       "program": "${workspaceFolder}/src/akdc/",
       "env": {},
       // To debug add expected cli command and options below. Each token should be on a new line.
-      "args": [
-       // "get",
-       // "token"
-      ]
+      "args": [ "help" ]
     },
     {
-        "name": "Debug kic",
-        "type": "go",
-        "request": "launch",
-        "mode": "auto",
-        "program": "${workspaceFolder}/src/kic/"
+      "name": "Debug kic",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/src/kic/",
+      "args": []
     },
     {
       "name": "Debug gen-gitops",

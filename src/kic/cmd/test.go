@@ -40,6 +40,7 @@ func init() {
 	testCmd.AddCommand(testLoadCmd)
 
 	// add common options
+	testCmd.PersistentFlags().IntVarP(&sleep, "sleep", "l", 0, "Sleep (ms) between each request")
 	testCmd.PersistentFlags().BoolVarP(&dryRun, "dry-run", "d", false, "Validate configuration without running")
 	testCmd.PersistentFlags().StringVarP(&region, "region", "", "", "Region deployed to (user defined)")
 	testCmd.PersistentFlags().StringVarP(&tag, "tag", "", "", "Tag for log (user defined)")

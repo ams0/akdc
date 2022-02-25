@@ -17,4 +17,8 @@ echo "$(date +'%Y-%m-%d %H:%M:%S')  akdc-post start" >> status
 
 # add your post script here
 
+# deploy jumpbox
+### todo - move this to gitops/bootstrap
+/home/akdc/bin/kic cluster jumpbox
+
 echo "$(date +'%Y-%m-%d %H:%M:%S')  akdc-post complete" >> status

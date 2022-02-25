@@ -16,8 +16,14 @@ cd "$(dirname "${BASH_SOURCE[0]}")" || exit
 echo "$(date +'%Y-%m-%d %H:%M:%S')  akdc-pre start" >> status
 
 # change ownership
-sudo chown -R $USER:$USER .
+sudo chown -R "$USER:$USER" .
 chmod 600 .ssh/akdc.pat
+
+# generate kic completion
+bin/kic completion bash > .oh.my.bash/completions/kic
+source .oh.my.bash/completions/kic
+
+sudo chown -R "$USER:$USER" .
 
 if [ "$AKDC_DEBUG" = "true" ]
 then
@@ -30,6 +36,10 @@ else
     then
         kubectl create secret tls ssl-cert --cert .ssh/certs.pem --key .ssh/certs.key
     fi
+
+    # create admin service account
+    kubectl create serviceaccount admin-user
+    kubectl create clusterrolebinding admin-user-binding --clusterrole cluster-admin --serviceaccount default:admin-user
 
     # create any bootstrap K8s resources
     if [ -d ./bootstrap ]

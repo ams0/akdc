@@ -8,7 +8,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/spf13/cobra"
 	"kic/cfmt"
 	"log"
 	"os"
@@ -145,37 +144,4 @@ func execCommand(cmd string) {
 		cfmt.Info("Running command: " + cmd)
 		shellExec(fmt.Sprintf("%s %s", path, os.Args))
 	}
-}
-
-// create a command that executes a bash script from the bin/.kic/commands directory
-func addExecCommand(name string, description string) *cobra.Command {
-	execCmd := &cobra.Command{
-		Use:   name,
-		Short: description,
-		Long:  description,
-
-		Run: func(cmd *cobra.Command, args []string) {
-			cfmt.Info(description)
-			execCommand(name)
-		},
-	}
-
-	return execCmd
-}
-
-// create a command that an http command against localhost:port/path
-func addCheckCommand(name string, description string, port int, path string) *cobra.Command {
-	chkCmd := &cobra.Command{
-		Use:   name,
-		Short: description,
-		Long:  description,
-
-		Run: func(cmd *cobra.Command, args []string) {
-			cfmt.Info(fmt.Sprintf("%s: %s", name, description))
-			cfmt.Info(description)
-			shellExec(fmt.Sprintf("http http://localhost:%d%s", port, path))
-		},
-	}
-
-	return chkCmd
 }

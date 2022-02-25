@@ -47,6 +47,7 @@ mkdir -p .kube
 mkdir -p bin
 mkdir -p .local/bin
 mkdir -p .k9s
+mkdir -p .oh.my.bash/completions
 mkdir -p /root/.kube
 
 # configure git CLI
@@ -91,7 +92,7 @@ cp .oh-my-bash/templates/bashrc.osh-template .bashrc
   echo "export AKDC_RESOURCE_GROUP=$AKDC_RESOURCE_GROUP"
 
   echo ""
-  echo "if [ -f /home/akdc/.oh.my.bash/completion/kic ]; then source /home/akdc/.oh.my.bash/completion/kic; fi"
+  echo "if [ -f /home/akdc/.oh.my.bash/completions/kic ]; then source /home/akdc/.oh.my.bash/completions/kic; fi"
   echo 'complete -F __start_kubectl k'
   echo 'complete -F __start_kubectl kl'
 } >> /etc/bash.bashrc
@@ -246,11 +247,6 @@ if [  -f ./arc-setup.sh  ]
 then
   ./arc-setup.sh
 fi
-
-# Create admin service account
-echo "$(date +'%Y-%m-%d %H:%M:%S')   create admin service account" >> status
-kubectl create serviceaccount admin-user
-kubectl create clusterrolebinding admin-user-binding --clusterrole cluster-admin --serviceaccount default:admin-user
 
 echo "$(date +'%Y-%m-%d %H:%M:%S')  complete" >> status
 echo "complete" >> status

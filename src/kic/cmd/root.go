@@ -5,9 +5,9 @@
 package cmd
 
 import (
-	"fmt"
+	// "fmt"
 	"io/ioutil"
-	"kic/cfmt"
+	// "kic/cfmt"
 	"os"
 	"strings"
 
@@ -18,38 +18,34 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "kic",
 	Short: "Kubernetes in Codespaces CLI",
-	Long:  `Kubernetes in Codespaces CLI`,
 }
 
 // initialize the root command
 func init() {
-	rootCmd.AddCommand(allCmd)
-	rootCmd.AddCommand(createCmd)
-	rootCmd.AddCommand(deleteCmd)
-	rootCmd.AddCommand(deployCmd)
-	rootCmd.AddCommand(cleanCmd)
-	rootCmd.AddCommand(jumpboxCmd)
-	rootCmd.AddCommand(appCmd)
-	rootCmd.AddCommand(webvCmd)
-	rootCmd.AddCommand(syncCmd)
-
-	rootCmd.AddCommand(checkCmd)
+	// this can't be a module [easily]
+	// todo - this is different between kic and kic-vm
 	rootCmd.AddCommand(testCmd)
 
+	// todo - check for duplicate root commands
+	// todo - override?
 	loadModules()
 }
 
 // todo - design file format / metadata
+// todo - move the module commands to ../commands (makes chaining easier)
+// todo - for simple commands, should we leave them in the .mod file? - can't chain easily
+
 func loadModules() {
 	// modules are in the kic bin/.kic/modules directory
 	path := getParentDir() + "/.kic/modules/"
+	var moduleCmd *cobra.Command
 
 	files, err := ioutil.ReadDir(path)
 	if err == nil {
 		for _, f := range files {
-			var moduleCmd *cobra.Command
+			moduleCmd = nil
 
-			p := path + "/" + f.Name() + "/" + f.Name()
+			p := path + "/" + f.Name()
 
 			txt := readTextFile(p)
 
@@ -58,6 +54,7 @@ func loadModules() {
 			for i := 0; i < len(lines); i++ {
 				line := lines[i]
 
+				// ignore comments
 				if !strings.HasPrefix(line, "#") {
 					if strings.HasPrefix(line, "kicModule") {
 						if i+1 < len(lines) {
@@ -67,7 +64,7 @@ func loadModules() {
 							if i+1 < len(lines) {
 								description := strings.TrimSpace(lines[i+1])
 								i++
-								moduleCmd = addParentCommand(name, "[module] "+description)
+								moduleCmd = addParentCommand(name, description)
 								rootCmd.AddCommand(moduleCmd)
 							}
 						}
@@ -79,18 +76,42 @@ func loadModules() {
 							if i+1 < len(lines) {
 								description := strings.TrimSpace(lines[i+1])
 								i++
+
 								if i+1 < len(lines) {
 									command := strings.TrimSpace(lines[i+1])
 									i++
+
 									if moduleCmd != nil {
-										subCmd := addRunCommand(name, description, command)
-										moduleCmd.AddCommand(subCmd)
+										moduleCmd.AddCommand(addRunCommand(name, description, command))
+									} else {
+										rootCmd.AddCommand(addRunCommand(name, description, command))
+									}
+								}
+							}
+						}
+					} else if strings.HasPrefix(line, "kicRunCommand") {
+						if i+1 < len(lines) {
+							name := strings.TrimSpace(lines[i+1])
+							i++
+
+							if i+1 < len(lines) {
+								description := strings.TrimSpace(lines[i+1])
+								i++
+
+								if i+1 < len(lines) {
+									command := strings.TrimSpace(lines[i+1])
+									i++
+
+									if moduleCmd != nil {
+										moduleCmd.AddCommand(addExecCommand(name, description, command))
+									} else {
+										rootCmd.AddCommand(addExecCommand(name, description, command))
 									}
 								}
 							}
 						}
 					} else {
-						fmt.Println(line)
+						// fmt.Println(line)
 					}
 				}
 			}
@@ -110,21 +131,12 @@ func Execute() {
 
 // define the commands (so we can call them as sub commands)
 // these commands execute the bash script in bin/.kic/commands/name
-var allCmd = addExecCommand("all", "Create and bootstrap a local k3d cluster and deploy the apps")
-var createCmd = addExecCommand("create", "Create a new local k3d cluster")
-var deleteCmd = addExecCommand("delete", "Delete the local k3d cluster (if exists)")
-var deployCmd = addExecCommand("deploy", "Deploy the apps to the local k3d cluster")
-var cleanCmd = addExecCommand("clean", "Remove the apps from the local k3d cluster")
-var jumpboxCmd = addExecCommand("jumpbox", "Deploy a 'jumpbox' to the local k3d cluster")
-var appCmd = addExecCommand("app", "Build and deploy a local NGSA docker image")
-var webvCmd = addExecCommand("webv", "Build and deploy a local WebV docker image")
-var syncCmd = addExecCommand("sync", "Force Flux to sync (reconcile) to the local cluster")
 
+// add a command that has sub-commands
 func addParentCommand(name string, description string) *cobra.Command {
 	parentCmd := &cobra.Command{
 		Use:   name,
 		Short: description,
-		Long:  description,
 	}
 
 	return parentCmd
@@ -135,13 +147,25 @@ func addRunCommand(name string, description string, command string) *cobra.Comma
 	runCmd := &cobra.Command{
 		Use:   name,
 		Short: description,
-		Long:  description,
 
 		Run: func(cmd *cobra.Command, args []string) {
-			cfmt.Info(description)
 			shellExec(command)
 		},
 	}
 
 	return runCmd
+}
+
+// create a command that executes a bash script from the bin/.kic/commands directory
+func addExecCommand(name string, description string, command string) *cobra.Command {
+	execCmd := &cobra.Command{
+		Use:   name,
+		Short: description,
+
+		Run: func(cmd *cobra.Command, args []string) {
+			execCommand(command)
+		},
+	}
+
+	return execCmd
 }

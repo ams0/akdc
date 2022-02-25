@@ -16,9 +16,9 @@ var checkFluxCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		command := `'
 # verify all 3 kustomizations are setup
-if [ $(flux get kustomizations | grep -e flux-system -e apps -e bootstrap | wc -l) = 3 ] &&
+if [ $(flux get kustomizations 2>/dev/null | grep -e flux-system -e apps -e bootstrap | wc -l) = 3 ] &&
    # verify all kustomizations are Ready
-   [ $(flux get kustomizations | grep -e flux-system -e apps -e bootstrap | cut -f2 | grep False |wc -l) = 0 ]
+   [ $(flux get kustomizations 2>/dev/null | grep -e flux-system -e apps -e bootstrap | cut -f2 | grep False |wc -l) = 0 ]
 then
 	echo "$(hostname) success"
 else

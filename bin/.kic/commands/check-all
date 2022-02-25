@@ -1,0 +1,6 @@
+#!/bin/bash
+
+"$(dirname "${BASH_SOURCE[0]}")/ngsa"
+"$(dirname "${BASH_SOURCE[0]}")/webv"
+"$(dirname "${BASH_SOURCE[0]}")/grafana"
+"$(dirname "${BASH_SOURCE[0]}")/prometheus"

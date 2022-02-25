@@ -31,11 +31,9 @@ func Error(msg ...interface{}) {
 }
 
 func ExitError(err error) {
-	fmt.Print(Red)
 	exitError := err.(*exec.ExitError)
-	fmt.Println(exitError)
+	Error(exitError)
 	os.Exit(2)
-	fmt.Print(Reset)
 }
 
 func init() {

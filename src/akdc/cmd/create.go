@@ -58,13 +58,6 @@ var createCmd = &cobra.Command{
 	},
 
 	Run: func(cmd *cobra.Command, args []string) {
-		// fail if the Azure Resource Group exists
-		if groupExists() {
-			cfmt.Error("Azure Resource Group exists")
-			fmt.Println("\nPlease use a different group or delete the group")
-			return
-		}
-
 		// create the azure resource group
 		createGroup()
 
@@ -92,8 +85,15 @@ var createCmd = &cobra.Command{
 
 // check to see if the Azure Resource Group exists
 func groupExists() bool {
-	ex := shellExecOut("az group exists -g " + cluster)
+	ex := shellExecOut("az group exists -g " + group)
 	return strings.HasPrefix(ex, "true")
+}
+
+// check to see if the VM exists in the RG
+func vmExists() bool {
+	command := fmt.Sprintf("az vm show -g %s --name %s --query 'name' -o tsv", group, cluster)
+	res := strings.TrimSpace(shellExecOut(command))
+	return strings.ToLower(cluster) == strings.ToLower(res)
 }
 
 var dapr bool
@@ -134,6 +134,18 @@ func getTemplatePath() string {
 
 // create Azure Resource Group
 func createGroup() {
+	// fail if the Azure VM exists
+	if vmExists() {
+		cfmt.Error("Azure VM exists")
+		fmt.Println("\nPlease use a different VM or delete the VM")
+		os.Exit(2)
+	}
+
+	// don't create the group if it exists
+	if groupExists() {
+		return
+	}
+
 	cfmt.Info("Creating Azure Resource Group")
 
 	rgTags := "akdc=true server=" + cluster
@@ -188,7 +200,7 @@ func createVM() string {
 	command += " -n " + cluster + " \\\n"
 	command += " --admin-username akdc \\\n"
 	if managedIdentityID != "" {
-		cfmt.Info("Found Managed Identity - assigning MI to VM")
+		cfmt.Info("Assigning Managed Identity to VM")
 		command += " --assign-identity " + managedIdentityID + "\\\n"
 	}
 	command += " --size standard_D2as_v5 \\\n"

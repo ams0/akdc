@@ -14,6 +14,6 @@ var checkNgsaCmd = &cobra.Command{
 	Short: "check ngsa status on each cluster",
 	Long:  `check ngsa status on each cluster`,
 	Run: func(cmd *cobra.Command, args []string) {
-		execClusters("'if [[ $(kubectl get pods -A) == *\"ngsa\"* ]]; then echo \"$(hostname) found\"; else echo \"$(hostname) not found\"; fi'", grep)
+		execClusters("'if [[ $(kubectl get ns) == *\"ngsa\"* ]]; then echo \"$(hostname) found\"; else echo \"$(hostname) not found\"; fi'", grep)
 	},
 }
