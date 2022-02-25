@@ -3,6 +3,4 @@
 # change to this directory
 #cd "$(dirname "${BASH_SOURCE[0]}")" || exit
 
-#flux reconcile source git gitops && kubectl get pods -A
-
-echo "$*"
+flux reconcile source git gitops && kubectl get pods -A
