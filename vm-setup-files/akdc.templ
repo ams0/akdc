@@ -47,7 +47,7 @@ mkdir -p .kube
 mkdir -p bin
 mkdir -p .local/bin
 mkdir -p .k9s
-mkdir -p .oh.my.bash/completions
+mkdir -p .oh-my-bash/completions
 mkdir -p /root/.kube
 
 # configure git CLI
@@ -92,7 +92,7 @@ cp .oh-my-bash/templates/bashrc.osh-template .bashrc
   echo "export AKDC_RESOURCE_GROUP=$AKDC_RESOURCE_GROUP"
 
   echo ""
-  echo "if [ -f /home/akdc/.oh.my.bash/completions/kic ]; then source /home/akdc/.oh.my.bash/completions/kic; fi"
+  echo "if [ -f /home/akdc/.oh-my-bash/completions/kic ]; then source /home/akdc/.oh-my-bash/completions/kic; fi"
   echo 'complete -F __start_kubectl k'
   echo 'complete -F __start_kubectl kl'
 } >> /etc/bash.bashrc

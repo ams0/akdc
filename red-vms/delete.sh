@@ -18,6 +18,9 @@ echo "uncomment the commands before running"
 # akdc delete west-wa-seattle-102
 # akdc delete corp-monitoring-101
 
+# akdc delete west-wa-redmond-101
+# akdc delete west-wa-redmond-102
+
 # delete the RG
 #az group delete -y --no-wait -g retail-edge-demo
 

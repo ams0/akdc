@@ -20,8 +20,8 @@ sudo chown -R "$USER:$USER" .
 chmod 600 .ssh/akdc.pat
 
 # generate kic completion
-bin/kic completion bash > .oh.my.bash/completions/kic
-source .oh.my.bash/completions/kic
+bin/kic completion bash > .oh-my-bash/completions/kic
+source .oh-my-bash/completions/kic
 
 sudo chown -R "$USER:$USER" .
 

@@ -21,3 +21,7 @@ cd "$(dirname "${BASH_SOURCE[0]}")" || exit
 #akdc create -q --arc -g retail-edge-demo -l westus    --repo retaildevcrews/red-gitops --ssl cseretail.com -c west-wa-seattle-102 &
 
 #akdc create -q --arc -g retail-edge-demo -l centralus --repo retaildevcrews/red-gitops --ssl cseretail.com -c corp-monitoring &
+
+### simulated redmond clusters
+#akdc create -q --arc -g retail-edge-demo -l westus    --repo retaildevcrews/red-gitops --ssl cseretail.com -c west-wa-redmond-101 &
+#akdc create -q --arc -g retail-edge-demo -l westus    --repo retaildevcrews/red-gitops --ssl cseretail.com -c west-wa-redmond-102 &
