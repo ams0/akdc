@@ -1,6 +1,0 @@
-#!/bin/bash
-
-# change to this directory
-#cd "$(dirname "${BASH_SOURCE[0]}")" || exit
-
-echo -e "$(curl -s https://"$AKDC_FQDN/heartbeat/17" 2>/dev/null)"

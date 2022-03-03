@@ -4,6 +4,8 @@
 
 echo "$(date)    post-create start" >> "$HOME/status"
 
+# secrets are not available on on-create
+
 # save ssl certs
 echo "$INGRESS_KEY" | base64 -d > "$HOME/.ssh/certs.key"
 echo "$INGRESS_CERT" | base64 -d > "$HOME/.ssh/certs.pem"
@@ -32,5 +34,9 @@ git -C ../edge-apps pull
 git -C ../edge-gitops pull
 git -C ../red-apps pull
 git -C ../red-gitops pull
+
+cd src/kic || exit
+make all
+cd ../..
 
 echo "$(date +'%Y-%m-%d %H:%M:%S')    post-create complete" >> "$HOME/status"

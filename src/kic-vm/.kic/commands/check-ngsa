@@ -1,6 +1,0 @@
-#!/bin/bash
-
-# change to this directory
-#cd "$(dirname "${BASH_SOURCE[0]}")" || exit
-
-echo -e "$(kubectl exec -it jumpbox -- curl -s http://ngsa.ngsa.svc.cluster.local:8080/version 2>/dev/null)"

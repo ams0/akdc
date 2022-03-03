@@ -1,0 +1,13 @@
+###
+# Build commands and sub-commands
+###
+
+module
+	name: build
+	short: Build and deploy local apps
+
+runCommand
+	path: build/ngsa
+
+runCommand
+	path: build/webv

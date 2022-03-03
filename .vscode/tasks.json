@@ -8,7 +8,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/src/gen-gitops/gen-gitops.csproj",
+                "${workspaceFolder}/assets/gen-gitops/gen-gitops.csproj",
             ],
             "problemMatcher": "$msCompile"
         }

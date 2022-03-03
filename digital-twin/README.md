@@ -26,11 +26,13 @@ cd digital-twin
 
 ```bash
 
+#### do not run kic all
+
 # create the cluster
-kic create
+kic cluster create
 
 # deploy jumpbox
-kic jumpbox
+kic cluster jumpbox
 
 ```
 
@@ -46,22 +48,22 @@ kic jumpbox
 # check pods for "badapp"
 k get po -A
 
-# disconnect flux so GitOps doesn't change your config
-flux uninstall -s
+# suspend flux so GitOps doesn't change your config
+flux suspend ks --all
 
 ```
 
 ## Check the store cluster for the problem
 
-> akdc is the CLI for working with simulated store clusters
+> kic fleet is the CLI for working with a fleet of clusters
 
 ```bash
 
 # check heartbeat
-akdc check heartbeat
+kic fleet check heartbeat
 
 # get the pods
-akdc exec "k get po -A"
+kic fleet exec "k get po -A"
 
 ```
 
@@ -106,13 +108,13 @@ git pull
 code apps/badapp/autogitops/dev/badapp.yaml
 
 # push the change
-akdc targets push
+kic targets push
 
 # change to the digital twin directory
 cd /workspaces/akdc/digital-twin
 
-# setup flux
-./setup-flux.sh central-tx-austin-103
+# resume flux sync
+flux resume ks --all
 
 # wait for flux to sync
 ### you may have to repeat these two steps a few times while CI-CD runs and Flux syncs
@@ -130,8 +132,8 @@ kje http http://badapp.badapp.svc.cluster.local:8080/badapp/17
 
 # validate pods
 ### you may have to repeat these two steps a few times while CI-CD runs and Flux syncs
-akdc sync
-akdc exec "k get po -A"
+kic fleet sync
+kic fleet exec "k get po -A"
 
 # test the endpoint
 http https://central-tx-austin-103.cseretail.com/badapp/17
@@ -154,7 +156,7 @@ git pull
 code apps/badapp/autogitops/dev/badapp.yaml
 
 # push the change
-akdc targets push
+kic targets push
 
 # wait for flux to sync
 cd /workspaces/akdc/digital-twin
@@ -166,7 +168,7 @@ k get po -A
 
 # store should be broken again
 ### you may have to repeat these commands
-akdc sync
-akdc exec "k get po -A"
+kic fleet sync
+kic fleet exec "k get po -A"
 
 ```

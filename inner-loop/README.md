@@ -16,43 +16,44 @@ cd inner-loop
 
 ```bash
 
-kic all
+kic cluster all
 
 ```
 
 ## Other CLI commands
 
-- `kic` implements various cluster management tasks
+- `kic cluster` implements various cluster management tasks
 
 ```bash
 
-kic
+kic cluster
 
 ```
 
 - Output
 
 ```text
-Kubernetes in Codespaces CLI
+
+k3d cluster commands
 
 Usage:
-  kic [command]
+  kic cluster [command]
 
 Available Commands:
-  all         create and bootstrap a local k3d cluster and deploy the apps
-  app         build and deploy a local app docker image
-  check       check status on the local k3d cluster
-  clean       remove the apps from the local k3d cluster
-  create      create a new local k3d cluster
-  delete      delete the local k3d cluster
-  deploy      deploy the apps to the local k3d cluster
-  jumpbox     deploy a 'jumpbox' to the local k3d cluster
-  test        run cluster tests
-  webv        build and deploy a local WebV docker image
+  all         Create and bootstrap a local k3d cluster and deploy the apps
+  clean       Remove the apps from the local k3d cluster
+  create      Create a new local k3d cluster
+  delete      Delete the k3d cluster
+  deploy      Deploy the apps to the local k3d cluster
+  jumpbox     Deploy a 'jumpbox' to the local k3d cluster
 
 Flags:
-  -h, --help   help for kic
+  -h, --help   help for cluster
 
-Use "kic [command] --help" for more information about a command.
+Use "kic cluster [command] --help" for more information about a command.
 
 ```
+
+## Hands-on Lab
+
+- A hands-on lab is available at [cse-labs](https://github.com/cse-labs/kubernetes-in-codespaces)

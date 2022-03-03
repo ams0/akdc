@@ -4,36 +4,45 @@
 
 echo "$(date +'%Y-%m-%d %H:%M:%S')    on-create start" >> "$HOME/status"
 
-# do this early to avoid the popup
-dotnet restore src/gen-gitops
-
 export REPO_BASE=$PWD
+export AKDC_REPO=retaildevcrews/edge-gitops
+
+export PATH="$PATH:$REPO_BASE/bin"
+export GOPATH="$HOME/go"
+
+mkdir -p .ssh
 
 mkdir -p "$HOME/.ssh"
 mkdir -p "$HOME/.oh-my-zsh/completions"
+
+{
+    echo "defaultIPs: /workspaces/akdc/red-fleet/ips"
+    echo "reservedClusterPrefixes: corp-monitoring central-mo-kc central-tx-austin east-ga-atlanta east-nc-raleigh west-ca-sd west-wa-redmond west-wa-seattle"
+} > "$HOME/.kic"
 
 # add cli completions
 cp src/_* "$HOME/.oh-my-zsh/completions"
 
 {
+    #shellcheck disable=2016,2028
+    echo 'hsort() { read -r; printf "%s\\n" "$REPLY"; sort }'
+
     # add cli to path
     echo "export PATH=\$PATH:$REPO_BASE/bin"
+    echo "export GOPATH=\$HOME/go"
 
     # create aliases
-    # make akdc
-    echo "alias ma='cd $REPO_BASE/src/akdc && make; cd \$OLDPWD'"
-
-    # make kic
-    echo "alias mk='cd $REPO_BASE/src/kic && make; cd \$OLDPWD'"
+    echo "alias mk='cd $REPO_BASE/src/kic && make all; cd \$OLDPWD'"
+    echo "alias akdc='kic fleet'"
+    echo "alias flt='kic fleet'"
 
     echo "export REPO_BASE=$PWD"
+    echo "export AKDC_REPO=retaildevcrews/red-gitops"
     echo "compinit"
-
-    echo "export GOPATH=\$HOME/go"
 } >> "$HOME/.zshrc"
 
 # copy grafana.db to /grafana
-sudo cp inner-loop/grafanadata/grafana.db /grafana
+sudo cp .devcontainer/grafana.db /grafana
 sudo chown -R 472:0 /grafana
 
 # create local registry
@@ -48,6 +57,8 @@ docker pull mcr.microsoft.com/dotnet/sdk:5.0
 docker pull mcr.microsoft.com/dotnet/aspnet:6.0-alpine
 docker pull mcr.microsoft.com/dotnet/sdk:6.0
 docker pull ghcr.io/cse-labs/webv-red:latest
+docker pull ghcr.io/cse-labs/webv-red:beta
+docker pull ghcr.io/bartr/autogitops:beta
 
 # install cobra
 go install -v github.com/spf13/cobra/cobra@latest
@@ -64,14 +75,16 @@ go install -v github.com/go-delve/delve/cmd/dlv@latest
 go install -v honnef.co/go/tools/cmd/staticcheck@latest
 go install -v golang.org/x/tools/gopls@latest
 
+dotnet restore assets/gen-gitops
+
 # clone repos
-pushd ..
+cd ..
 git clone https://github.com/microsoft/webvalidate
 git clone https://github.com/retaildevcrews/ngsa-app
 git clone https://github.com/retaildevcrews/edge-apps
 git clone https://github.com/retaildevcrews/edge-gitops
 git clone https://github.com/retaildevcrews/red-apps
 git clone https://github.com/retaildevcrews/red-gitops
-popd || exit
+cd "$OLDPWD" || exit
 
 echo "$(date +'%Y-%m-%d %H:%M:%S')    on-create complete" >> "$HOME/status"

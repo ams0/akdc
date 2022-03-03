@@ -6,6 +6,13 @@
 ips
 cluster-*
 
+# ignore the CLI binary
+# we need the other files in bin
+bin/kic
+fleet/bin/kic
+src/kic-vm/kic
+src/kic/kic
+
 dotFiles/.**
 
 # User-specific files
@@ -27,7 +34,7 @@ dotFiles/.**
 x64/
 x86/
 bld/
-[Bb]in/
+#[Bb]in/
 [Oo]bj/
 [Ll]og/
 

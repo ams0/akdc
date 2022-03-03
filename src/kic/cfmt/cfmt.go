@@ -2,6 +2,8 @@ package cfmt
 
 import (
 	"fmt"
+	"os"
+	// "os/exec"
 	"runtime"
 )
 
@@ -18,17 +20,29 @@ var White = "\033[97m"
 // todo - adding [] to output
 func Info(msg ...interface{}) {
 	fmt.Print(Cyan)
-	fmt.Println(fmt.Sprintf("%v", msg))
-	fmt.Print(Reset)
+	fmt.Printf("%v", msg)
+	fmt.Println(Reset)
 }
 
 func Error(msg ...interface{}) {
 	fmt.Print(Red)
-	fmt.Println(msg)
-	fmt.Print(Reset)
+	fmt.Printf("%v", msg)
+	fmt.Println(Reset)
+}
+
+func ExitError(err error) {
+	//msg := err.(*exec.ExitError)
+	Error(err)
+	os.Exit(1)
+}
+
+func ExitErrorMessage(msg ...interface{}) {
+	Error(msg)
+	os.Exit(1)
 }
 
 func init() {
+	// Windows doesn't support ANSI colors
 	if runtime.GOOS == "windows" {
 		Reset = ""
 		Red = ""

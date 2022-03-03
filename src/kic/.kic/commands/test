@@ -1,6 +1,14 @@
 #!/bin/bash
 
+#name: test
+#short: Run a WebValidate test against the NGSA NodePort
+
 # change to this directory
 #cd "$(dirname "${BASH_SOURCE[0]}")" || exit
 
-webv --server http://localhost:30080 $@
+# this is called by the kic API in Go which handles parameter validation
+# you can call directly if you validate all of the WebV parameters
+#   or let WebV handle the errors
+
+echo "$@"
+docker run -it --net host --rm ghcr.io/cse-labs/webv-red:latest --server http://localhost:30080 $@

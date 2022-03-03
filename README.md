@@ -21,21 +21,33 @@ chmod 600 ~/.ssh/akdc.pat
 - Validate the PAT
 
 ```bash
-rm -rf /workspaces/edge-gitops  
-git clone https://$(cat ~/.ssh/akdc.pat)@github.com/retaildevcrews/edge-gitops /workspaces/edge-gitops
-ls -alF /workspaces/edge-gitops/deploy
-  
+
+rm -rf /workspaces/private-test
+git clone https://$(cat ~/.ssh/akdc.pat)@github.com/retaildevcrews/private-test /workspaces/private-test
+
 ```
 
-## Inner-loop Kubernetes Developer Experience
+## Inner-loop Developer Experience
 
 - [Readme](./inner-loop/README.md)
 
-## Digital Twin Kubernetes Developer Experience using GitHub Codespaces
+## Outer-loop Developer Experience
+
+- [Readme](./outer-loop/README.md)
+
+## Digital Twin Developer Experience
 
 - [Readme](./digital-twin/README.md)
 
-## Create a k3d cluster in an Azure VM(s)
+## Arc Developer Experience
+
+- work in progress
+
+## Azure Stack HCI Developer Experience
+
+- work in progress
+
+## Fleet Developer Experience
 
 - [Readme](./azure-vms/README.md)
 

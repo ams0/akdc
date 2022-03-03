@@ -1,6 +1,0 @@
-#!/bin/bash
-
-# change to this directory
-#cd "$(dirname "${BASH_SOURCE[0]}")" || exit
-
-docker run -it --net host --rm ghcr.io/cse-labs/webvalidate --server http://localhost:30080 $@
