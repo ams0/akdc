@@ -9,6 +9,13 @@ import (
 	"kic/cmd/fleet/check"
 )
 
+// option variables
+// common across several commands
+var debug bool
+
+// used by check, exec, sync and test commands
+var grep string
+
 // checkCmd adds check subcommands
 var FleetCmd = &cobra.Command{
 	Use:   "fleet",
@@ -27,20 +34,3 @@ func init() {
 	FleetCmd.AddCommand(PullCmd)
 	FleetCmd.AddCommand(PatchCmd)
 }
-
-// option variables
-// common across several commands
-var debug bool
-
-// used by check, exec, sync and test commands
-var grep string
-
-// mainly for create command
-var cluster string
-var group string
-var location string
-var repo string
-var pem string
-var key string
-var quiet bool
-var ssl string

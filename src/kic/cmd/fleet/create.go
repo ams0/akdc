@@ -10,14 +10,24 @@ import (
 	"kic/utils"
 	"log"
 	"os"
-
-	// "path/filepath"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
 )
+
+// mainly for create command
+var cluster string
+var group string
+var location string
+var repo string
+var pem string
+var key string
+var quiet bool
+var ssl string
+var gitops bool
 
 var CreateCmd = &cobra.Command{
 	Use:   "create",
@@ -58,7 +68,7 @@ var CreateCmd = &cobra.Command{
 		for _, line := range lines {
 			line = strings.ToLower(strings.TrimSpace(line))
 
-			if strings.HasPrefix(cluster, line) {
+			if line != "" && strings.HasPrefix(cluster, line) {
 				cfmt.Error("cluster name is invalid - reserved prefix")
 				hasError = true
 			}
@@ -81,6 +91,9 @@ var CreateCmd = &cobra.Command{
 		createVMSetupScript()
 
 		if digitalOcean {
+			// add the GitOps target
+			addTarget(cluster, ssl)
+
 			cfmt.Info("Digital Ocean template created")
 			// no more automation for Digit Ocean droplets
 			return
@@ -100,6 +113,9 @@ var CreateCmd = &cobra.Command{
 
 		// fail if createVM fails
 		if ip != "" {
+			// add the GitOps target
+			addTarget(cluster, ssl)
+
 			// create DNS entry
 			createDNS(ip)
 		}
@@ -146,6 +162,7 @@ func init() {
 	CreateCmd.Flags().BoolVarP(&debug, "debug", "d", false, "Create VM in debug mode")
 	CreateCmd.Flags().BoolVarP(&arcEnabled, "arc", "a", false, "Connect kubernetes cluster to Azure via Azure ARC")
 	CreateCmd.Flags().BoolVarP(&digitalOcean, "do", "", false, "Generate setup script for Digital Ocean droplet")
+	CreateCmd.Flags().BoolVarP(&gitops, "gitops", "", false, "Generate GitOps targets in --repo")
 }
 
 // get the path to template file
@@ -345,4 +362,129 @@ func scpToVM(ip string, source string, destination string, timeout int, recursiv
 	cmd += " akdc@" + ip + ":" + destination
 
 	utils.ShellExec(cmd)
+}
+
+func getConfigJson(cluster string, zone string) []byte {
+	region := cluster
+	district := cluster
+
+	cols := strings.Split(cluster, "-")
+
+	if len(cols) > 0 {
+		region = cols[0]
+
+		if len(cols) > 2 {
+			district = strings.Join(cols[:3], "-")
+		}
+	}
+
+	json := utils.ReadTextFileFromBin("gitops-config.templ")
+
+	if json == "" {
+		return nil
+	}
+
+	// replace template values
+	json = strings.Replace(json, "{{cluster}}", cluster, -1)
+	json = strings.Replace(json, "{{region}}", region, -1)
+	json = strings.Replace(json, "{{district}}", district, -1)
+	json = strings.Replace(json, "{{zone}}", zone, -1)
+
+	return []byte(json)
+}
+
+// add a target to GitOps
+func addTarget(cluster string, zone string) {
+	// only run if --gitops specified
+	if !gitops {
+		return
+	}
+
+	// read the config.json file
+	json := getConfigJson(cluster, ssl)
+
+	if json == nil {
+		cfmt.Error("unable to read gitops-config.templ")
+	} else {
+		// GitOps directories
+		repoName := repo
+		repoFull := repoName
+
+		if strings.HasPrefix(repo, "https://") {
+			cols := strings.Split(repo[8:], "/")
+			repoName = strings.Join(cols[len(cols)-2:], "/")
+		} else {
+			repoFull = "https://github.com/" + repo
+		}
+
+		cols := strings.Split(repoName, "/")
+		repoName = cols[len(cols)-1]
+
+		gitopsDir := filepath.Join(os.Getenv("HOME"), repoName)
+		bootstrapDir := filepath.Join(gitopsDir, "deploy", "bootstrap")
+		appsDir := filepath.Join(gitopsDir, "deploy", "apps")
+
+		dirExists := false
+
+		gitCmd := "git -C " + gitopsDir + " "
+
+		// clone or pull the repo
+		if _, err := os.Stat(gitopsDir); err == nil {
+			utils.ShellExec(gitCmd + "pull")
+			dirExists = true
+		} else {
+			utils.ShellExec("git clone " + repoFull + " " + gitopsDir)
+		}
+
+		// add the targets
+		if len(json) > 0 && !strings.Contains(string(json), "{{") {
+			// make sure the dirs exist
+			if _, err := os.Stat(bootstrapDir); err == nil {
+				if _, err = os.Stat(appsDir); err == nil {
+					// add cluster to the dirs
+					bootstrapDir = filepath.Join(bootstrapDir, cluster)
+					appsDir = filepath.Join(appsDir, cluster)
+
+					// create the directories
+					utils.ShellExec("mkdir -p " + bootstrapDir + " && mkdir -p " + appsDir)
+
+					// write config.json to each dir
+					bootstrapDir = filepath.Join(bootstrapDir, "config.json")
+					appsDir = filepath.Join(appsDir, "config.json")
+
+					// don't overwrite existing config.json
+					if _, err := os.Stat(bootstrapDir); err != nil {
+						os.WriteFile(bootstrapDir, json, 0644)
+					}
+
+					if _, err := os.Stat(appsDir); err != nil {
+						os.WriteFile(appsDir, json, 0644)
+					}
+
+					// if there were repo changes
+					if utils.ShellExecOut(gitCmd+"status -s") != "" {
+						agoDir := filepath.Join(gitopsDir, "autogitops")
+
+						if _, err := os.Stat(agoDir); err == nil {
+							if file, err := os.OpenFile(filepath.Join(agoDir, "create.log"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644); err == nil {
+								dt := time.Now().UTC()
+								fmt.Fprintln(file, dt.Format("01-02-2006 15:04:05"), "added cluster:", cluster)
+								file.Close()
+							}
+						}
+						// update the repo
+						utils.ShellExec(gitCmd + "add .")
+						utils.ShellExec(gitCmd + "commit -am 'kic fleet create'")
+						utils.ShellExec(gitCmd + "pull")
+						utils.ShellExec(gitCmd + "push")
+					}
+
+					// delete the repo if we created it
+					if !dirExists {
+						utils.ShellExec("rm -rf " + gitopsDir)
+					}
+				}
+			}
+		}
+	}
 }

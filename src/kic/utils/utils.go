@@ -185,6 +185,21 @@ func GetBinName() string {
 	return filepath.Base(ex)
 }
 
+// get the path to the modules (i.e. /bin/kic/.kic)
+func GetModPath() string {
+	modPath := GetBinDir()
+	app := GetBinName()
+
+	if strings.HasPrefix(app, "__debug") {
+		// running in debugger - assume package name == source directory
+		app = filepath.Base(modPath)
+	}
+
+	// complete the paths
+	return modPath + "/." + app + "/"
+
+}
+
 // get the path to the repo base
 func GetRepoBase() string {
 	base := os.Getenv("REPO_BASE")
@@ -198,9 +213,19 @@ func GetRepoBase() string {
 
 		base = filepath.Dir(ex)
 		base = filepath.Dir(base)
+
+		if strings.HasSuffix(base, "src") {
+			base = filepath.Dir(base)
+		}
 	}
 
 	return base
+}
+
+func ReadTextFileFromBin(name string) string {
+	dir := GetModPath()
+	path := filepath.Join(dir, name)
+	return ReadTextFile(path)
 }
 
 // read a file and return the text

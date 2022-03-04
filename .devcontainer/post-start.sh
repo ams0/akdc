@@ -14,4 +14,9 @@ docker pull ghcr.io/cse-labs/webv-red:latest
 docker pull ghcr.io/cse-labs/webv-red:beta
 docker pull ghcr.io/bartr/autogitops:beta
 
+// build the cli
+cd src/kic || exit
+make all
+cd "$OLDPWD" || exit
+
 echo "$(date +'%Y-%m-%d %H:%M:%S')    post-start complete" >> "$HOME/status"

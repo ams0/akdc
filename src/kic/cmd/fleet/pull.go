@@ -14,7 +14,7 @@ var PullCmd = &cobra.Command{
 	Use:   "pull",
 	Short: "Git pull the akdc repo",
 	Run: func(cmd *cobra.Command, args []string) {
-		utils.ExecClusters("git -C akdc pull", grep)
+		utils.ExecClusters("git -C gitops pull", grep)
 	},
 }
 

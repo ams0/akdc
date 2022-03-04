@@ -5,12 +5,12 @@
 .data
 ips
 cluster-*
+.vscode/
 
 # ignore the CLI binary
 # we need the other files in bin
 bin/kic
 fleet/bin/kic
-src/kic-vm/kic
 src/kic/kic
 
 dotFiles/.**

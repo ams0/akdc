@@ -15,7 +15,7 @@ var TokenCmd = &cobra.Command{
 	Short: "Get Arc token from each cluster",
 
 	Run: func(cmd *cobra.Command, args []string) {
-		utils.ExecClusters("'echo -e \"\"$(hostname)\"\n$(/home/akdc/get-service-account-token.sh)\n\"'", grep)
+		utils.ExecClusters("'echo -e \"\"$(hostname)\"\n$(/home/akdc/gitops/fleet/scripts/get-service-account-token.sh)\n\"'", grep)
 	},
 }
 

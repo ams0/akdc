@@ -77,6 +77,8 @@ go install -v golang.org/x/tools/gopls@latest
 
 dotnet restore assets/gen-gitops
 
+cp -r .devcontainer/.vscode .
+
 # clone repos
 cd ..
 git clone https://github.com/microsoft/webvalidate
