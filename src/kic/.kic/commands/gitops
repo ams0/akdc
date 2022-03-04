@@ -6,4 +6,4 @@
 # change to this directory
 #cd "$(dirname "${BASH_SOURCE[0]}")" || exit
 
-docker run -it --rm -v "$PWD":/ago ghcr.io/bartr/autogitops:beta -r "$AKDC_REPO" -p "$AKDC_PAT"
+docker run -it --rm -v "$PWD":/ago ghcr.io/retaildevcrews/autogitops:beta -r "$AKDC_REPO" -p "$AKDC_PAT"

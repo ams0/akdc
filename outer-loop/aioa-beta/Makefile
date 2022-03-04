@@ -8,7 +8,7 @@ docker :
 	@# force GitOps to run
 	@docker run --rm ghcr.io/cse-labs/aioa\:beta --version > version
 
-	@#docker login ghcr.io -u bartr -p ${AKDC_PAT}
+	@#docker login ghcr.io -u ${USER} -p ${AKDC_PAT}
 	@docker push ghcr.io/cse-labs/aioa\:beta
 
 	# build complete
