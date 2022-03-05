@@ -6,8 +6,8 @@ package fleet
 
 import (
 	"fmt"
-	"kic/cfmt"
-	"kic/utils"
+	"kic/boa"
+	"kic/boa/cfmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -61,7 +61,7 @@ var CreateCmd = &cobra.Command{
 
 		cluster = strings.ToLower(cluster)
 
-		blocked := utils.ReadConfigValue("reservedClusterPrefixes:")
+		blocked := boa.ReadConfigValue("reservedClusterPrefixes:")
 
 		lines := strings.Split(blocked, " ")
 
@@ -86,7 +86,7 @@ var CreateCmd = &cobra.Command{
 		return nil
 	},
 
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		// create the setup script from the template
 		createVMSetupScript()
 
@@ -94,16 +94,16 @@ var CreateCmd = &cobra.Command{
 			// add the GitOps target
 			addTarget(cluster, ssl)
 
+			// no more automation for Digital Ocean droplets
 			cfmt.Info("Digital Ocean template created")
-			// no more automation for Digit Ocean droplets
-			return
+			return nil
 		}
 
 		managedIdentityID := os.Getenv("AKDC_MI")
 		if managedIdentityID == "" {
 			cfmt.Error("managed identity is required")
 			fmt.Println("  export AKDC_MI=yourManagedIdentity")
-			os.Exit(1)
+			return fmt.Errorf("VM Creation Failed")
 		}
 		// create the azure resource group
 		createGroup()
@@ -111,36 +111,33 @@ var CreateCmd = &cobra.Command{
 		// create the vm and get the IP
 		ip := createVM(managedIdentityID)
 
-		// fail if createVM fails
-		if ip != "" {
-			// add the GitOps target
-			addTarget(cluster, ssl)
-
-			// create DNS entry
-			createDNS(ip)
-		}
-
 		// remove the cluster template
 		os.Remove("cluster-" + cluster + ".sh")
 
 		// success
 		if ip != "" {
+			// add the GitOps target
+			addTarget(cluster, ssl)
+
 			cfmt.Info("VM Configured")
+			return nil
 		}
+
+		return fmt.Errorf("VM Creation Failed")
 	},
 }
 
 // check to see if the Azure Resource Group exists
 func groupExists() bool {
-	ex := utils.ShellExecOut("az group exists -g " + group)
+	ex, _ := boa.ShellExecOut("az group exists -g " + group)
 	return strings.HasPrefix(ex, "true")
 }
 
 // check to see if the VM exists in the RG
 func vmExists() bool {
 	command := fmt.Sprintf("az vm show -g %s --name %s --query 'name' -o tsv", group, cluster)
-	res := strings.TrimSpace(utils.ShellExecOut(command))
-	return strings.EqualFold(cluster, res)
+	res, _ := boa.ShellExecOut(command)
+	return strings.EqualFold(cluster, strings.TrimSpace(res))
 }
 
 var dapr bool
@@ -167,7 +164,7 @@ func init() {
 
 // get the path to template file
 func getTemplatePath() string {
-	return utils.GetRepoBase() + "/assets/akdc.templ"
+	return boa.GetRepoBase() + "/assets/akdc.templ"
 }
 
 // create Azure Resource Group
@@ -193,7 +190,7 @@ func createGroup() {
 
 	command := "az group create -l " + location + " -n " + group + " -o table --tags " + rgTags
 
-	err := utils.ShellExecE(command)
+	err := boa.ShellExecE(command)
 	if err != nil {
 		cfmt.ExitError(err)
 	}
@@ -250,7 +247,8 @@ func createVM(managedIdentityID string) string {
 	command += " -o tsv \\\n"
 	command += " --custom-data cluster-" + cluster + ".sh"
 
-	ip := strings.TrimSpace(utils.ShellExecOut(command))
+	ip, _ := boa.ShellExecOut(command)
+	ip = strings.TrimSpace(ip)
 
 	if ip == "" {
 		cfmt.Error("Failed to create cluster")
@@ -272,7 +270,7 @@ func createVM(managedIdentityID string) string {
 
 	cfmt.Info("Deleting default nsg")
 	command = "az network nsg rule delete -g " + group + " --nsg-name " + cluster + "NSG -o table --name default-allow-ssh"
-	utils.ShellExecOut(command)
+	boa.ShellExecOut(command)
 
 	cfmt.Info("Creating SSH rule on port 2222")
 
@@ -285,85 +283,12 @@ func createVM(managedIdentityID string) string {
 	command += "--protocol tcp \\\n"
 	command += "--access allow \\\n"
 	command += "--priority 1202 -o table"
-	utils.ShellExecOut(command)
+	boa.ShellExecOut(command)
 
 	return ip
 }
 
 // create DNS entry and copy SSL certs
-func createDNS(ip string) {
-	if ssl != "" {
-		cfmt.Info("Creating DNS Entry")
-
-		command := "az network dns record-set a list \\\n"
-		command += "--query \"[?name=='" + cluster + "'].{IP:aRecords}\" \\\n"
-		command += "--resource-group tld \\\n"
-		command += "--zone-name " + ssl + " -o json | jq -r '.[].IP[].ipv4Address'"
-
-		oldIP := strings.TrimSpace(utils.ShellExecOut(command))
-
-		command = "az network dns record-set a add-record \\\n"
-		command += "-g tld \\\n"
-		command += "-z " + ssl + " \\\n"
-		command += "-n " + cluster + " \\\n"
-		command += "-a " + ip + " \\\n"
-		command += "--ttl 10 -o table"
-		utils.ShellExecOut(command)
-
-		if oldIP != "" && oldIP != ip {
-			cfmt.Info("Removing old IP:", ip)
-
-			command = "az network dns record-set a remove-record \\\n"
-			command += "-g tld \\\n"
-			command += "-z " + ssl + " \\\n"
-			command += "-n " + cluster + " \\\n"
-			command += "-a " + oldIP + " -o table"
-			utils.ShellExecOut(command)
-		}
-	}
-}
-
-// copy the files to the VM
-func scpFilesToVM(ip string, ssl string) {
-	cfmt.Info("Waiting for sshd service to start")
-
-	// wait for sshd to start
-	time.Sleep(30 * time.Second)
-
-	// make sure we have permission to the directory
-	sshCmd := "ssh -p 2222 -o \"StrictHostKeyChecking=no\" -o ConnectTimeout=600 akdc@" + ip + " \"sudo chown -R akdc:akdc /home/akdc\""
-	utils.ShellExec(sshCmd)
-
-	cfmt.Info("Copying customization files")
-	scpToVM(ip, "~/.ssh/akdc.pat", "~/.ssh/akdc.pat", 30, false)
-
-	if ssl != "" {
-		scpToVM(ip, "~/.ssh/certs.pem", "~/.ssh/certs.pem", 30, false)
-		scpToVM(ip, "~/.ssh/certs.key", "~/.ssh/certs.key", 30, false)
-	}
-
-	echoStatusToVM(ip, "customization files copied")
-}
-
-// add a status message to the VM ~/status file
-func echoStatusToVM(ip string, msg string) {
-	utils.ShellExecOut("ssh -p 2222 -o \"StrictHostKeyChecking=no\" akdc@" + ip + " \"echo \"$(date +'%Y-%m-%d %H:%M:%S')   " + msg + "\" >> status\"")
-}
-
-// copy file(s) to VM worker
-func scpToVM(ip string, source string, destination string, timeout int, recursive bool) {
-	cmd := "scp -P 2222 -o \"StrictHostKeyChecking=no\" -o ConnectTimeout=" + strconv.Itoa(timeout) + " "
-
-	if recursive {
-		cmd += "-r "
-	}
-
-	cmd += source
-	cmd += " akdc@" + ip + ":" + destination
-
-	utils.ShellExec(cmd)
-}
-
 func getConfigJson(cluster string, zone string) []byte {
 	region := cluster
 	district := cluster
@@ -378,7 +303,7 @@ func getConfigJson(cluster string, zone string) []byte {
 		}
 	}
 
-	json := utils.ReadTextFileFromBin("gitops-config.templ")
+	json := boa.ReadTextFileFromBoaDir("gitops-config.templ")
 
 	if json == "" {
 		return nil
@@ -430,10 +355,10 @@ func addTarget(cluster string, zone string) {
 
 		// clone or pull the repo
 		if _, err := os.Stat(gitopsDir); err == nil {
-			utils.ShellExec(gitCmd + "pull")
+			boa.ShellExecE(gitCmd + "pull")
 			dirExists = true
 		} else {
-			utils.ShellExec("git clone " + repoFull + " " + gitopsDir)
+			boa.ShellExecE("git clone " + repoFull + " " + gitopsDir)
 		}
 
 		// add the targets
@@ -446,7 +371,7 @@ func addTarget(cluster string, zone string) {
 					appsDir = filepath.Join(appsDir, cluster)
 
 					// create the directories
-					utils.ShellExec("mkdir -p " + bootstrapDir + " && mkdir -p " + appsDir)
+					boa.ShellExecE("mkdir -p " + bootstrapDir + " && mkdir -p " + appsDir)
 
 					// write config.json to each dir
 					bootstrapDir = filepath.Join(bootstrapDir, "config.json")
@@ -462,7 +387,7 @@ func addTarget(cluster string, zone string) {
 					}
 
 					// if there were repo changes
-					if utils.ShellExecOut(gitCmd+"status -s") != "" {
+					if res, _ := boa.ShellExecOut(gitCmd + "status -s"); res != "" {
 						agoDir := filepath.Join(gitopsDir, "autogitops")
 
 						if _, err := os.Stat(agoDir); err == nil {
@@ -473,15 +398,15 @@ func addTarget(cluster string, zone string) {
 							}
 						}
 						// update the repo
-						utils.ShellExec(gitCmd + "add .")
-						utils.ShellExec(gitCmd + "commit -am 'kic fleet create'")
-						utils.ShellExec(gitCmd + "pull")
-						utils.ShellExec(gitCmd + "push")
+						boa.ShellExecE(gitCmd + "add .")
+						boa.ShellExecE(gitCmd + "commit -am 'kic fleet create'")
+						boa.ShellExecE(gitCmd + "pull")
+						boa.ShellExecE(gitCmd + "push")
 					}
 
 					// delete the repo if we created it
 					if !dirExists {
-						utils.ShellExec("rm -rf " + gitopsDir)
+						boa.ShellExecE("rm -rf " + gitopsDir)
 					}
 				}
 			}

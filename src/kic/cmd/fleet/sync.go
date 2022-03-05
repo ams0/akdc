@@ -5,8 +5,9 @@
 package fleet
 
 import (
+	"kic/boa"
+
 	"github.com/spf13/cobra"
-	"kic/utils"
 )
 
 // syncCmd runs flux sync (reconcile) on each cluster
@@ -15,7 +16,7 @@ var SyncCmd = &cobra.Command{
 	Short: "Sync (reconcile) flux on each cluster",
 
 	Run: func(cmd *cobra.Command, args []string) {
-		utils.ExecClusters("flux reconcile source git gitops", grep)
+		boa.ExecClusters("flux reconcile source git gitops", grep)
 	},
 }
 

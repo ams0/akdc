@@ -5,8 +5,9 @@
 package check
 
 import (
+	"kic/boa"
+
 	"github.com/spf13/cobra"
-	"kic/utils"
 )
 
 // HeartbeatCmd checks each cluster for DNS and SSL setup
@@ -17,11 +18,11 @@ var HeartbeatCmd = &cobra.Command{
 
 	Args: func(cmd *cobra.Command, args []string) error {
 		// this will exit with an error
-		utils.ReadHostIPs("")
+		boa.ReadHostIPs("")
 		return nil
 	},
 
 	Run: func(cmd *cobra.Command, args []string) {
-		utils.ExecClusters("./gitops/fleet/scripts/check-heartbeat", grep)
+		boa.ExecClusters("./gitops/fleet/scripts/check-heartbeat", grep)
 	},
 }

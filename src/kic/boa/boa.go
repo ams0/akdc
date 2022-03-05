@@ -2,67 +2,47 @@
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
-package cmd
+package boa
 
 import (
 	"fmt"
 	"io/ioutil"
-	"kic/cfmt"
-	"kic/utils"
+	"kic/boa/cfmt"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cobra"
 )
 
-var modPath string
-var cmdPath string
+var boaPath string
+var boaCommandPath string
 
-// reset cmdRoot to new__root module if set
-// otherwise remove any hidden root commands
-func setNewRoot() {
-	var cmd *cobra.Command
+var boaRootCmd *cobra.Command
 
-	// create a new root command
-	cmd = &cobra.Command{Use: rootCmd.Use, Short: rootCmd.Short, Long: rootCmd.Long}
+// load commands from *.boa
+// commands are in the .binName directory
+//    that is a subdirectory of where the bin file is located
+// example: /bin/.kic
+func LoadCommands(appRootCmd *cobra.Command) {
+	// set boaRootCmd to the app root command
+	boaRootCmd = appRootCmd
 
-	// check for new__root
-	nr := getCommandByUse(rootCmd, "new__root")
+	boaPath = GetBoaPath()
+	boaCommandPath = GetBoaCommandPath()
 
-	if nr == nil {
-		// add all non-hidden commands to the new root
-		for _, c := range rootCmd.Commands() {
-			if !c.Hidden {
-				cmd.AddCommand(c)
-			}
-			rootCmd = cmd
-		}
-	} else {
-		// get the new root
-		cmd = getCommandByUse(rootCmd, nr.Short)
-
-		if cmd == nil {
-			// new__root not found
-			cfmt.ExitErrorMessage("New root command not found", nr.Short)
-		}
-
-		// create the new rootCmd
-		// we have to do this as the parent is set to the existing rootCmd
-		nr = &cobra.Command{Use: rootCmd.Use, Short: cmd.Short, Long: cmd.Long}
-
-		for _, c := range cmd.Commands() {
-			// add all commands that aren't hidden
-			if !c.Hidden {
-				nr.AddCommand(c)
+	// load boaPath/*.boa
+	files, err := ioutil.ReadDir(boaPath)
+	if err == nil {
+		for _, f := range files {
+			if !f.IsDir() && strings.HasSuffix(strings.ToLower(f.Name()), ".boa") {
+				loadCommand(f.Name())
 			}
 		}
-		rootCmd = nr
 	}
 }
 
 // get a command by Use (Name)
-func getCommandByUse(cmd *cobra.Command, use string) *cobra.Command {
+func GetCommandByUse(cmd *cobra.Command, use string) *cobra.Command {
 	if cmd != nil && len(cmd.Commands()) > 0 {
 		for _, c := range cmd.Commands() {
 			if c.Use == use {
@@ -73,46 +53,48 @@ func getCommandByUse(cmd *cobra.Command, use string) *cobra.Command {
 	return nil
 }
 
-// example of traversing the command tree
-// prints out a tree
-// not used
-func traverseCommands(cmd *cobra.Command, indent string) {
-	fmt.Println(indent + cmd.Use)
-	for _, c := range cmd.Commands() {
-		if len(c.Commands()) > 0 {
-			traverseCommands(c, indent+"   ")
-		} else {
-			fmt.Println(indent + "   " + c.Use + "  --  " + c.Short)
+// reset cmdRoot to new__root command if set
+// otherwise remove any hidden root commands
+func SetNewRoot() *cobra.Command {
+	var cmd *cobra.Command
+
+	// create a new root command
+	cmd = &cobra.Command{Use: boaRootCmd.Use, Short: boaRootCmd.Short, Long: boaRootCmd.Long}
+
+	// check for new__root
+	nr := GetCommandByUse(boaRootCmd, "new__root")
+
+	if nr == nil {
+		// add all non-hidden commands to the new root
+		for _, c := range boaRootCmd.Commands() {
+			if !c.Hidden {
+				cmd.AddCommand(c)
+			}
+			boaRootCmd = cmd
 		}
-	}
-}
+	} else {
+		// get the new root
+		cmd = GetCommandByUse(boaRootCmd, nr.Short)
 
-// load modules from *.boa
-// modules are in the .binName directory
-//    that is a subdirectory of where the bin file is located
-// example: /bin/.kic
-func loadModules() {
-	modPath = utils.GetBinDir()
-	app := utils.GetBinName()
+		if cmd == nil {
+			// new__root not found
+			cfmt.ExitErrorMessage("New root command not found", nr.Short)
+		}
 
-	if strings.HasPrefix(app, "__debug") {
-		// running in debugger - assume package name == source directory
-		app = filepath.Base(modPath)
-	}
+		// create the new boaRootCmd
+		// we have to do this as the parent is set to the existing boaRootCmd
+		nr = &cobra.Command{Use: boaRootCmd.Use, Short: cmd.Short, Long: cmd.Long}
 
-	// complete the paths
-	modPath += "/." + app + "/"
-	cmdPath = modPath + "commands/"
-
-	// load modPath/*.boa
-	files, err := ioutil.ReadDir(modPath)
-	if err == nil {
-		for _, f := range files {
-			if !f.IsDir() && strings.HasSuffix(strings.ToLower(f.Name()), ".boa") {
-				loadModule(f.Name())
+		for _, c := range cmd.Commands() {
+			// add all commands that aren't hidden
+			if !c.Hidden {
+				nr.AddCommand(c)
 			}
 		}
+		boaRootCmd = nr
 	}
+
+	return boaRootCmd
 }
 
 // return the stop word for file reads
@@ -123,8 +105,8 @@ func getStopWord(line string) string {
 	if strings.HasPrefix(chk, "root") {
 		return "root"
 	}
-	if strings.HasPrefix(chk, "module") {
-		return "module"
+	if strings.HasPrefix(chk, "command") {
+		return "command"
 	}
 	if strings.HasPrefix(chk, "runcommand") {
 		return "runCommand"
@@ -136,9 +118,9 @@ func getStopWord(line string) string {
 	return ""
 }
 
-// load module(s) from a file
-func loadModule(fileName string) {
-	var moduleCmd *cobra.Command
+// load command(s) from a file
+func loadCommand(fileName string) {
+	var boaCmd *cobra.Command
 
 	// todo - convert to struct
 	var modType string
@@ -150,7 +132,7 @@ func loadModule(fileName string) {
 	var hidden bool
 
 	// read file into an array
-	lines := utils.ReadLinesFromFile(modPath + fileName)
+	lines := ReadLinesFromFile(boaPath + fileName)
 
 	for i := 0; i < len(lines); i++ {
 		line := strings.TrimSpace(lines[i])
@@ -164,17 +146,17 @@ func loadModule(fileName string) {
 			sw := getStopWord(chk)
 			if sw != "" {
 				if strings.HasPrefix(sw, "popCommand") {
-					// popCommand resets the command to the parent or rootCmd
-					addModuleOrCommand(fileName, moduleCmd, modType, name, short, long, path, parent, hidden)
-					if moduleCmd != nil {
-						moduleCmd = moduleCmd.Parent()
-						if moduleCmd == rootCmd {
-							moduleCmd = nil
+					// popCommand resets the command to the parent or boaRootCmd
+					addBoaCommand(fileName, boaCmd, modType, name, short, long, path, parent, hidden)
+					if boaCmd != nil {
+						boaCmd = boaCmd.Parent()
+						if boaCmd == boaRootCmd {
+							boaCmd = nil
 						}
 					}
 				} else {
-					// add the module and set the new type based on stopWord
-					moduleCmd = addModuleOrCommand(fileName, moduleCmd, modType, name, short, long, path, parent, hidden)
+					// add the command and set the new type based on stopWord
+					boaCmd = addBoaCommand(fileName, boaCmd, modType, name, short, long, path, parent, hidden)
 				}
 
 				// reset params
@@ -205,24 +187,24 @@ func loadModule(fileName string) {
 		}
 	}
 
-	// handle last module at EOF
+	// handle last command at EOF
 	if modType != "" {
-		addModuleOrCommand(fileName, moduleCmd, modType, name, short, long, path, parent, hidden)
+		addBoaCommand(fileName, boaCmd, modType, name, short, long, path, parent, hidden)
 	}
 }
 
-// add a module or command to cobra
-func addModuleOrCommand(fileName string, modCmd *cobra.Command, modType string, name string, short string, long string, path string, parent string, hidden bool) *cobra.Command {
+// add a command or command to cobra
+func addBoaCommand(fileName string, modCmd *cobra.Command, modType string, name string, short string, long string, path string, parent string, hidden bool) *cobra.Command {
 	// ignore if modType not set
 	if modType == "" || modType == "popCommand" {
 		return modCmd
 	}
 
-	// handle different module and command types
+	// handle different command and command types
 	if modType == "root" {
 		return setRootValues(name, short, long)
-	} else if modType == "module" {
-		return addModule(modCmd, name, short, long, parent, hidden)
+	} else if modType == "command" {
+		return addParentCommand(modCmd, name, short, long, parent, hidden)
 	} else if modType == "runCommand" {
 		return addCommand(modCmd, name, short, long, path, hidden)
 	}
@@ -232,26 +214,28 @@ func addModuleOrCommand(fileName string, modCmd *cobra.Command, modType string, 
 	return nil
 }
 
-// add a module to the command tree
-func addModule(modCmd *cobra.Command, name string, short string, long string, parent string, hidden bool) *cobra.Command {
+// add a command to the command tree
+func addParentCommand(modCmd *cobra.Command, name string, short string, long string, parent string, hidden bool) *cobra.Command {
 	if !hidden {
 		// name and short are required
-		checkNameAndShort(name, short)
+		if err := checkNameAndShort(name, short); err != nil {
+			return modCmd
+		}
 	} else {
 		short = "hidden"
 		long = ""
 	}
 
-	// create the new module
-	moduleCmd := createCommand(name, short, long)
-	moduleCmd.Hidden = hidden
+	// create the new command
+	boaCmd := createCommand(name, short, long)
+	boaCmd.Hidden = hidden
 
 	if parent != "" {
 		// set the parent if specified
-		if strings.ToLower(parent) == "rootcmd" {
+		if strings.ToLower(parent) == "boaRootCmd" {
 			modCmd = nil
 		} else {
-			modCmd = getCommandByUse(rootCmd, parent)
+			modCmd = GetCommandByUse(boaRootCmd, parent)
 			if modCmd == nil {
 				cfmt.ExitErrorMessage("Parent command not found", parent)
 			}
@@ -260,33 +244,33 @@ func addModule(modCmd *cobra.Command, name string, short string, long string, pa
 
 	if modCmd != nil {
 		// check for dupes
-		if getCommandByUse(modCmd, name) != nil {
+		if GetCommandByUse(modCmd, name) != nil {
 			if hidden {
-				getCommandByUse(modCmd, name).Hidden = true
+				GetCommandByUse(modCmd, name).Hidden = true
 			} else {
 				cfmt.ExitErrorMessage("Command already exists", modCmd.Use, name)
 			}
 		} else {
-			modCmd.AddCommand(moduleCmd)
+			modCmd.AddCommand(boaCmd)
 		}
 	} else {
 		// check for dupes
-		if getCommandByUse(rootCmd, name) != nil {
+		if GetCommandByUse(boaRootCmd, name) != nil {
 			if hidden {
-				getCommandByUse(rootCmd, name).Hidden = true
+				GetCommandByUse(boaRootCmd, name).Hidden = true
 			} else {
-				cfmt.ExitErrorMessage("Command already exists", rootCmd.Use, name)
+				cfmt.ExitErrorMessage("Command already exists", boaRootCmd.Use, name)
 			}
 		} else {
-			rootCmd.AddCommand(moduleCmd)
+			boaRootCmd.AddCommand(boaCmd)
 		}
 	}
 
-	// set the new module to the parent
-	return moduleCmd
+	// set the new command to the parent
+	return boaCmd
 }
 
-// add a command to a module in the command tree
+// add a command to a command in the command tree
 func addCommand(modCmd *cobra.Command, name string, short string, long string, path string, hidden bool) *cobra.Command {
 	if path == "" {
 		cfmt.ExitErrorMessage("path is required", name, short, long, path)
@@ -299,20 +283,22 @@ func addCommand(modCmd *cobra.Command, name string, short string, long string, p
 
 	if !hidden {
 		// name and short are required
-		checkNameAndShort(name, short)
+		if err := checkNameAndShort(name, short); err != nil {
+			return modCmd
+		}
 	} else {
 		short = "hidden"
 		long = ""
 	}
 
-	// use rootCmd if modCmd is nil
+	// use boaRootCmd if modCmd is nil
 	aCmd := modCmd
 	if aCmd == nil {
-		aCmd = rootCmd
+		aCmd = boaRootCmd
 	}
 
 	// check for dupes
-	if getCommandByUse(aCmd, name) != nil {
+	if GetCommandByUse(aCmd, name) != nil {
 		cfmt.ExitErrorMessage("Command already exists", aCmd.Use, name)
 	}
 
@@ -328,14 +314,14 @@ func addCommand(modCmd *cobra.Command, name string, short string, long string, p
 // set the root command values
 func setRootValues(name string, short string, long string) *cobra.Command {
 	// name and short are required
-	checkNameAndShort(name, short)
+	if err := checkNameAndShort(name, short); err == nil {
+		boaRootCmd.Use = name
+		boaRootCmd.Short = short
 
-	rootCmd.Use = name
-	rootCmd.Short = short
-
-	// this will default to short if not set
-	if long != "" {
-		rootCmd.Long = long
+		// this will default to short if not set
+		if long != "" {
+			boaRootCmd.Long = long
+		}
 	}
 
 	// reset parent
@@ -343,18 +329,18 @@ func setRootValues(name string, short string, long string) *cobra.Command {
 }
 
 // this will exit if name or short are invalid
-func checkNameAndShort(name string, short string) {
+func checkNameAndShort(name string, short string) error {
 	// name and short are required
 	if name == "" || short == "" {
 		if name == "" {
-			cfmt.Error("name: is required")
+			return fmt.Errorf("name: is required")
 		}
 		if short == "" {
-			cfmt.Error("short: is required")
+			return fmt.Errorf("short: is required")
 		}
-
-		os.Exit(1)
 	}
+
+	return nil
 }
 
 // read the metadata from the command
@@ -365,10 +351,10 @@ func readFromCommandFile(path string, key string, value string) string {
 	}
 
 	key = strings.TrimSpace(strings.ToLower(key)) + ":"
-	p := cmdPath + path
+	p := boaCommandPath + path
 
 	// read the file into an array
-	txt := utils.ReadTextFile(p)
+	txt := ReadTextFile(p)
 	lines := strings.Split(txt, "\n")
 
 	for i := 0; i < len(lines); i++ {
@@ -409,12 +395,78 @@ func addRunCommand(use string, short string, long string, command string) *cobra
 
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) > 0 {
-				utils.ShellExecArgs(cmdPath+command, args)
+				ShellExecArgsE(boaCommandPath+command, args)
 			} else {
-				utils.ShellExec(cmdPath + command)
+				ShellExecE(boaCommandPath + command)
 			}
 		},
 	}
 
 	return runCmd
+}
+
+// create a command that runs the bash command
+func AddRunCommand(use string, short string, long string, command string) *cobra.Command {
+	cmdPath := GetBoaCommandPath()
+
+	runCmd := &cobra.Command{
+		Use:   use,
+		Short: short,
+		Long:  long,
+
+		Run: func(cmd *cobra.Command, args []string) {
+			if len(args) > 0 {
+				ShellExecArgsE(cmdPath+command, args)
+			} else {
+				ShellExecE(cmdPath + command)
+			}
+		},
+	}
+
+	return runCmd
+}
+
+// run a command on all clusters
+func ExecClusters(cmd string, grep string) {
+	hostIPs := ReadHostIPs(grep)
+
+	ch := make(chan string)
+
+	for _, hostIP := range hostIPs {
+		cols := strings.Split(hostIP, "\t")
+
+		if len(cols) > 1 {
+			go ExecCluster(cols[0], cols[1], cmd, ch)
+		}
+	}
+
+	// todo - add timeout
+	for i := 0; i < len(hostIPs); i++ {
+		<-ch
+	}
+}
+
+// run a command on one cluster via ssh
+func ExecCluster(host string, ip string, cmd string, ch chan string) {
+	cmd = fmt.Sprintf("ssh -p 2222 -o \"StrictHostKeyChecking=no\" -o ConnectTimeout=5 akdc@%s %s", ip, cmd)
+
+	ShellExecE(cmd)
+
+	ch <- host
+}
+
+// execute a command in bin/.kic/commands
+func ExecCommandE(cmd string) error {
+	path := GetBoaCommandPath() + cmd
+
+	// execute the file with "bash -c" if it exists
+	_, err := os.Stat(path)
+
+	if err == nil {
+		cfmt.Info("Running command: " + cmd)
+
+		err = ShellExecE(fmt.Sprintf("%s %s", path, os.Args))
+	}
+
+	return err
 }

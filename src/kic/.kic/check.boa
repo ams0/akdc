@@ -2,7 +2,7 @@
 # Check commands and sub-commands
 ###
 
-module
+command
 	name: check
 	short: Check status on the local k3d cluster
 

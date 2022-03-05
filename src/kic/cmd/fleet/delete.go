@@ -6,7 +6,7 @@ package fleet
 
 import (
 	"fmt"
-	"kic/utils"
+	"kic/boa"
 
 	"github.com/spf13/cobra"
 )
@@ -24,10 +24,10 @@ var DeleteCmd = &cobra.Command{
 		}
 
 		fmt.Println("Deleting Resource Group")
-		utils.ShellExec(fmt.Sprintf("az group delete -n %s --yes --no-wait", args[0]))
+		boa.ShellExecE(fmt.Sprintf("az group delete -n %s --yes --no-wait", args[0]))
 
 		fmt.Println("Deleting DNS Record")
-		utils.ShellExec(fmt.Sprintf("az network dns record-set a delete -g tld -z cseretail.com --yes -n %s", args[0]))
+		boa.ShellExecE(fmt.Sprintf("az network dns record-set a delete -g tld -z cseretail.com --yes -n %s", args[0]))
 
 	},
 }

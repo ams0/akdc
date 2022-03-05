@@ -6,8 +6,9 @@ package fleet
 
 import (
 	"fmt"
+	"kic/boa"
+
 	"github.com/spf13/cobra"
-	"kic/utils"
 )
 
 // execCmd runs a bash command on each server
@@ -30,7 +31,7 @@ var ExecCmd = &cobra.Command{
 
 		command = command[1 : len(command)-1]
 
-		utils.ExecClusters(command, grep)
+		boa.ExecClusters(command, grep)
 	},
 }
 

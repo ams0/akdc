@@ -225,6 +225,14 @@ echo "$(date +'%Y-%m-%d %H:%M:%S')  cloning GitHub repo" >> status
 # run as akdc user
 sudo -HEu akdc git clone "https://$(cat .ssh/akdc.pat)@github.com/$AKDC_REPO" gitops
 
+# download latest CLI
+# todo - working on akdc release pipeline
+#wget -q -O gitops/bin/kic https://github.com/retaildevcrews/akdc/releases/download/v0.2.0/kic
+chmod +x gitops/bin/kic
+
+# change ownership
+chown -R ${AKDC_ME}:${AKDC_ME} /home/${AKDC_ME}
+
 if [ ! -d gitops/fleet/setup ]
 then
   echo "$(date +'%Y-%m-%d %H:%M:%S')  git clone failed" >> status
@@ -232,47 +240,46 @@ then
   exit 1
 fi
 
+echo "$(date +'%Y-%m-%d %H:%M:%S')  creating DNS entry" >> status
+
 if [ "$AKDC_DO" = "true" ]
 then
-  echo "$(date +'%Y-%m-%d %H:%M:%S')  creating DNS entry" >> status
-
-  # get the old IP
-  old_ip=$(az network dns record-set a list \
-  --query "[?name=='\$AKDC_CLUSTER'].{IP:aRecords}" \
-  --resource-group $AKDC_DNS_RG \
-  --zone-name "$AKDC_ZONE" \
-  -o json | jq -r '.[].IP[].ipv4Address')
-
-  echo "$(date +'%Y-%m-%d %H:%M:%S')  Old IP: $old_ip" >> status
-  echo "Old IP: $old_ip"
-
   # get the public IP
   pip="$(ip -4 a show eth0 | grep inet | sed "s/inet//g" | sed "s/ //g" | cut -d / -f 1 | grep -v '10\.')"
-  echo "$(date +'%Y-%m-%d %H:%M:%S')  Public IP: $pip" >> status
-  echo "Public IP: $pip"
-
-  # create DNS record
-  az network dns record-set a add-record \
-  -g "$AKDC_DNS_RG" \
-  -z "$AKDC_ZONE" \
-  -n "$AKDC_CLUSTER" \
-  -a "$pip" \
-  --ttl 10 -o table
-
-  if [ "$old_ip" != "$pip" ]
-  then
-    echo "$(date +'%Y-%m-%d %H:%M:%S')  deleting old DNS entry" >> status
-
-    # delete the old DNS entry
-    # az network dns record-set a remove-record \
-    # -g $AKDC_DNS_RG \
-    # -z "$AKDC_ZONE" \
-    # -n $AKDC_CLUSTER \
-    # -a "$old_ip" -o table
-  else
-    echo "$(date +'%Y-%m-%d %H:%M:%S')  DNS entry exists" >> status
-  fi
+else
+  # get the public IP
+  pip=$(az network public-ip show -g "$AKDC_RESOURCE_GROUP" -n "${AKDC_CLUSTER}publicip" --query ipAddress -o tsv)
 fi
+echo "$(date +'%Y-%m-%d %H:%M:%S')  Public IP: $pip" >> status
+echo "Public IP: $pip"
+
+# get the old IP
+old_ip=$(az network dns record-set a list \
+--query "[?name=='$AKDC_CLUSTER'].{IP:aRecords}" \
+--resource-group $AKDC_DNS_RG \
+--zone-name "$AKDC_ZONE" \
+-o json | jq -r '.[].IP[].ipv4Address' | tail -n1)
+
+# delete old DNS entry if exists
+if [ "$old_ip" != "" ] && [ "$old_ip" != "$pip" ]
+then
+  echo "$(date +'%Y-%m-%d %H:%M:%S')  deleting old DNS entry old: $old_ip pip: $pip" >> status
+
+  # delete the old DNS entry
+  az network dns record-set a remove-record \
+  -g $AKDC_DNS_RG \
+  -z "$AKDC_ZONE" \
+  -n $AKDC_CLUSTER \
+  -a "$old_ip" -o table
+fi
+
+# create DNS record
+az network dns record-set a add-record \
+-g "$AKDC_DNS_RG" \
+-z "$AKDC_ZONE" \
+-n "$AKDC_CLUSTER" \
+-a "$pip" \
+--ttl 10 -o table
 
 echo "$(date +'%Y-%m-%d %H:%M:%S')  installing docker" >> status
 apt-get install -y docker-ce docker-ce-cli

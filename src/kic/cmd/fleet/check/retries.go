@@ -5,8 +5,9 @@
 package check
 
 import (
+	"kic/boa"
+
 	"github.com/spf13/cobra"
-	"kic/utils"
 )
 
 // RetriesCmd checks each server for the number of flux retries during installation
@@ -16,11 +17,11 @@ var RetriesCmd = &cobra.Command{
 
 	Args: func(cmd *cobra.Command, args []string) error {
 		// this will exit with an error
-		utils.ReadHostIPs("")
+		boa.ReadHostIPs("")
 		return nil
 	},
 
 	Run: func(cmd *cobra.Command, args []string) {
-		utils.ExecClusters("./gitops/fleet/scripts/check-retries", grep)
+		boa.ExecClusters("./gitops/fleet/scripts/check-retries", grep)
 	},
 }

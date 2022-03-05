@@ -5,8 +5,8 @@
 package targets
 
 import (
-	"kic/cfmt"
-	"kic/utils"
+	"kic/boa"
+	"kic/boa/cfmt"
 
 	"github.com/spf13/cobra"
 )
@@ -21,17 +21,17 @@ var PushCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		// make sure the repo is up to date
-		if utils.ShellExecOut("git status -s") == "" {
+		if res, _ := boa.ShellExecOut("git status -s"); res == "" {
 			cfmt.Info("nothing to push")
 		} else {
 			cfmt.Info("pulling from GitHub")
-			utils.ShellExec("git pull")
+			boa.ShellExecE("git pull")
 
 			cfmt.Info("committing changes to GitHub")
-			utils.ShellExec("git commit -am 'updated targets with akdc CLI'")
+			boa.ShellExecE("git commit -am 'updated targets with akdc CLI'")
 
 			cfmt.Info("pushing changes to GitHub")
-			utils.ShellExec("git push")
+			boa.ShellExecE("git push")
 		}
 	},
 }

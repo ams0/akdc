@@ -2,7 +2,7 @@
 # Build commands and sub-commands
 ###
 
-module
+command
 	name: build
 	short: Build and deploy local apps
 

@@ -6,8 +6,9 @@ package targets
 
 import (
 	"fmt"
+	"kic/boa/cfmt"
+
 	"github.com/spf13/cobra"
-	"kic/cfmt"
 )
 
 // checkFluxCmd checks each cluster for flux-check namespace
@@ -28,6 +29,8 @@ var ListCmd = &cobra.Command{
 				cfmt.Info("Targets")
 				fmt.Println(result["targets"])
 			}
+		} else {
+			cfmt.Error("failed to read autogitops.json")
 		}
 	},
 }

@@ -5,8 +5,9 @@
 package fleet
 
 import (
+	"kic/boa"
+
 	"github.com/spf13/cobra"
-	"kic/utils"
 )
 
 // PatchCmd runs ~/gitops/fleet/scripts/patch.sh on each cluster
@@ -14,7 +15,7 @@ var PatchCmd = &cobra.Command{
 	Use:   "patch",
 	Short: "Run a patch command on each cluster",
 	Run: func(cmd *cobra.Command, args []string) {
-		utils.ExecClusters("gitops/fleet/scripts/patch.sh", grep)
+		boa.ExecClusters("gitops/fleet/scripts/patch.sh", grep)
 	},
 }
 

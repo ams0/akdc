@@ -5,7 +5,7 @@
 package fleet
 
 import (
-	"kic/utils"
+	"kic/boa"
 
 	"github.com/spf13/cobra"
 )
@@ -16,6 +16,6 @@ var GroupsCmd = &cobra.Command{
 	Short: "List Azure resource groups",
 
 	Run: func(cmd *cobra.Command, args []string) {
-		utils.ShellExec("az group list -o table | sort | grep -e central- -e east- -e west- -e corp- -e retail-edge")
+		boa.ShellExecE("az group list -o table | sort | grep -e central- -e east- -e west- -e corp- -e retail-edge")
 	},
 }

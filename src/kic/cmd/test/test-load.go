@@ -6,12 +6,18 @@ package test
 
 import (
 	"fmt"
-	"kic/cfmt"
-	"kic/utils"
+	"kic/boa"
+	"kic/boa/cfmt"
 	"os"
 
 	"github.com/spf13/cobra"
 )
+
+// command line options
+var fileLoad string
+var delayStart int
+var duration int
+var random bool
 
 // test-load command
 var LoadCmd = &cobra.Command{
@@ -19,39 +25,40 @@ var LoadCmd = &cobra.Command{
 	Short: "Run a load test on each cluster",
 
 	Run: func(cmd *cobra.Command, args []string) {
-		command := "test"
-
 		cfmt.Info("Running load test")
 
 		if sleep < 1 {
 			sleep = 100
 		}
 
-		params := "--run-loop "
-		params += getTestFlagValues()
+		// get shared options
+		params := getTestFlagValues()
 
 		// add test-load specific options to command line
+		params += " --run-loop "
+
 		if fileLoad != "" {
 			params += " --files " + fileLoad
-		}
-
-		if random {
-			params += " --random"
-		}
-
-		if duration > 0 {
-			params += fmt.Sprintf(" --duration %d", duration)
 		}
 
 		if delayStart > 0 {
 			params += fmt.Sprintf(" --delay-start %d", delayStart)
 		}
 
-		path := utils.GetBinDir() + "/.kic/commands/" + command
+		if duration > 0 {
+			params += fmt.Sprintf(" --duration %d", duration)
+		}
+
+		if random {
+			params += " --random"
+		}
+
+		// build the path to the script
+		path := boa.GetBinDir() + "/.kic/commands/test"
 
 		// execute the file with "bash -c" if it exists
 		if _, err := os.Stat(path); err == nil {
-			utils.ShellExec(fmt.Sprintf("%s %s", path, params))
+			boa.ShellExecE(fmt.Sprintf("%s %s", path, params))
 		} else {
 			cfmt.Error(err)
 		}
@@ -61,6 +68,7 @@ var LoadCmd = &cobra.Command{
 // add command specific options
 func init() {
 	LoadCmd.Flags().StringVarP(&fileLoad, "file", "f", "benchmark.json", "Test file to use")
-	LoadCmd.Flags().IntVarP(&duration, "duration", "", 30, "Test duration (seconds)")
 	LoadCmd.Flags().IntVarP(&delayStart, "delay-start", "", 0, "Delay test start (seconds)")
+	LoadCmd.Flags().IntVarP(&duration, "duration", "", 30, "Test duration (seconds)")
+	LoadCmd.Flags().BoolVarP(&random, "random", "", false, "Randomize tests")
 }

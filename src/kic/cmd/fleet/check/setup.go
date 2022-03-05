@@ -5,8 +5,9 @@
 package check
 
 import (
+	"kic/boa"
+
 	"github.com/spf13/cobra"
-	"kic/utils"
 )
 
 // SetupCmd checks each cluster for the setup status
@@ -16,12 +17,12 @@ var SetupCmd = &cobra.Command{
 
 	Args: func(cmd *cobra.Command, args []string) error {
 		// this will exit with an error
-		utils.ReadHostIPs("")
+		boa.ReadHostIPs("")
 		return nil
 	},
 
 	Run: func(cmd *cobra.Command, args []string) {
 		// don't use a command on the VM as it's not available until late in setup
-		utils.ExecClusters("tail -n1 status", grep)
+		boa.ExecClusters("tail -n1 status", grep)
 	},
 }

@@ -5,8 +5,9 @@
 package fleet
 
 import (
+	"kic/boa"
+
 	"github.com/spf13/cobra"
-	"kic/utils"
 )
 
 // PullCmd runs git pull on the akdc repo on each cluster
@@ -14,7 +15,7 @@ var PullCmd = &cobra.Command{
 	Use:   "pull",
 	Short: "Git pull the akdc repo",
 	Run: func(cmd *cobra.Command, args []string) {
-		utils.ExecClusters("git -C gitops pull", grep)
+		boa.ExecClusters("git -C gitops pull", grep)
 	},
 }
 

@@ -75,8 +75,6 @@ go install -v github.com/go-delve/delve/cmd/dlv@latest
 go install -v honnef.co/go/tools/cmd/staticcheck@latest
 go install -v golang.org/x/tools/gopls@latest
 
-dotnet restore assets/gen-gitops
-
 cp -r .devcontainer/.vscode .
 
 # clone repos

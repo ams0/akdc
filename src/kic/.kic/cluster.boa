@@ -2,7 +2,7 @@
 # Cluster commands and sub-commands
 ###
 
-module
+command
 	name: cluster
 	short: k3d cluster commands
 

@@ -1,4 +1,4 @@
-.PHONY: all
+.PHONY: all test
 
 all :
 	@# build
@@ -9,8 +9,11 @@ all :
 	@cp kic ../../bin
 	@cp kic ../../fleet/bin
 
-	@# update modules / commands
+	@# update commands
 	@rm -rf ../../bin/.kic
 	@cp -r .kic ../../bin
 
 	# make complete
+
+test :
+	@go test ./... -cover

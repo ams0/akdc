@@ -6,12 +6,17 @@ package test
 
 import (
 	"fmt"
-	"kic/cfmt"
-	"kic/utils"
+	"kic/boa"
+	"kic/boa/cfmt"
 	"os"
 
 	"github.com/spf13/cobra"
 )
+
+// command line options
+var fileIntegration string
+var maxErrors int
+var summary string
 
 // test-integration command
 var IntegrationCmd = &cobra.Command{
@@ -27,6 +32,7 @@ var IntegrationCmd = &cobra.Command{
 			sleep = 0
 		}
 
+		// get shared options
 		params := getTestFlagValues()
 
 		// add test-integration specific options to command line
@@ -42,11 +48,11 @@ var IntegrationCmd = &cobra.Command{
 			params += " --summary " + summary
 		}
 
-		path := utils.GetBinDir() + "/.kic/commands/" + command
+		path := boa.GetBinDir() + "/.kic/commands/" + command
 
 		// execute the file with "bash -c" if it exists
 		if _, err := os.Stat(path); err == nil {
-			utils.ShellExec(fmt.Sprintf("%s %s", path, params))
+			boa.ShellExecE(fmt.Sprintf("%s %s", path, params))
 		} else {
 			cfmt.Error(err)
 		}
@@ -56,6 +62,6 @@ var IntegrationCmd = &cobra.Command{
 // add command specific options
 func init() {
 	IntegrationCmd.Flags().StringVarP(&fileIntegration, "file", "f", "baseline.json", "Test file to use")
-	IntegrationCmd.Flags().StringVarP(&summary, "summary", "", "None", "Test summary display <None|Tsv|Xml>")
 	IntegrationCmd.Flags().IntVarP(&maxErrors, "max-errors", "", 10, "Max validation errors before terminating test")
+	IntegrationCmd.Flags().StringVarP(&summary, "summary", "", "None", "Test summary display <None|Tsv|Xml>")
 }

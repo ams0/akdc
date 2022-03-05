@@ -5,8 +5,9 @@
 package check
 
 import (
+	"kic/boa"
+
 	"github.com/spf13/cobra"
-	"kic/utils"
 )
 
 // CheckNgsaCmd checks each cluster to see if ngsa is installed
@@ -16,12 +17,12 @@ var NgsaCmd = &cobra.Command{
 
 	Args: func(cmd *cobra.Command, args []string) error {
 		// this will exit with an error
-		utils.ReadHostIPs("")
+		boa.ReadHostIPs("")
 
 		return nil
 	},
 
 	Run: func(cmd *cobra.Command, args []string) {
-		utils.ExecClusters("./gitops/fleet/scripts/check-aioa", grep)
+		boa.ExecClusters("./gitops/fleet/scripts/check-aioa", grep)
 	},
 }

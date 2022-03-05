@@ -5,8 +5,9 @@
 package fleet
 
 import (
-	"github.com/spf13/cobra"
 	"kic/cmd/fleet/check"
+
+	"github.com/spf13/cobra"
 )
 
 // option variables

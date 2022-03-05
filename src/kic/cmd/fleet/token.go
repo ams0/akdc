@@ -5,8 +5,9 @@
 package fleet
 
 import (
+	"kic/boa"
+
 	"github.com/spf13/cobra"
-	"kic/utils"
 )
 
 // getTokenCmd fetched the admin-user token used to authenticate in the azure portal for kubernetes workloads
@@ -15,7 +16,7 @@ var TokenCmd = &cobra.Command{
 	Short: "Get Arc token from each cluster",
 
 	Run: func(cmd *cobra.Command, args []string) {
-		utils.ExecClusters("'echo -e \"\"$(hostname)\"\n$(/home/akdc/gitops/fleet/scripts/get-service-account-token.sh)\n\"'", grep)
+		boa.ExecClusters("'echo -e \"\"$(hostname)\"\n$(/home/akdc/gitops/fleet/scripts/get-service-account-token.sh)\n\"'", grep)
 	},
 }
 

@@ -7,13 +7,12 @@ package targets
 import (
 	"encoding/json"
 	"fmt"
-	"kic/utils"
+	"kic/boa"
+	"kic/boa/cfmt"
 	"os"
 
 	"github.com/spf13/cobra"
 )
-
-var targetsPush bool
 
 // checkCmd adds check subcommands
 var TargetsCmd = &cobra.Command{
@@ -41,7 +40,7 @@ func checkForConfigFile() error {
 
 func getAutoGitOpsConfigMap() map[string]interface{} {
 	// make sure the repo is up to date
-	utils.ShellExecOut("git pull")
+	boa.ShellExecOut("git pull")
 
 	content, err := os.ReadFile(AutoGitOpsConfigFile)
 
@@ -54,7 +53,13 @@ func getAutoGitOpsConfigMap() map[string]interface{} {
 
 	var result map[string]interface{}
 
-	json.Unmarshal([]byte(txt), &result)
+	err = json.Unmarshal([]byte(txt), &result)
+
+	if err != nil {
+		cfmt.Error("unmarshal json faile")
+		fmt.Println(err)
+		return nil
+	}
 
 	return result
 }
