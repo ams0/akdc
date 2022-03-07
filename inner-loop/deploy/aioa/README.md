@@ -1,6 +1,15 @@
 # App Setup
 
-> From the `ngsa` directory in this repo
+> From the `deploy` directory in this repo
+
+```bash
+
+# create namespace
+kubectl apply -f deploy
+
+```
+
+> From the `aioa` directory in this repo
 
 ```bash
 
@@ -12,27 +21,27 @@ kubectl create secret generic log-secrets \
 # display the secrets (base 64 encoded)
 kubectl get secret log-secrets -o jsonpath='{.data}'
 
-# deploy ngsa app
-kubectl apply -f ngsa.yaml
+# deploy AI Order Accuracy app
+kubectl apply -f aioa.yaml
 
 # check pods until running
-kubectl get pods
+kubectl get pods -n ai-order-accuracy
 
 # check local logs
-kubectl logs ngsa
+kubectl logs ai-order-accuracy -n ai-order-accuracy
 
 # check the version and genres endpoints
 http $PIP:30080/version
 http $PIP:30080/api/genres
 
 # check logs
-kubectl logs ngsa
+kubectl logs ai-order-accuracy -n ai-order-accuracy
 
-# delete ngsa
-kubectl delete -f ngsa.yaml
+# delete AI Order Accuracy
+kubectl delete -f aioa.yaml
 
 # check pods
-kubectl get pods
+kubectl get pods -n ai-order-accuracy
 
 # Result - No resources found in default namespace.
 

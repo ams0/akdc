@@ -33,7 +33,7 @@
 	// add labels
 	"portsAttributes": {
 		"30000": { "label": "Prometheus" },
-		"30080": { "label": "NGSA" },
+		"30080": { "label": "AI Order Accuracy" },
 		"30088": { "label": "WebV" },
 		"32000": { "label": "Grafana" },
 	},

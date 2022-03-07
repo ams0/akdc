@@ -3,6 +3,7 @@ kind: Pod
 
 metadata:
   name: webv
+  namespace: ai-order-accuracy
   labels:
     app: webv
 
@@ -43,6 +44,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: webv
+  namespace: ai-order-accuracy
   labels:
     app: webv
 spec:
