@@ -29,10 +29,10 @@ cd digital-twin
 #### do not run kic all
 
 # create the cluster
-kic cluster create
+kic manage cluster create
 
 # deploy jumpbox
-kic cluster jumpbox
+kic manage cluster jumpbox
 
 ```
 

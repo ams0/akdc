@@ -26,7 +26,7 @@ func runTargetsRemoveE(cmd *cobra.Command, args []string) error {
 
 	result := getAutoGitOpsConfigMap()
 
-	if result != nil {
+	if result == nil {
 		return cfmt.ErrorE("Error: unable to read autogitops.json")
 	} else {
 		t := result["targets"]

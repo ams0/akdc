@@ -6,30 +6,30 @@ import (
 )
 
 var (
-	Reset string
-	Blue string
-	Cyan string
-	Gray string
-	Green string
+	Reset  string
+	Blue   string
+	Cyan   string
+	Gray   string
+	Green  string
 	Purple string
-	Red string
-	White string
+	Red    string
+	White  string
 	Yellow string
 )
 
 // print an info message in cyan
 func Info(msg ...interface{}) {
 	fmt.Print(Cyan)
-	fmt.Print(msg ...)
+	fmt.Print(msg...)
 	fmt.Println(Reset)
 }
 
 // print the error in red and return params as error
 func ErrorE(msg ...interface{}) error {
 	fmt.Print(Red)
-	fmt.Print(msg ...)
+	fmt.Print(msg...)
 	fmt.Println(Reset)
-	return fmt.Errorf("%v", fmt.Sprint(msg ...))
+	return fmt.Errorf("%v", fmt.Sprint(msg...))
 }
 
 func init() {

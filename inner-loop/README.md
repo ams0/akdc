@@ -16,17 +16,17 @@ cd inner-loop
 
 ```bash
 
-kic cluster all
+kic manage cluster all
 
 ```
 
 ## Other CLI commands
 
-- `kic cluster` implements various cluster management tasks
+- `kic manage cluster` implements various cluster management tasks
 
 ```bash
 
-kic cluster
+kic manage cluster
 
 ```
 
@@ -34,10 +34,10 @@ kic cluster
 
 ```text
 
-k3d cluster commands
+k3d manage cluster commands
 
 Usage:
-  kic cluster [command]
+  kic manage cluster [command]
 
 Available Commands:
   all         Create and bootstrap a local k3d cluster and deploy the apps
@@ -50,7 +50,7 @@ Available Commands:
 Flags:
   -h, --help   help for cluster
 
-Use "kic cluster [command] --help" for more information about a command.
+Use "kic manage cluster [command] --help" for more information about a command.
 
 ```
 

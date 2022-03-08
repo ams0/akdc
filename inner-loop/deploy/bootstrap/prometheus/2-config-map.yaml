@@ -101,19 +101,11 @@ data:
 
       - job_name: 'ngsa'
         static_configs:
-          - targets: [ 'ngsa.default.svc.cluster.local:8080' ]
-
-      - job_name: 'ngsa-ngsa'
-        static_configs:
-          - targets: [ 'ngsa.ngsa.svc.cluster.local:8080' ]
+          - targets: [ 'ai-order-accuracy.ai-order-accuracy.svc.cluster.local:8080' ]
 
       - job_name: 'webv'
         static_configs:
-          - targets: [ 'webv.default.svc.cluster.local:8080' ]
-
-      - job_name: 'webv-ngsa'
-        static_configs:
-          - targets: [ 'webv.ngsa.svc.cluster.local:8080' ]
+          - targets: [ 'webv.ai-order-accuracy.svc.cluster.local:8080' ]
 
       - job_name: 'kubernetes-cadvisor'
 

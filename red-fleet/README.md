@@ -9,7 +9,7 @@
 
 - Once the VMs are setup, it's easier to reset the k3d cluster on the VM than rebuild the VM
   - From an ssh shell into the VM
-    - `kic cluster create`
+    - `kic manage cluster create`
 
 ## Setup
 
