@@ -6,28 +6,33 @@ package targets
 
 import (
 	"fmt"
+	"kic/boa/cfmt"
+
 	"github.com/spf13/cobra"
 )
 
-// checkFluxCmd checks each cluster for flux-check namespace
+// ClearCmd clears the GitOps targets
 var ClearCmd = &cobra.Command{
 	Use:   "clear",
 	Short: "Clear all GitOps targets",
+	Args:  argsTargets,
+	RunE:  runTargetsClearE,
+}
 
-	Args: func(cmd *cobra.Command, args []string) error {
-		return checkForConfigFile()
-	},
-	Run: func(cmd *cobra.Command, args []string) {
-		result := getAutoGitOpsConfigMap()
+func runTargetsClearE(cmd *cobra.Command, args []string) error {
+	result := getAutoGitOpsConfigMap()
 
-		if result != nil {
-			var nt []interface{}
+	if result != nil {
+		var nt []interface{}
 
-			result["targets"] = nt
+		result["targets"] = nt
 
-			saveAutoGitOpsConfig(result)
+		saveAutoGitOpsConfig(result)
 
-			fmt.Println("targets cleared")
-		}
-	},
+		fmt.Println("targets cleared")
+
+		return nil
+	}
+
+	return cfmt.ErrorE("Unable to read targets")
 }

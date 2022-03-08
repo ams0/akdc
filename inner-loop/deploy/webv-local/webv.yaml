@@ -23,7 +23,7 @@ spec:
 
     args:
     - --server
-    - http://ngsa:8080
+    - http://ai-order-accuracy:8080
     - --files
     - benchmark.json
     - --sleep

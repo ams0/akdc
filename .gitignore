@@ -9,9 +9,7 @@ cluster-*
 
 # ignore the CLI binary
 # we need the other files in bin
-bin/kic
-fleet/bin/kic
-src/kic/kic
+**/bin/kic
 
 dotFiles/.**
 

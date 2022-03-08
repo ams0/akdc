@@ -10,13 +10,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// syncCmd runs flux sync (reconcile) on each cluster
+// SyncCmd runs flux sync (reconcile) on each cluster
 var SyncCmd = &cobra.Command{
 	Use:   "sync",
 	Short: "Sync (reconcile) flux on each cluster",
 
-	Run: func(cmd *cobra.Command, args []string) {
-		boa.ExecClusters("flux reconcile source git gitops", grep)
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return boa.ExecClusters("flux reconcile source git gitops", grep)
 	},
 }
 

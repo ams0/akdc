@@ -14,7 +14,7 @@ docker pull ghcr.io/cse-labs/webv-red:latest
 docker pull ghcr.io/cse-labs/webv-red:beta
 docker pull ghcr.io/retaildevcrews/autogitops:beta
 
-// build the cli
+# build the cli
 cd src/kic || exit
 make all
 cd "$OLDPWD" || exit

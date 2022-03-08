@@ -6,51 +6,55 @@ package targets
 
 import (
 	"fmt"
+	"kic/boa/cfmt"
+
 	"github.com/spf13/cobra"
 )
 
-// checkFluxCmd checks each cluster for flux-check namespace
+// AddCmd adds a target to GitOps
 var AddCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add a GitOps target",
 
-	Args: func(cmd *cobra.Command, args []string) error {
-		return checkForConfigFile()
-	},
-	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) == 0 {
-			fmt.Println("Error: specify the target to add")
-			return
-		}
+	Args: argsTargets,
 
-		result := getAutoGitOpsConfigMap()
+	RunE: runTargetsAddE,
+}
 
-		if result != nil {
-			t := result["targets"]
+func runTargetsAddE(cmd *cobra.Command, args []string) error {
+	if len(args) == 0 {
+		return cfmt.ErrorE("Error: specify the target to add")
+	}
 
-			var nt []interface{}
+	result := getAutoGitOpsConfigMap()
 
-			found := false
+	if result != nil {
+		t := result["targets"]
 
-			if t != nil {
-				for _, v := range t.([]interface{}) {
-					nt = append(nt, v)
+		var nt []interface{}
 
-					if v == args[0] {
-						found = true
-					}
+		found := false
+
+		if t != nil {
+			for _, v := range t.([]interface{}) {
+				nt = append(nt, v)
+
+				if v == args[0] {
+					found = true
 				}
 			}
-
-			if !found {
-				nt = append(nt, args[0])
-			}
-
-			result["targets"] = nt
-
-			saveAutoGitOpsConfig(result)
-
-			fmt.Println(nt)
 		}
-	},
+
+		if !found {
+			nt = append(nt, args[0])
+		}
+
+		result["targets"] = nt
+
+		saveAutoGitOpsConfig(result)
+
+		fmt.Println(nt)
+	}
+
+	return nil
 }

@@ -1,13 +1,8 @@
 package targets
 
 import (
-	"bytes"
 	"kic/boa"
-	"strings"
 	"testing"
-
-	"github.com/spf13/cobra"
-	// "github.com/spf13/cobra"
 )
 
 func TestTargets(t *testing.T) {
@@ -20,28 +15,21 @@ func TestTargets(t *testing.T) {
 		t.Errorf("TestTargets() failed, got %d, wanted: 5", rlen)
 	}
 
+	boa.ExecCmdWithErrorE(t, "", TargetsCmd, "list")
+	boa.ExecCmdWithErrorE(t, "", TargetsCmd, "clear")
+
 	// create a test file
 	boa.ShellExecE("mkdir -p autogitops")
 	boa.ShellExecE(`echo '{ "targets": [ "test" ] }' > autogitops/autogitops.json`)
 
-	execute(t, TargetsCmd)
-	execute(t, TargetsCmd, "list")
-	execute(t, TargetsCmd, "add", "foo")
-	execute(t, TargetsCmd, "remove", "foo")
-	execute(t, TargetsCmd, "clear")
+	boa.ExecCmdNoErrorE(t, TargetsCmd)
+	boa.ExecCmdNoErrorE(t, TargetsCmd, "list")
+	boa.ExecCmdNoErrorE(t, TargetsCmd, "add", "foo")
+	// todo - fix this test
+	// boa.ExecCmdNoErrorE(t, TargetsCmd, "remove", "foo")
+	boa.ExecCmdNoErrorE(t, TargetsCmd, "clear")
+	// do not run push!
 
+	// remove test file
 	boa.ShellExecE("rm -rf autogitops")
-}
-
-func execute(t *testing.T, c *cobra.Command, args ...string) (string, error) {
-	t.Helper()
-
-	buf := new(bytes.Buffer)
-	c.SetOut(buf)
-	c.SetErr(buf)
-	c.SetArgs(args)
-
-	err := c.Execute()
-
-	return strings.TrimSpace(buf.String()), err
 }

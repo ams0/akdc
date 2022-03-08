@@ -14,8 +14,8 @@ import (
 var PatchCmd = &cobra.Command{
 	Use:   "patch",
 	Short: "Run a patch command on each cluster",
-	Run: func(cmd *cobra.Command, args []string) {
-		boa.ExecClusters("gitops/fleet/scripts/patch.sh", grep)
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return (boa.ExecClusters("gitops/fleet/scripts/patch.sh", grep))
 	},
 }
 

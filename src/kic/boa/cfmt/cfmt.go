@@ -2,56 +2,47 @@ package cfmt
 
 import (
 	"fmt"
-	"os"
-	// "os/exec"
 	"runtime"
 )
 
-var Reset = "\033[0m"
-var Red = "\033[31m"
-var Green = "\033[32m"
-var Yellow = "\033[33m"
-var Blue = "\033[34m"
-var Purple = "\033[35m"
-var Cyan = "\033[36m"
-var Gray = "\033[37m"
-var White = "\033[97m"
+var (
+	Reset string
+	Blue string
+	Cyan string
+	Gray string
+	Green string
+	Purple string
+	Red string
+	White string
+	Yellow string
+)
 
-// todo - adding [] to output
+// print an info message in cyan
 func Info(msg ...interface{}) {
 	fmt.Print(Cyan)
-	fmt.Printf("%v", msg)
+	fmt.Print(msg ...)
 	fmt.Println(Reset)
 }
 
-func Error(msg ...interface{}) {
+// print the error in red and return params as error
+func ErrorE(msg ...interface{}) error {
 	fmt.Print(Red)
-	fmt.Printf("%v", msg)
+	fmt.Print(msg ...)
 	fmt.Println(Reset)
-}
-
-func ExitError(err error) {
-	//msg := err.(*exec.ExitError)
-	Error(err)
-	os.Exit(1)
-}
-
-func ExitErrorMessage(msg ...interface{}) {
-	Error(msg)
-	os.Exit(1)
+	return fmt.Errorf("%v", fmt.Sprint(msg ...))
 }
 
 func init() {
 	// Windows doesn't support ANSI colors
-	if runtime.GOOS == "windows" {
-		Reset = ""
-		Red = ""
-		Green = ""
-		Yellow = ""
-		Blue = ""
-		Purple = ""
-		Cyan = ""
-		Gray = ""
-		White = ""
+	if runtime.GOOS != "windows" {
+		Reset = "\033[0m"
+		Blue = "\033[34m"
+		Cyan = "\033[36m"
+		Gray = "\033[37m"
+		Green = "\033[32m"
+		Purple = "\033[35m"
+		Red = "\033[31m"
+		White = "\033[97m"
+		Yellow = "\033[33m"
 	}
 }

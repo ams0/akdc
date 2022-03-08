@@ -9,22 +9,24 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// mainly for test commands
-var dryRun bool
-var logFormat string
-var region string
-var sleep int
-var tag string
-var verbose bool
-var zone string
+var (
+	// shared options
+	dryRun    bool
+	logFormat string
+	region    string
+	sleep     int
+	tag       string
+	verbose   bool
+	zone      string
 
-// test parent command
-var TestCmd = &cobra.Command{
-	Use:   "test",
-	Short: "Run cluster tests",
-}
+	// test command
+	TestCmd = &cobra.Command{
+		Use:   "test",
+		Short: "Run cluster tests",
+	}
+)
 
-// initialize the parent command
+// initialize the test command
 func init() {
 	// add sub-commands
 	TestCmd.AddCommand(IntegrationCmd)
@@ -40,7 +42,7 @@ func init() {
 	TestCmd.PersistentFlags().StringVarP(&zone, "zone", "", "", "Zone deployed to (user defined)")
 }
 
-// add the flags to the command line
+// add the shared flags to the command line
 func getTestFlagValues() string {
 	cmd := ""
 
@@ -54,10 +56,10 @@ func getTestFlagValues() string {
 		cmd += " --dry-run"
 	}
 	if region != "" {
-		cmd += "--region " + region
+		cmd += " --region " + region
 	}
 	if zone != "" {
-		cmd += "--zone " + zone
+		cmd += " --zone " + zone
 	}
 	if tag != "" {
 		cmd += " --tag " + tag

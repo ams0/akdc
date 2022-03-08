@@ -7,27 +7,46 @@ package fleet
 import (
 	"fmt"
 	"kic/boa"
+	"kic/boa/cfmt"
+	"os"
 
 	"github.com/spf13/cobra"
 )
 
-// deleteCmd deletes a cluster and DNS entry
+// DeleteCmd deletes a cluster and DNS entry
 var DeleteCmd = &cobra.Command{
-	Use:   "delete",
-	Short: "Delete an Azure Resource Group and associated Azure DNS record",
+	Use:               "delete",
+	Short:             "Delete an Azure Resource Group and associated Azure DNS record",
+	Args:              cobra.ExactValidArgs(1),
+	ValidArgsFunction: validArgsFleetDelete,
+	RunE:              runFleetDeleteE,
+}
 
-	Run: func(cmd *cobra.Command, args []string) {
+// run kic fleet delete command
+func runFleetDeleteE(cmd *cobra.Command, args []string) error {
+	cfmt.Info("Deleting Resource Group")
+	boa.ShellExecE(fmt.Sprintf("az group delete -n %s --yes --no-wait", args[0]))
 
-		if len(args) != 1 {
-			fmt.Println("Usage: akdc delete serverName")
-			return
-		}
+	cfmt.Info("Deleting DNS Record")
+	return (boa.ShellExecE(fmt.Sprintf("az network dns record-set a delete -g tld -z cseretail.com --yes -n %s", args[0])))
+}
 
-		fmt.Println("Deleting Resource Group")
-		boa.ShellExecE(fmt.Sprintf("az group delete -n %s --yes --no-wait", args[0]))
+// validate kic fleet delete args
+func validArgsFleetDelete(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	// don't use the defaultIPs
+	if _, err := os.Stat("ips"); err != nil {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
 
-		fmt.Println("Deleting DNS Record")
-		boa.ShellExecE(fmt.Sprintf("az network dns record-set a delete -g tld -z cseretail.com --yes -n %s", args[0]))
+	// only one argument
+	if len(args) != 0 {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
 
-	},
+	// suggest from the ips file
+	if ips, err := boa.ReadHostIPs(""); err != nil {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	} else {
+		return ips, cobra.ShellCompDirectiveNoFileComp
+	}
 }

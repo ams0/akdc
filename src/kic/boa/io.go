@@ -39,7 +39,7 @@ func ReadConfigValue(key string) string {
 }
 
 // read the ips file
-func ReadHostIPs(grep string) []string {
+func ReadHostIPs(grep string) ([]string, error) {
 	command := ""
 
 	if _, err := os.Stat("./ips"); err != nil {
@@ -52,19 +52,24 @@ func ReadHostIPs(grep string) []string {
 	}
 
 	if command == "" {
-		cfmt.ExitErrorMessage("fleet file not found")
+		cfmt.ErrorE("fleet file not found")
 	}
 
 	if grep != "" {
 		err := CheckForBadChars(grep, "grep")
 		if err != nil {
-			cfmt.ExitErrorMessage(err)
+			cfmt.ErrorE(err)
+			return nil, err
 		}
 
 		command += " | grep " + grep
 	}
 
-	res, _ := ShellExecOut(command)
+	res, err := ShellExecOut(command)
+
+	if err != nil {
+		return nil, err
+	}
 
 	lines := strings.Split(res, "\n")
 
@@ -78,16 +83,21 @@ func ReadHostIPs(grep string) []string {
 		}
 	}
 
-	return ips
+	return ips, nil
 }
 
 // get the path to the executable's directory
 func GetBinDir() string {
+	// read from env var
+	ex := os.Getenv("KIC_PATH")
+	if ex != "" {
+		return ex
+	}
 
-	ex, _ := os.Getwd()
+	ex, _ = os.Getwd()
 
 	// return the working directory on tests
-	if strings.HasPrefix(ex, "/tmp/") {
+	if strings.HasPrefix(ex, "/tmp/") || strings.HasPrefix(GetBinName(), "__debug") {
 		return ex
 	}
 
@@ -103,6 +113,12 @@ func GetBinDir() string {
 
 // get the file name from the executing directory
 func GetBinName() string {
+	// read from env var
+	ex := os.Getenv("KIC_NAME")
+	if ex != "" {
+		return ex
+	}
+
 	ex, err := os.Executable()
 
 	if err != nil {
@@ -117,20 +133,37 @@ func GetBinName() string {
 func GetBoaPath() string {
 	boaPath := GetBinDir()
 	app := GetBinName()
+	appConfig := "." + app
 
+	// running in debugger
 	if strings.HasPrefix(app, "__debug") {
-		// running in debugger - assume package name == source directory
+		// assume package name == source directory
 		app = filepath.Base(boaPath)
+		appConfig = "." + app
+
+		if _, err := os.Stat(appConfig); err != nil {
+			// walk the path to find the first bin dir
+			tpath := filepath.Dir(boaPath)
+			_, err := os.Stat(filepath.Join(tpath, "bin", appConfig))
+
+			for err != nil && tpath != "/" {
+				tpath = filepath.Dir(tpath)
+				_, err = os.Stat(filepath.Join(tpath, "bin", appConfig))
+			}
+
+			if tpath != "/" {
+				boaPath = filepath.Join(tpath, "bin")
+			}
+		}
 	}
 
-	// complete the paths
-	return boaPath + "/." + app + "/"
-
+	// complete the path
+	return filepath.Join(boaPath, appConfig)
 }
 
 // get the path to the boa commands
 func GetBoaCommandPath() string {
-	return GetBoaPath() + "commands/"
+	return filepath.Join(GetBoaPath(), "commands")
 }
 
 // get the path to the repo base

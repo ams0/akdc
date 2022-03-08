@@ -3,6 +3,10 @@
 ###
 
 command
+	name: manage
+	short: Manage cluster
+
+command
 	name: cluster
 	short: k3d cluster commands
 

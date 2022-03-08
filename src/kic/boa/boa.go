@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"kic/boa/cfmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -78,7 +79,8 @@ func SetNewRoot() *cobra.Command {
 
 		if cmd == nil {
 			// new__root not found
-			cfmt.ExitErrorMessage("New root command not found", nr.Short)
+			cfmt.ErrorE("New root command not found", nr.Short)
+			os.Exit(1)
 		}
 
 		// create the new boaRootCmd
@@ -132,7 +134,7 @@ func loadCommand(fileName string) {
 	var hidden bool
 
 	// read file into an array
-	lines := ReadLinesFromFile(boaPath + fileName)
+	lines := ReadLinesFromFile(filepath.Join(boaPath, fileName))
 
 	for i := 0; i < len(lines); i++ {
 		line := strings.TrimSpace(lines[i])
@@ -181,7 +183,7 @@ func loadCommand(fileName string) {
 				hidden = strings.ToLower(strings.TrimSpace(line[7:])) == "true"
 			} else {
 				if line != "" {
-					cfmt.Error("unrecognized line: " + line)
+					cfmt.ErrorE("unrecognized line: " + line)
 				}
 			}
 		}
@@ -210,7 +212,8 @@ func addBoaCommand(fileName string, modCmd *cobra.Command, modType string, name 
 	}
 
 	// bad input file
-	cfmt.ExitErrorMessage("unrecognized Command in file:", fileName, modType, name, short, long, path)
+	cfmt.ErrorE("unrecognized Command in file:", fileName, modType, name, short, long, path)
+	os.Exit(1)
 	return nil
 }
 
@@ -237,7 +240,8 @@ func addParentCommand(modCmd *cobra.Command, name string, short string, long str
 		} else {
 			modCmd = GetCommandByUse(boaRootCmd, parent)
 			if modCmd == nil {
-				cfmt.ExitErrorMessage("Parent command not found", parent)
+				cfmt.ErrorE("Parent command not found", parent)
+				os.Exit(1)
 			}
 		}
 	}
@@ -248,7 +252,8 @@ func addParentCommand(modCmd *cobra.Command, name string, short string, long str
 			if hidden {
 				GetCommandByUse(modCmd, name).Hidden = true
 			} else {
-				cfmt.ExitErrorMessage("Command already exists", modCmd.Use, name)
+				cfmt.ErrorE("Command already exists", modCmd.Use, name)
+				os.Exit(1)
 			}
 		} else {
 			modCmd.AddCommand(boaCmd)
@@ -259,7 +264,8 @@ func addParentCommand(modCmd *cobra.Command, name string, short string, long str
 			if hidden {
 				GetCommandByUse(boaRootCmd, name).Hidden = true
 			} else {
-				cfmt.ExitErrorMessage("Command already exists", boaRootCmd.Use, name)
+				cfmt.ErrorE("Command already exists", boaRootCmd.Use, name)
+				os.Exit(1)
 			}
 		} else {
 			boaRootCmd.AddCommand(boaCmd)
@@ -273,7 +279,8 @@ func addParentCommand(modCmd *cobra.Command, name string, short string, long str
 // add a command to a command in the command tree
 func addCommand(modCmd *cobra.Command, name string, short string, long string, path string, hidden bool) *cobra.Command {
 	if path == "" {
-		cfmt.ExitErrorMessage("path is required", name, short, long, path)
+		cfmt.ErrorE("path is required", name, short, long, path)
+		os.Exit(1)
 	}
 
 	// read the values from the command metadata if necessary
@@ -299,7 +306,8 @@ func addCommand(modCmd *cobra.Command, name string, short string, long string, p
 
 	// check for dupes
 	if GetCommandByUse(aCmd, name) != nil {
-		cfmt.ExitErrorMessage("Command already exists", aCmd.Use, name)
+		cfmt.ErrorE("Command already exists", aCmd.Use, name)
+		os.Exit(1)
 	}
 
 	// add the command
@@ -351,7 +359,7 @@ func readFromCommandFile(path string, key string, value string) string {
 	}
 
 	key = strings.TrimSpace(strings.ToLower(key)) + ":"
-	p := boaCommandPath + path
+	p := filepath.Join(boaCommandPath, path)
 
 	// read the file into an array
 	txt := ReadTextFile(p)
@@ -397,7 +405,7 @@ func addRunCommand(use string, short string, long string, command string) *cobra
 			if len(args) > 0 {
 				ShellExecArgsE(boaCommandPath+command, args)
 			} else {
-				ShellExecE(boaCommandPath + command)
+				ShellExecE(filepath.Join(boaCommandPath, command))
 			}
 		},
 	}
@@ -418,7 +426,7 @@ func AddRunCommand(use string, short string, long string, command string) *cobra
 			if len(args) > 0 {
 				ShellExecArgsE(cmdPath+command, args)
 			} else {
-				ShellExecE(cmdPath + command)
+				ShellExecE(filepath.Join(cmdPath, command))
 			}
 		},
 	}
@@ -427,8 +435,12 @@ func AddRunCommand(use string, short string, long string, command string) *cobra
 }
 
 // run a command on all clusters
-func ExecClusters(cmd string, grep string) {
-	hostIPs := ReadHostIPs(grep)
+func ExecClusters(cmd string, grep string) error {
+	hostIPs, err := ReadHostIPs(grep)
+
+	if err != nil {
+		return err
+	}
 
 	ch := make(chan string)
 
@@ -444,6 +456,8 @@ func ExecClusters(cmd string, grep string) {
 	for i := 0; i < len(hostIPs); i++ {
 		<-ch
 	}
+
+	return nil
 }
 
 // run a command on one cluster via ssh

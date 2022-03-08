@@ -1,19 +1,20 @@
-.PHONY: all test
+.PHONY: all build test
 
-all :
+all : test build
+
+build :
 	@# build
 	@gofmt -s -w .
-	@go build -o ./kic main.go
+	@go build -o ../../bin/kic main.go
 
 	@# copy the cli bin
-	@cp kic ../../bin
-	@cp kic ../../fleet/bin
-
-	@# update commands
-	@rm -rf ../../bin/.kic
-	@cp -r .kic ../../bin
+	@cp ../../bin/kic ../../fleet/bin
 
 	# make complete
 
 test :
-	@go test ./... -cover
+	@go test ./...
+
+cover :
+	@go test ./... -cover -coverprofile kic.out
+	@go tool cover -html kic.out -o kic.html

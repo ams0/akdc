@@ -14,8 +14,8 @@ import (
 var PullCmd = &cobra.Command{
 	Use:   "pull",
 	Short: "Git pull the akdc repo",
-	Run: func(cmd *cobra.Command, args []string) {
-		boa.ExecClusters("git -C gitops pull", grep)
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return (boa.ExecClusters("git -C gitops pull", grep))
 	},
 }
 

@@ -13,57 +13,20 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// command line options
-var fileLoad string
-var delayStart int
-var duration int
-var random bool
+var (
+	// command line options
+	fileLoad   string
+	delayStart int
+	duration   int
+	random     bool
 
-// test-load command
-var LoadCmd = &cobra.Command{
-	Use:   "load",
-	Short: "Run a load test on each cluster",
-
-	Run: func(cmd *cobra.Command, args []string) {
-		cfmt.Info("Running load test")
-
-		if sleep < 1 {
-			sleep = 100
-		}
-
-		// get shared options
-		params := getTestFlagValues()
-
-		// add test-load specific options to command line
-		params += " --run-loop "
-
-		if fileLoad != "" {
-			params += " --files " + fileLoad
-		}
-
-		if delayStart > 0 {
-			params += fmt.Sprintf(" --delay-start %d", delayStart)
-		}
-
-		if duration > 0 {
-			params += fmt.Sprintf(" --duration %d", duration)
-		}
-
-		if random {
-			params += " --random"
-		}
-
-		// build the path to the script
-		path := boa.GetBinDir() + "/.kic/commands/test"
-
-		// execute the file with "bash -c" if it exists
-		if _, err := os.Stat(path); err == nil {
-			boa.ShellExecE(fmt.Sprintf("%s %s", path, params))
-		} else {
-			cfmt.Error(err)
-		}
-	},
-}
+	// test-load command
+	LoadCmd = &cobra.Command{
+		Use:   "load",
+		Short: "Run a load test on each cluster",
+		RunE:  runTestLoadE,
+	}
+)
 
 // add command specific options
 func init() {
@@ -71,4 +34,45 @@ func init() {
 	LoadCmd.Flags().IntVarP(&delayStart, "delay-start", "", 0, "Delay test start (seconds)")
 	LoadCmd.Flags().IntVarP(&duration, "duration", "", 30, "Test duration (seconds)")
 	LoadCmd.Flags().BoolVarP(&random, "random", "", false, "Randomize tests")
+}
+
+// run the test-load command
+func runTestLoadE(cmd *cobra.Command, args []string) error {
+	cfmt.Info("Running load test")
+
+	if sleep < 1 {
+		sleep = 100
+	}
+
+	// get shared options
+	params := getTestFlagValues()
+
+	// add test-load specific options to command line
+	params += " --run-loop "
+
+	if fileLoad != "" {
+		params += " --files " + fileLoad
+	}
+
+	if delayStart > 0 {
+		params += fmt.Sprintf(" --delay-start %d", delayStart)
+	}
+
+	if duration > 0 {
+		params += fmt.Sprintf(" --duration %d", duration)
+	}
+
+	if random {
+		params += " --random"
+	}
+
+	// build the path to the script
+	path := boa.GetBinDir() + "/.kic/commands/test"
+
+	// execute the file with "bash -c" if it exists
+	if _, err := os.Stat(path); err == nil {
+		return boa.ShellExecE(fmt.Sprintf("%s %s", path, params))
+	} else {
+		return cfmt.ErrorE(err)
+	}
 }

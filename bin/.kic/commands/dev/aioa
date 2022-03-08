@@ -1,0 +1,27 @@
+#!/bin/bash
+
+#name: ai-order-accuracy
+#short: Build and deploy AI Order Accuracy to the local cluster
+
+# change to this directory
+#cd "$(dirname "${BASH_SOURCE[0]}")" || exit
+
+### todo - change directory names to use aioa
+
+# validate directories
+if [ ! -d /workspaces/ngsa-app ]; then echo "/workspaces/ngsa-app directory not found. Please clone the ngsa-app repo to /workspaces"; exit 1; fi
+if [ ! -d ./deploy ]; then echo "./deploy directory not found. Please cd to an appropriate directory"; exit 1; fi
+if [ ! -d ./deploy/webv ]; then echo "./deploy/webv directory not found. Please cd to an appropriate directory"; exit 1; fi
+if [ ! -d ./deploy/aioa ]; then echo "./deploy/aioa directory not found. Please cd to an appropriate directory"; exit 1; fi
+if [ ! -d ./deploy/aioa-local ]; then echo "./deploy/aioa-local directory not found. Please cd to an appropriate directory"; exit 1; fi
+
+docker build /workspaces/ngsa-app -t k3d-registry.localhost:5500/aioa:local
+docker push k3d-registry.localhost:5500/aioa:local
+kubectl delete -f deploy/webv --ignore-not-found=true
+kubectl delete -f deploy/aioa --ignore-not-found=true
+kubectl apply -f deploy/aioa-local
+kubectl wait pod ai-order-accuracy -n ai-order-accuracy --for condition=ready --timeout=30s
+kubectl apply -f deploy/webv
+kubectl wait pod webv -n ai-order-accuracy --for condition=ready --timeout=30s
+kubectl get po -n ai-order-accuracy
+http localhost:30080/version

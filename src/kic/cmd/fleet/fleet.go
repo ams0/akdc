@@ -10,18 +10,16 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// option variables
-// common across several commands
-var debug bool
+var (
+	// option variables
+	grep string
 
-// used by check, exec, sync and test commands
-var grep string
-
-// checkCmd adds check subcommands
-var FleetCmd = &cobra.Command{
-	Use:   "fleet",
-	Short: "Commands for fleet of clusters",
-}
+	// FleetCmd adds the kic fleet command tree
+	FleetCmd = &cobra.Command{
+		Use:   "fleet",
+		Short: "Commands for fleet of clusters",
+	}
+)
 
 func init() {
 	FleetCmd.AddCommand(check.CheckCmd)
@@ -29,9 +27,10 @@ func init() {
 	FleetCmd.AddCommand(DeleteCmd)
 	FleetCmd.AddCommand(ExecCmd)
 	FleetCmd.AddCommand(GroupsCmd)
+	FleetCmd.AddCommand(ListCmd)
+	FleetCmd.AddCommand(PatchCmd)
+	FleetCmd.AddCommand(PullCmd)
 	FleetCmd.AddCommand(SshCmd)
 	FleetCmd.AddCommand(SyncCmd)
-	FleetCmd.AddCommand(TokenCmd)
-	FleetCmd.AddCommand(PullCmd)
-	FleetCmd.AddCommand(PatchCmd)
+	FleetCmd.AddCommand(ArcTokenCmd)
 }

@@ -4,10 +4,10 @@
 
 command
 	name: build
-	short: Build and deploy local apps
+	short: Local build commands
 
 runCommand
-	path: build/ngsa
+	path: dev/aioa
 
 runCommand
-	path: build/webv
+	path: dev/webv

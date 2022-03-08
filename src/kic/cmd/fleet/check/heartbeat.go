@@ -15,14 +15,9 @@ import (
 var HeartbeatCmd = &cobra.Command{
 	Use:   "heartbeat",
 	Short: "Check https heartbeat on each server",
+	Args:  argsFleetCheck,
 
-	Args: func(cmd *cobra.Command, args []string) error {
-		// this will exit with an error
-		boa.ReadHostIPs("")
-		return nil
-	},
-
-	Run: func(cmd *cobra.Command, args []string) {
-		boa.ExecClusters("./gitops/fleet/scripts/check-heartbeat", grep)
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return boa.ExecClusters("./gitops/fleet/scripts/check-heartbeat", grep)
 	},
 }

@@ -7,6 +7,7 @@ package fleet
 import (
 	"fmt"
 	"kic/boa"
+	"kic/boa/cfmt"
 
 	"github.com/spf13/cobra"
 )
@@ -15,26 +16,25 @@ import (
 var ExecCmd = &cobra.Command{
 	Use:   "exec",
 	Short: "Execute a bash command on each server",
-
-	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) < 1 {
-			fmt.Println("Usage: akdc exec bashCommand")
-			return
-		}
-
-		command := fmt.Sprintf("%s", args)
-
-		if len(command) < 3 {
-			fmt.Println("Usage: akdc exec bashCommand")
-			return
-		}
-
-		command = command[1 : len(command)-1]
-
-		boa.ExecClusters(command, grep)
-	},
+	Args:  cobra.MinimumNArgs(1),
+	RunE:  runFleetExecE,
 }
 
 func init() {
 	ExecCmd.Flags().StringVarP(&grep, "grep", "g", "", "grep conditional to filter by host")
+}
+
+// run kic fleet exec command
+func runFleetExecE(cmd *cobra.Command, args []string) error {
+	command := fmt.Sprintf("%s", args)
+
+	// command will have []
+	if len(command) < 3 {
+		return cfmt.ErrorE("Usage: flt exec bashCommand")
+	}
+
+	// remove []
+	command = command[1 : len(command)-1]
+
+	return (boa.ExecClusters(command, grep))
 }

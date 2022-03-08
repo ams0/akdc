@@ -25,23 +25,30 @@ func init() {
 	// load the commands from the bin location ./.appName directory
 	boa.LoadCommands(rootCmd)
 
-	// add built-in commands if not exits
-	if boa.GetCommandByUse(rootCmd, "fleet") == nil {
-		// this can't be a boa command [easily]
-		// this is the old akdc set of commands
-		rootCmd.AddCommand(fleet.FleetCmd)
-	}
-
 	if boa.GetCommandByUse(rootCmd, "test") == nil {
 		// this can't be a boa command [easily]
 		//    because of the rich command line params
 		rootCmd.AddCommand(test.TestCmd)
 	}
 
+	// add to manage command if exists - otherwise add to root
+	manageCmd := boa.GetCommandByUse(rootCmd, "manage")
+
+	if manageCmd == nil {
+		manageCmd = rootCmd
+	}
+
+	// add built-in commands if not exits
+	if boa.GetCommandByUse(rootCmd, "fleet") == nil {
+		// this can't be a boa command [easily]
+		// this is the old akdc set of commands
+		manageCmd.AddCommand(fleet.FleetCmd)
+	}
+
 	if boa.GetCommandByUse(rootCmd, "targets") == nil {
 		// this can't be a boa command [easily]
 		//    modifies autogitops.json
-		rootCmd.AddCommand(targets.TargetsCmd)
+		manageCmd.AddCommand(targets.TargetsCmd)
 	}
 
 	// this will set a new root if specified

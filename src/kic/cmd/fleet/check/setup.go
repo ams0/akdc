@@ -14,15 +14,10 @@ import (
 var SetupCmd = &cobra.Command{
 	Use:   "setup",
 	Short: "Check setup status on each cluster",
+	Args:  argsFleetCheck,
 
-	Args: func(cmd *cobra.Command, args []string) error {
-		// this will exit with an error
-		boa.ReadHostIPs("")
-		return nil
-	},
-
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		// don't use a command on the VM as it's not available until late in setup
-		boa.ExecClusters("tail -n1 status", grep)
+		return boa.ExecClusters("tail -n1 status", grep)
 	},
 }

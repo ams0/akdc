@@ -1,0 +1,2875 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>boa: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">kic/boa/boa.go (63.1%)</option>
+				
+				<option value="file1">kic/boa/boaExecCmd.go (0.0%)</option>
+				
+				<option value="file2">kic/boa/cfmt/cfmt.go (100.0%)</option>
+				
+				<option value="file3">kic/boa/io.go (56.5%)</option>
+				
+				<option value="file4">kic/boa/shell.go (92.9%)</option>
+				
+				<option value="file5">kic/cmd/fleet/arcToken.go (100.0%)</option>
+				
+				<option value="file6">kic/cmd/fleet/check/aioa.go (100.0%)</option>
+				
+				<option value="file7">kic/cmd/fleet/check/check.go (100.0%)</option>
+				
+				<option value="file8">kic/cmd/fleet/check/dapr.go (0.0%)</option>
+				
+				<option value="file9">kic/cmd/fleet/check/flux.go (100.0%)</option>
+				
+				<option value="file10">kic/cmd/fleet/check/heartbeat.go (100.0%)</option>
+				
+				<option value="file11">kic/cmd/fleet/check/logs.go (100.0%)</option>
+				
+				<option value="file12">kic/cmd/fleet/check/radius.go (0.0%)</option>
+				
+				<option value="file13">kic/cmd/fleet/check/retries.go (100.0%)</option>
+				
+				<option value="file14">kic/cmd/fleet/check/setup.go (100.0%)</option>
+				
+				<option value="file15">kic/cmd/fleet/create.go (30.0%)</option>
+				
+				<option value="file16">kic/cmd/fleet/delete.go (0.0%)</option>
+				
+				<option value="file17">kic/cmd/fleet/exec.go (83.3%)</option>
+				
+				<option value="file18">kic/cmd/fleet/fleet.go (100.0%)</option>
+				
+				<option value="file19">kic/cmd/fleet/groups.go (0.0%)</option>
+				
+				<option value="file20">kic/cmd/fleet/list.go (90.9%)</option>
+				
+				<option value="file21">kic/cmd/fleet/patch.go (100.0%)</option>
+				
+				<option value="file22">kic/cmd/fleet/pull.go (100.0%)</option>
+				
+				<option value="file23">kic/cmd/fleet/ssh.go (0.0%)</option>
+				
+				<option value="file24">kic/cmd/fleet/sync.go (100.0%)</option>
+				
+				<option value="file25">kic/cmd/root.go (71.4%)</option>
+				
+				<option value="file26">kic/cmd/targets/targets-add.go (88.9%)</option>
+				
+				<option value="file27">kic/cmd/targets/targets-clear.go (87.5%)</option>
+				
+				<option value="file28">kic/cmd/targets/targets-list.go (75.0%)</option>
+				
+				<option value="file29">kic/cmd/targets/targets-push.go (0.0%)</option>
+				
+				<option value="file30">kic/cmd/targets/targets-remove.go (0.0%)</option>
+				
+				<option value="file31">kic/cmd/targets/targets.go (76.9%)</option>
+				
+				<option value="file32">kic/cmd/test/test-integration.go (88.9%)</option>
+				
+				<option value="file33">kic/cmd/test/test-load.go (90.5%)</option>
+				
+				<option value="file34">kic/cmd/test/test.go (100.0%)</option>
+				
+				<option value="file35">kic/main.go (100.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package boa
+
+import (
+        "fmt"
+        "io/ioutil"
+        "kic/boa/cfmt"
+        "os"
+        "path/filepath"
+        "strings"
+
+        "github.com/spf13/cobra"
+)
+
+var boaPath string
+var boaCommandPath string
+
+var boaRootCmd *cobra.Command
+
+// load commands from *.boa
+// commands are in the .binName directory
+//    that is a subdirectory of where the bin file is located
+// example: /bin/.kic
+func LoadCommands(appRootCmd *cobra.Command) <span class="cov8" title="1">{
+        // set boaRootCmd to the app root command
+        boaRootCmd = appRootCmd
+
+        boaPath = GetBoaPath()
+        boaCommandPath = GetBoaCommandPath()
+
+        // load boaPath/*.boa
+        files, err := ioutil.ReadDir(boaPath)
+        if err == nil </span><span class="cov8" title="1">{
+                for _, f := range files </span><span class="cov8" title="1">{
+                        if !f.IsDir() &amp;&amp; strings.HasSuffix(strings.ToLower(f.Name()), ".boa") </span><span class="cov8" title="1">{
+                                loadCommand(f.Name())
+                        }</span>
+                }
+        }
+}
+
+// get a command by Use (Name)
+func GetCommandByUse(cmd *cobra.Command, use string) *cobra.Command <span class="cov8" title="1">{
+        if cmd != nil &amp;&amp; len(cmd.Commands()) &gt; 0 </span><span class="cov8" title="1">{
+                for _, c := range cmd.Commands() </span><span class="cov8" title="1">{
+                        if c.Use == use </span><span class="cov8" title="1">{
+                                return c
+                        }</span>
+                }
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+// reset cmdRoot to new__root command if set
+// otherwise remove any hidden root commands
+func SetNewRoot() *cobra.Command <span class="cov8" title="1">{
+        var cmd *cobra.Command
+
+        // create a new root command
+        cmd = &amp;cobra.Command{Use: boaRootCmd.Use, Short: boaRootCmd.Short, Long: boaRootCmd.Long}
+
+        // check for new__root
+        nr := GetCommandByUse(boaRootCmd, "new__root")
+
+        if nr == nil </span><span class="cov8" title="1">{
+                // add all non-hidden commands to the new root
+                for _, c := range boaRootCmd.Commands() </span><span class="cov8" title="1">{
+                        if !c.Hidden </span><span class="cov8" title="1">{
+                                cmd.AddCommand(c)
+                        }</span>
+                        <span class="cov8" title="1">boaRootCmd = cmd</span>
+                }
+        } else<span class="cov0" title="0"> {
+                // get the new root
+                cmd = GetCommandByUse(boaRootCmd, nr.Short)
+
+                if cmd == nil </span><span class="cov0" title="0">{
+                        // new__root not found
+                        cfmt.ErrorE("New root command not found", nr.Short)
+                        os.Exit(1)
+                }</span>
+
+                // create the new boaRootCmd
+                // we have to do this as the parent is set to the existing boaRootCmd
+                <span class="cov0" title="0">nr = &amp;cobra.Command{Use: boaRootCmd.Use, Short: cmd.Short, Long: cmd.Long}
+
+                for _, c := range cmd.Commands() </span><span class="cov0" title="0">{
+                        // add all commands that aren't hidden
+                        if !c.Hidden </span><span class="cov0" title="0">{
+                                nr.AddCommand(c)
+                        }</span>
+                }
+                <span class="cov0" title="0">boaRootCmd = nr</span>
+        }
+
+        <span class="cov8" title="1">return boaRootCmd</span>
+}
+
+// return the stop word for file reads
+func getStopWord(line string) string <span class="cov8" title="1">{
+
+        chk := strings.ToLower(line)
+
+        if strings.HasPrefix(chk, "root") </span><span class="cov8" title="1">{
+                return "root"
+        }</span>
+        <span class="cov8" title="1">if strings.HasPrefix(chk, "command") </span><span class="cov8" title="1">{
+                return "command"
+        }</span>
+        <span class="cov8" title="1">if strings.HasPrefix(chk, "runcommand") </span><span class="cov8" title="1">{
+                return "runCommand"
+        }</span>
+        <span class="cov8" title="1">if strings.HasPrefix(chk, "popcommand") </span><span class="cov8" title="1">{
+                return "popCommand"
+        }</span>
+
+        <span class="cov8" title="1">return ""</span>
+}
+
+// load command(s) from a file
+func loadCommand(fileName string) <span class="cov8" title="1">{
+        var boaCmd *cobra.Command
+
+        // todo - convert to struct
+        var modType string
+        var name string
+        var short string
+        var long string
+        var path string
+        var parent string
+        var hidden bool
+
+        // read file into an array
+        lines := ReadLinesFromFile(filepath.Join(boaPath, fileName))
+
+        for i := 0; i &lt; len(lines); i++ </span><span class="cov8" title="1">{
+                line := strings.TrimSpace(lines[i])
+                line = strings.Replace(line, "\\n", "\n", -1)
+
+                // ignore comments
+                if !strings.HasPrefix(line, "#") </span><span class="cov8" title="1">{
+                        chk := strings.ToLower(line)
+
+                        // check for stop word
+                        sw := getStopWord(chk)
+                        if sw != "" </span><span class="cov8" title="1">{
+                                if strings.HasPrefix(sw, "popCommand") </span><span class="cov8" title="1">{
+                                        // popCommand resets the command to the parent or boaRootCmd
+                                        addBoaCommand(fileName, boaCmd, modType, name, short, long, path, parent, hidden)
+                                        if boaCmd != nil </span><span class="cov0" title="0">{
+                                                boaCmd = boaCmd.Parent()
+                                                if boaCmd == boaRootCmd </span><span class="cov0" title="0">{
+                                                        boaCmd = nil
+                                                }</span>
+                                        }
+                                } else<span class="cov8" title="1"> {
+                                        // add the command and set the new type based on stopWord
+                                        boaCmd = addBoaCommand(fileName, boaCmd, modType, name, short, long, path, parent, hidden)
+                                }</span>
+
+                                // reset params
+                                <span class="cov8" title="1">modType = sw
+                                name = ""
+                                parent = ""
+                                short = ""
+                                long = ""
+                                path = ""
+                                hidden = false</span>
+                        } else<span class="cov8" title="1"> if strings.HasPrefix(strings.ToLower(line), "name:") </span><span class="cov8" title="1">{
+                                name = strings.TrimSpace(line[5:])
+                        }</span> else<span class="cov8" title="1"> if strings.HasPrefix(strings.ToLower(line), "parent:") </span><span class="cov0" title="0">{
+                                parent = strings.TrimSpace(line[7:])
+                        }</span> else<span class="cov8" title="1"> if strings.HasPrefix(strings.ToLower(line), "short:") </span><span class="cov8" title="1">{
+                                short = strings.TrimSpace(line[6:])
+                        }</span> else<span class="cov8" title="1"> if strings.HasPrefix(strings.ToLower(line), "long:") </span><span class="cov8" title="1">{
+                                long = strings.TrimSpace(line[5:])
+                        }</span> else<span class="cov8" title="1"> if strings.HasPrefix(strings.ToLower(line), "path:") </span><span class="cov8" title="1">{
+                                path = strings.TrimSpace(line[5:])
+                        }</span> else<span class="cov8" title="1"> if strings.HasPrefix(strings.ToLower(line), "hidden:") </span><span class="cov0" title="0">{
+                                hidden = strings.ToLower(strings.TrimSpace(line[7:])) == "true"
+                        }</span> else<span class="cov8" title="1"> {
+                                if line != "" </span><span class="cov0" title="0">{
+                                        cfmt.ErrorE("unrecognized line: " + line)
+                                }</span>
+                        }
+                }
+        }
+
+        // handle last command at EOF
+        <span class="cov8" title="1">if modType != "" </span><span class="cov8" title="1">{
+                addBoaCommand(fileName, boaCmd, modType, name, short, long, path, parent, hidden)
+        }</span>
+}
+
+// add a command or command to cobra
+func addBoaCommand(fileName string, modCmd *cobra.Command, modType string, name string, short string, long string, path string, parent string, hidden bool) *cobra.Command <span class="cov8" title="1">{
+        // ignore if modType not set
+        if modType == "" || modType == "popCommand" </span><span class="cov8" title="1">{
+                return modCmd
+        }</span>
+
+        // handle different command and command types
+        <span class="cov8" title="1">if modType == "root" </span><span class="cov8" title="1">{
+                return setRootValues(name, short, long)
+        }</span> else<span class="cov8" title="1"> if modType == "command" </span><span class="cov8" title="1">{
+                return addParentCommand(modCmd, name, short, long, parent, hidden)
+        }</span> else<span class="cov8" title="1"> if modType == "runCommand" </span><span class="cov8" title="1">{
+                return addCommand(modCmd, name, short, long, path, hidden)
+        }</span>
+
+        // bad input file
+        <span class="cov0" title="0">cfmt.ErrorE("unrecognized Command in file:", fileName, modType, name, short, long, path)
+        os.Exit(1)
+        return nil</span>
+}
+
+// add a command to the command tree
+func addParentCommand(modCmd *cobra.Command, name string, short string, long string, parent string, hidden bool) *cobra.Command <span class="cov8" title="1">{
+        if !hidden </span><span class="cov8" title="1">{
+                // name and short are required
+                if err := checkNameAndShort(name, short); err != nil </span><span class="cov0" title="0">{
+                        return modCmd
+                }</span>
+        } else<span class="cov0" title="0"> {
+                short = "hidden"
+                long = ""
+        }</span>
+
+        // create the new command
+        <span class="cov8" title="1">boaCmd := createCommand(name, short, long)
+        boaCmd.Hidden = hidden
+
+        if parent != "" </span><span class="cov0" title="0">{
+                // set the parent if specified
+                if strings.ToLower(parent) == "boaRootCmd" </span><span class="cov0" title="0">{
+                        modCmd = nil
+                }</span> else<span class="cov0" title="0"> {
+                        modCmd = GetCommandByUse(boaRootCmd, parent)
+                        if modCmd == nil </span><span class="cov0" title="0">{
+                                cfmt.ErrorE("Parent command not found", parent)
+                                os.Exit(1)
+                        }</span>
+                }
+        }
+
+        <span class="cov8" title="1">if modCmd != nil </span><span class="cov8" title="1">{
+                // check for dupes
+                if GetCommandByUse(modCmd, name) != nil </span><span class="cov0" title="0">{
+                        if hidden </span><span class="cov0" title="0">{
+                                GetCommandByUse(modCmd, name).Hidden = true
+                        }</span> else<span class="cov0" title="0"> {
+                                cfmt.ErrorE("Command already exists", modCmd.Use, name)
+                                os.Exit(1)
+                        }</span>
+                } else<span class="cov8" title="1"> {
+                        modCmd.AddCommand(boaCmd)
+                }</span>
+        } else<span class="cov8" title="1"> {
+                // check for dupes
+                if GetCommandByUse(boaRootCmd, name) != nil </span><span class="cov0" title="0">{
+                        if hidden </span><span class="cov0" title="0">{
+                                GetCommandByUse(boaRootCmd, name).Hidden = true
+                        }</span> else<span class="cov0" title="0"> {
+                                cfmt.ErrorE("Command already exists", boaRootCmd.Use, name)
+                                os.Exit(1)
+                        }</span>
+                } else<span class="cov8" title="1"> {
+                        boaRootCmd.AddCommand(boaCmd)
+                }</span>
+        }
+
+        // set the new command to the parent
+        <span class="cov8" title="1">return boaCmd</span>
+}
+
+// add a command to a command in the command tree
+func addCommand(modCmd *cobra.Command, name string, short string, long string, path string, hidden bool) *cobra.Command <span class="cov8" title="1">{
+        if path == "" </span><span class="cov0" title="0">{
+                cfmt.ErrorE("path is required", name, short, long, path)
+                os.Exit(1)
+        }</span>
+
+        // read the values from the command metadata if necessary
+        <span class="cov8" title="1">name = readFromCommandFile(path, "name", name)
+        short = readFromCommandFile(path, "short", short)
+        long = readFromCommandFile(path, "long", long)
+
+        if !hidden </span><span class="cov8" title="1">{
+                // name and short are required
+                if err := checkNameAndShort(name, short); err != nil </span><span class="cov0" title="0">{
+                        return modCmd
+                }</span>
+        } else<span class="cov0" title="0"> {
+                short = "hidden"
+                long = ""
+        }</span>
+
+        // use boaRootCmd if modCmd is nil
+        <span class="cov8" title="1">aCmd := modCmd
+        if aCmd == nil </span><span class="cov8" title="1">{
+                aCmd = boaRootCmd
+        }</span>
+
+        // check for dupes
+        <span class="cov8" title="1">if GetCommandByUse(aCmd, name) != nil </span><span class="cov0" title="0">{
+                cfmt.ErrorE("Command already exists", aCmd.Use, name)
+                os.Exit(1)
+        }</span>
+
+        // add the command
+        <span class="cov8" title="1">cmd := addRunCommand(name, short, long, path)
+        cmd.Hidden = hidden
+        aCmd.AddCommand(cmd)
+
+        // parent doesn't change
+        return modCmd</span>
+}
+
+// set the root command values
+func setRootValues(name string, short string, long string) *cobra.Command <span class="cov8" title="1">{
+        // name and short are required
+        if err := checkNameAndShort(name, short); err == nil </span><span class="cov8" title="1">{
+                boaRootCmd.Use = name
+                boaRootCmd.Short = short
+
+                // this will default to short if not set
+                if long != "" </span><span class="cov8" title="1">{
+                        boaRootCmd.Long = long
+                }</span>
+        }
+
+        // reset parent
+        <span class="cov8" title="1">return nil</span>
+}
+
+// this will exit if name or short are invalid
+func checkNameAndShort(name string, short string) error <span class="cov8" title="1">{
+        // name and short are required
+        if name == "" || short == "" </span><span class="cov0" title="0">{
+                if name == "" </span><span class="cov0" title="0">{
+                        return fmt.Errorf("name: is required")
+                }</span>
+                <span class="cov0" title="0">if short == "" </span><span class="cov0" title="0">{
+                        return fmt.Errorf("short: is required")
+                }</span>
+        }
+
+        <span class="cov8" title="1">return nil</span>
+}
+
+// read the metadata from the command
+func readFromCommandFile(path string, key string, value string) string <span class="cov8" title="1">{
+        // don't read if already set
+        if value != "" </span><span class="cov0" title="0">{
+                return value
+        }</span>
+
+        <span class="cov8" title="1">key = strings.TrimSpace(strings.ToLower(key)) + ":"
+        p := filepath.Join(boaCommandPath, path)
+
+        // read the file into an array
+        txt := ReadTextFile(p)
+        lines := strings.Split(txt, "\n")
+
+        for i := 0; i &lt; len(lines); i++ </span><span class="cov8" title="1">{
+                line := strings.TrimSpace(lines[i])
+
+                if strings.HasPrefix(line, "#") </span><span class="cov8" title="1">{
+                        // check all comments for metadata
+                        line = strings.TrimSpace(strings.TrimLeft(line, "#"))
+
+                        if strings.HasPrefix(strings.ToLower(line), key) </span><span class="cov8" title="1">{
+                                // extract the metadata
+                                line = strings.TrimSpace(line[len(key):])
+                                return line
+                        }</span>
+                }
+        }
+
+        <span class="cov8" title="1">return ""</span>
+}
+
+// add a command that has sub-commands
+func createCommand(use string, short string, long string) *cobra.Command <span class="cov8" title="1">{
+        cmd := &amp;cobra.Command{
+                Use:   use,
+                Short: short,
+                Long:  long,
+        }
+
+        return cmd
+}</span>
+
+// create a command that runs the bash command
+func addRunCommand(use string, short string, long string, command string) *cobra.Command <span class="cov8" title="1">{
+        runCmd := &amp;cobra.Command{
+                Use:   use,
+                Short: short,
+                Long:  long,
+
+                Run: func(cmd *cobra.Command, args []string) </span><span class="cov0" title="0">{
+                        if len(args) &gt; 0 </span><span class="cov0" title="0">{
+                                ShellExecArgsE(boaCommandPath+command, args)
+                        }</span> else<span class="cov0" title="0"> {
+                                ShellExecE(filepath.Join(boaCommandPath, command))
+                        }</span>
+                },
+        }
+
+        <span class="cov8" title="1">return runCmd</span>
+}
+
+// create a command that runs the bash command
+func AddRunCommand(use string, short string, long string, command string) *cobra.Command <span class="cov0" title="0">{
+        cmdPath := GetBoaCommandPath()
+
+        runCmd := &amp;cobra.Command{
+                Use:   use,
+                Short: short,
+                Long:  long,
+
+                Run: func(cmd *cobra.Command, args []string) </span><span class="cov0" title="0">{
+                        if len(args) &gt; 0 </span><span class="cov0" title="0">{
+                                ShellExecArgsE(cmdPath+command, args)
+                        }</span> else<span class="cov0" title="0"> {
+                                ShellExecE(filepath.Join(cmdPath, command))
+                        }</span>
+                },
+        }
+
+        <span class="cov0" title="0">return runCmd</span>
+}
+
+// run a command on all clusters
+func ExecClusters(cmd string, grep string) error <span class="cov0" title="0">{
+        hostIPs, err := ReadHostIPs(grep)
+
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov0" title="0">ch := make(chan string)
+
+        for _, hostIP := range hostIPs </span><span class="cov0" title="0">{
+                cols := strings.Split(hostIP, "\t")
+
+                if len(cols) &gt; 1 </span><span class="cov0" title="0">{
+                        go ExecCluster(cols[0], cols[1], cmd, ch)
+                }</span>
+        }
+
+        // todo - add timeout
+        <span class="cov0" title="0">for i := 0; i &lt; len(hostIPs); i++ </span><span class="cov0" title="0">{
+                &lt;-ch
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+// run a command on one cluster via ssh
+func ExecCluster(host string, ip string, cmd string, ch chan string) <span class="cov0" title="0">{
+        cmd = fmt.Sprintf("ssh -p 2222 -o \"StrictHostKeyChecking=no\" -o ConnectTimeout=5 akdc@%s %s", ip, cmd)
+
+        ShellExecE(cmd)
+
+        ch &lt;- host
+}</span>
+
+// execute a command in bin/.kic/commands
+func ExecCommandE(cmd string) error <span class="cov0" title="0">{
+        path := GetBoaCommandPath() + cmd
+
+        // execute the file with "bash -c" if it exists
+        _, err := os.Stat(path)
+
+        if err == nil </span><span class="cov0" title="0">{
+                cfmt.Info("Running command: " + cmd)
+
+                err = ShellExecE(fmt.Sprintf("%s %s", path, os.Args))
+        }</span>
+
+        <span class="cov0" title="0">return err</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package boa
+
+import (
+        "bytes"
+        "io"
+        "kic/boa/cfmt"
+        "os"
+        "strings"
+        "testing"
+
+        "github.com/spf13/cobra"
+)
+
+func ExecCmdNoErrorE(t *testing.T, c *cobra.Command, args ...string) error <span class="cov0" title="0">{
+        t.Helper()
+
+        arg := ""
+        if len(args) &gt; 0 </span><span class="cov0" title="0">{
+                arg = args[0]
+        }</span>
+
+        <span class="cov0" title="0">cfmt.Info(t.Name(), c.Name(), arg)
+
+        c.SetArgs(args)
+        err := c.Execute()
+
+        if err != nil </span><span class="cov0" title="0">{
+                t.Error("Unexpected error:", err)
+        }</span>
+
+        <span class="cov0" title="0">return err</span>
+}
+
+func ExecCmdWithErrorE(t *testing.T, errMatch string, c *cobra.Command, args ...string) error <span class="cov0" title="0">{
+        t.Helper()
+
+        c.SetArgs(args)
+        err := c.Execute()
+
+        if err == nil </span><span class="cov0" title="0">{
+                t.Error("Expected error", errMatch)
+        }</span> else<span class="cov0" title="0"> {
+                if !strings.Contains(err.Error(), errMatch) </span><span class="cov0" title="0">{
+                        t.Errorf("Expected error %s; got error %s", errMatch, err)
+                }</span>
+        }
+
+        <span class="cov0" title="0">return err</span>
+}
+
+// execute command and return result and error
+// warning: this is not thread safe
+func ExecCmdWithResultsE(t *testing.T, resultMatch string, errMatch string, c *cobra.Command, args ...string) (string, error) <span class="cov0" title="0">{
+        t.Helper()
+
+        var (
+                old *os.File
+                r   *os.File
+                w   *os.File
+                buf *bytes.Buffer
+        )
+
+        // redirect stdout so we can capture
+        old = os.Stdout
+        r, w, _ = os.Pipe()
+        os.Stdout = w
+
+        buf = new(bytes.Buffer)
+        c.SetOut(buf)
+        c.SetErr(buf)
+
+        c.SetArgs(args)
+        err := c.Execute()
+
+        // reset stdout
+        w.Close()
+        os.Stdout = old
+        io.Copy(buf, r)
+        result := strings.TrimSpace(buf.String())
+
+        if !strings.Contains(result, resultMatch) </span><span class="cov0" title="0">{
+                t.Error("Result does not match:", resultMatch)
+        }</span>
+
+        <span class="cov0" title="0">if err != nil </span><span class="cov0" title="0">{
+                if !strings.Contains(err.Error(), errMatch) </span><span class="cov0" title="0">{
+                        t.Errorf("Expected error %s; got error %s", errMatch, err)
+                }</span>
+        } else<span class="cov0" title="0"> if errMatch != "" </span><span class="cov0" title="0">{
+                t.Errorf("Expected error %s, got nil", errMatch)
+        }</span>
+
+        <span class="cov0" title="0">return result, err</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package cfmt
+
+import (
+        "fmt"
+        "runtime"
+)
+
+var (
+        Reset string
+        Blue string
+        Cyan string
+        Gray string
+        Green string
+        Purple string
+        Red string
+        White string
+        Yellow string
+)
+
+// print an info message in cyan
+func Info(msg ...interface{}) <span class="cov8" title="1">{
+        fmt.Print(Cyan)
+        fmt.Print(msg ...)
+        fmt.Println(Reset)
+}</span>
+
+// print the error in red and return params as error
+func ErrorE(msg ...interface{}) error <span class="cov8" title="1">{
+        fmt.Print(Red)
+        fmt.Print(msg ...)
+        fmt.Println(Reset)
+        return fmt.Errorf("%v", fmt.Sprint(msg ...))
+}</span>
+
+func init() <span class="cov8" title="1">{
+        // Windows doesn't support ANSI colors
+        if runtime.GOOS != "windows" </span><span class="cov8" title="1">{
+                Reset = "\033[0m"
+                Blue = "\033[34m"
+                Cyan = "\033[36m"
+                Gray = "\033[37m"
+                Green = "\033[32m"
+                Purple = "\033[35m"
+                Red = "\033[31m"
+                White = "\033[97m"
+                Yellow = "\033[33m"
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package boa
+
+import (
+        "fmt"
+        "kic/boa/cfmt"
+        "log"
+        "os"
+        "path/filepath"
+        "strings"
+)
+
+// read key from ~/.kic
+func ReadConfigValue(key string) string <span class="cov8" title="1">{
+        key = strings.TrimSpace(key)
+
+        if !strings.HasSuffix(key, ":") </span><span class="cov8" title="1">{
+                key += ":"
+        }</span>
+
+        <span class="cov8" title="1">config := os.Getenv("HOME") + "/.kic"
+
+        if _, err := os.Stat(config); err == nil </span><span class="cov8" title="1">{
+                lines := ReadLinesFromFile(config)
+
+                for _, line := range lines </span><span class="cov8" title="1">{
+                        line = strings.TrimSpace(line)
+                        if strings.HasPrefix(line, key) </span><span class="cov8" title="1">{
+                                line = strings.TrimSpace(strings.Replace(line, key, "", 1))
+                                return line
+                        }</span>
+                }
+        }
+
+        <span class="cov8" title="1">return ""</span>
+}
+
+// read the ips file
+func ReadHostIPs(grep string) ([]string, error) <span class="cov8" title="1">{
+        command := ""
+
+        if _, err := os.Stat("./ips"); err != nil </span><span class="cov8" title="1">{
+                file := ReadConfigValue("defaultIPs:")
+                if file != "" </span><span class="cov8" title="1">{
+                        command = "cat " + file + " | sort"
+                }</span>
+        } else<span class="cov0" title="0"> {
+                command = "cat ips | sort"
+        }</span>
+
+        <span class="cov8" title="1">if command == "" </span><span class="cov0" title="0">{
+                cfmt.ErrorE("fleet file not found")
+        }</span>
+
+        <span class="cov8" title="1">if grep != "" </span><span class="cov8" title="1">{
+                err := CheckForBadChars(grep, "grep")
+                if err != nil </span><span class="cov0" title="0">{
+                        cfmt.ErrorE(err)
+                        return nil, err
+                }</span>
+
+                <span class="cov8" title="1">command += " | grep " + grep</span>
+        }
+
+        <span class="cov8" title="1">res, err := ShellExecOut(command)
+
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">lines := strings.Split(res, "\n")
+
+        var ips []string = nil
+
+        for _, line := range lines </span><span class="cov0" title="0">{
+                ip := strings.Split(line, "\t")
+
+                if len(ip) &gt; 1 </span><span class="cov0" title="0">{
+                        ips = append(ips, line)
+                }</span>
+        }
+
+        <span class="cov0" title="0">return ips, nil</span>
+}
+
+// get the path to the executable's directory
+func GetBinDir() string <span class="cov8" title="1">{
+        // read from env var
+        ex := os.Getenv("KIC_PATH")
+        if ex != "" </span><span class="cov8" title="1">{
+                return ex
+        }</span>
+
+        <span class="cov0" title="0">ex, _ = os.Getwd()
+
+        // return the working directory on tests
+        if strings.HasPrefix(ex, "/tmp/") || strings.HasPrefix(GetBinName(), "__debug") </span><span class="cov0" title="0">{
+                return ex
+        }</span>
+
+        <span class="cov0" title="0">ex, err := os.Executable()
+
+        if err != nil </span><span class="cov0" title="0">{
+                log.Fatal(err)
+        }</span>
+
+        // get the parent of bin
+        <span class="cov0" title="0">return filepath.Dir(ex)</span>
+}
+
+// get the file name from the executing directory
+func GetBinName() string <span class="cov8" title="1">{
+        // read from env var
+        ex := os.Getenv("KIC_NAME")
+        if ex != "" </span><span class="cov8" title="1">{
+                return ex
+        }</span>
+
+        <span class="cov0" title="0">ex, err := os.Executable()
+
+        if err != nil </span><span class="cov0" title="0">{
+                log.Fatal(err)
+        }</span>
+
+        // get the parent of bin
+        <span class="cov0" title="0">return filepath.Base(ex)</span>
+}
+
+// get the path to the commands (i.e. /bin/kic/.kic)
+func GetBoaPath() string <span class="cov8" title="1">{
+        boaPath := GetBinDir()
+        app := GetBinName()
+        appConfig := "." + app
+
+        // running in debugger
+        if strings.HasPrefix(app, "__debug") </span><span class="cov0" title="0">{
+                // assume package name == source directory
+                app = filepath.Base(boaPath)
+                appConfig = "." + app
+
+                if _, err := os.Stat(appConfig); err != nil </span><span class="cov0" title="0">{
+                        // walk the path to find the first bin dir
+                        tpath := filepath.Dir(boaPath)
+                        _, err := os.Stat(filepath.Join(tpath, "bin", appConfig))
+
+                        for err != nil &amp;&amp; tpath != "/" </span><span class="cov0" title="0">{
+                                tpath = filepath.Dir(tpath)
+                                _, err = os.Stat(filepath.Join(tpath, "bin", appConfig))
+                        }</span>
+
+                        <span class="cov0" title="0">if tpath != "/" </span><span class="cov0" title="0">{
+                                boaPath = filepath.Join(tpath, "bin")
+                        }</span>
+                }
+        }
+
+        // complete the path
+        <span class="cov8" title="1">return filepath.Join(boaPath, appConfig)</span>
+}
+
+// get the path to the boa commands
+func GetBoaCommandPath() string <span class="cov8" title="1">{
+        return filepath.Join(GetBoaPath(), "commands")
+}</span>
+
+// get the path to the repo base
+func GetRepoBase() string <span class="cov8" title="1">{
+        base := os.Getenv("REPO_BASE")
+
+        if base == "" </span><span class="cov0" title="0">{
+                ex, err := os.Executable()
+
+                if err != nil </span><span class="cov0" title="0">{
+                        log.Fatal(err)
+                }</span>
+
+                <span class="cov0" title="0">base = filepath.Dir(ex)
+                base = filepath.Dir(base)
+
+                if strings.HasSuffix(base, "src") </span><span class="cov0" title="0">{
+                        base = filepath.Dir(base)
+                }</span>
+        }
+
+        <span class="cov8" title="1">return base</span>
+}
+
+// read a text file from the boa directory
+// i.e. /bin/kic/.kic
+func ReadTextFileFromBoaDir(name string) string <span class="cov8" title="1">{
+        path := filepath.Join(GetBoaPath(), name)
+        return ReadTextFile(path)
+}</span>
+
+// read a file and return the text
+func ReadTextFile(path string) string <span class="cov8" title="1">{
+        content, err := os.ReadFile(path)
+
+        if err != nil </span><span class="cov0" title="0">{
+                return ""
+        }</span>
+
+        <span class="cov8" title="1">return string(content)</span>
+}
+
+// read lines from a text file
+func ReadLinesFromFile(path string) []string <span class="cov8" title="1">{
+        return strings.Split(ReadTextFile(path), "\n")
+}</span>
+
+// check for dangerous characters sent to bash
+func CheckForBadChars(source string, param string) error <span class="cov8" title="1">{
+
+        if source != "" </span><span class="cov8" title="1">{
+                badChars := "|&amp;;&lt;&gt;"
+
+                for _, ch := range badChars </span><span class="cov8" title="1">{
+                        if strings.Contains(source, string(ch)) </span><span class="cov8" title="1">{
+                                return fmt.Errorf("invalid character in parameter %s", param)
+                        }</span>
+                }
+        }
+
+        <span class="cov8" title="1">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package boa
+
+import (
+        "bytes"
+        "os"
+        "os/exec"
+)
+
+// execute a bash command with args
+func ShellExecArgsE(cmd string, args []string) error <span class="cov8" title="1">{
+        command := cmd
+        for _, arg := range args </span><span class="cov0" title="0">{
+                command += " " + arg
+        }</span>
+        <span class="cov8" title="1">return ShellExecE(command)</span>
+}
+
+// execute a bash command and return stdout
+func ShellExecOut(cmd string) (string, error) <span class="cov8" title="1">{
+        shell := exec.Command("bash", "-c", cmd)
+
+        var out bytes.Buffer
+        shell.Stdout = &amp;out
+
+        err := shell.Run()
+
+        return out.String(), err
+}</span>
+
+// execute a bash command
+func ShellExecE(cmd string) error <span class="cov8" title="1">{
+        shell := exec.Command("bash", "-c", cmd)
+
+        shell.Stdin = os.Stdin
+        shell.Stdout = os.Stdout
+        shell.Stderr = os.Stderr
+
+        return shell.Run()
+}</span>
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package fleet
+
+import (
+        "kic/boa"
+
+        "github.com/spf13/cobra"
+)
+
+// TokenCmd displays the admin-user token used to authenticate in the Arc portal
+var ArcTokenCmd = &amp;cobra.Command{
+        Use:   "arc-token",
+        Short: "Get Arc token from each cluster",
+
+        RunE: func(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
+                return (boa.ExecClusters("'echo -e \"\"$(hostname)\"\n$(/home/akdc/gitops/fleet/scripts/get-service-account-token.sh)\n\"'", grep))
+        }</span>,
+}
+
+func init() <span class="cov8" title="1">{
+        ArcTokenCmd.Flags().StringVarP(&amp;grep, "grep", "g", "", "grep conditional to filter by host")
+}</span>
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package check
+
+import (
+        "kic/boa"
+
+        "github.com/spf13/cobra"
+)
+
+// CheckAioaCmd checks each cluster to see if AI Order Accuracy is installed
+var AioaCmd = &amp;cobra.Command{
+        Use:   "ai-order-accuracy",
+        Short: "Check AI Order Accuracy status on each cluster",
+        Args:  argsFleetCheck,
+
+        RunE: func(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
+                return boa.ExecClusters("./gitops/fleet/scripts/check-aioa", grep)
+        }</span>,
+}
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package check
+
+import (
+        "kic/boa"
+
+        "github.com/spf13/cobra"
+)
+
+var (
+        // option variables
+        grep string
+
+        // fleetCheckCmd adds check subcommands
+        CheckCmd = &amp;cobra.Command{
+                Use:   "check",
+                Short: "Check cluster status",
+        }
+)
+
+func init() <span class="cov8" title="1">{
+        // todo - these can all be generated
+        CheckCmd.AddCommand(FluxCmd)
+        CheckCmd.AddCommand(HeartbeatCmd)
+        CheckCmd.AddCommand(LogsCmd)
+        CheckCmd.AddCommand(AioaCmd)
+        CheckCmd.AddCommand(RetriesCmd)
+        CheckCmd.AddCommand(SetupCmd)
+        // CheckCmd.AddCommand(DaprCmd)
+        // CheckCmd.AddCommand(RadiusCmd)
+
+        CheckCmd.PersistentFlags().StringVarP(&amp;grep, "grep", "g", "", "grep conditional to filter by host")
+}</span>
+
+// check the args
+func argsFleetCheck(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
+        // this will exit with an error
+        boa.ReadHostIPs("")
+        return nil
+}</span>
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package check
+
+import (
+        "kic/boa"
+
+        "github.com/spf13/cobra"
+)
+
+// DaprCmd represents the dapr command
+var DaprCmd = &amp;cobra.Command{
+        Use:   "dapr",
+        Short: "Check dapr status on each cluster",
+        Args:  argsFleetCheck,
+
+        RunE: func(cmd *cobra.Command, args []string) error <span class="cov0" title="0">{
+                return boa.ExecClusters("./gitops/fleet/scripts/check-dapr", grep)
+        }</span>,
+}
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package check
+
+import (
+        "kic/boa"
+
+        "github.com/spf13/cobra"
+)
+
+// FluxCmd checks each cluster for flux-check namespace
+var FluxCmd = &amp;cobra.Command{
+        Use:   "flux",
+        Short: "Check flux status on each cluster",
+        Args:  argsFleetCheck,
+
+        RunE: func(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
+                return boa.ExecClusters("./gitops/fleet/scripts/check-flux", grep)
+        }</span>,
+}
+</pre>
+		
+		<pre class="file" id="file10" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package check
+
+import (
+        "kic/boa"
+
+        "github.com/spf13/cobra"
+)
+
+// HeartbeatCmd checks each cluster for DNS and SSL setup
+// tinybench is our "heartbeat" application deployed as part of bootstrap
+var HeartbeatCmd = &amp;cobra.Command{
+        Use:   "heartbeat",
+        Short: "Check https heartbeat on each server",
+        Args:  argsFleetCheck,
+
+        RunE: func(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
+                return boa.ExecClusters("./gitops/fleet/scripts/check-heartbeat", grep)
+        }</span>,
+}
+</pre>
+		
+		<pre class="file" id="file11" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package check
+
+import (
+        "kic/boa"
+
+        "github.com/spf13/cobra"
+)
+
+// LogsCmd represents the dapr command
+var LogsCmd = &amp;cobra.Command{
+        Use:   "logs",
+        Short: "Check the cloudinit logs on the VMs",
+        Args:  argsFleetCheck,
+
+        RunE: func(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
+                return boa.ExecClusters("./gitops/fleet/scripts/check-logs", grep)
+        }</span>,
+}
+</pre>
+		
+		<pre class="file" id="file12" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package check
+
+import (
+        "kic/boa"
+
+        "github.com/spf13/cobra"
+)
+
+// RadiusCmd checks each cluster to verify radius is installed
+var RadiusCmd = &amp;cobra.Command{
+        Use:   "radius",
+        Short: "Check radius status on each cluster",
+        Args:  argsFleetCheck,
+
+        RunE: func(cmd *cobra.Command, args []string) error <span class="cov0" title="0">{
+                return boa.ExecClusters("./gitops/fleet/scripts/check-radius", grep)
+        }</span>,
+}
+</pre>
+		
+		<pre class="file" id="file13" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package check
+
+import (
+        "kic/boa"
+
+        "github.com/spf13/cobra"
+)
+
+// RetriesCmd checks each server for the number of flux retries during installation
+var RetriesCmd = &amp;cobra.Command{
+        Use:   "retries",
+        Short: "Check number of retries on each cluster",
+        Args:  argsFleetCheck,
+
+        RunE: func(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
+                return boa.ExecClusters("./gitops/fleet/scripts/check-retries", grep)
+        }</span>,
+}
+</pre>
+		
+		<pre class="file" id="file14" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package check
+
+import (
+        "kic/boa"
+
+        "github.com/spf13/cobra"
+)
+
+// SetupCmd checks each cluster for the setup status
+var SetupCmd = &amp;cobra.Command{
+        Use:   "setup",
+        Short: "Check setup status on each cluster",
+        Args:  argsFleetCheck,
+
+        RunE: func(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
+                // don't use a command on the VM as it's not available until late in setup
+                return boa.ExecClusters("tail -n1 status", grep)
+        }</span>,
+}
+</pre>
+		
+		<pre class="file" id="file15" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package fleet
+
+import (
+        "fmt"
+        "kic/boa"
+        "kic/boa/cfmt"
+        "log"
+        "os"
+        "path/filepath"
+        "strconv"
+        "strings"
+        "time"
+
+        "github.com/spf13/cobra"
+)
+
+var (
+        // variables for options
+        cluster           string
+        group             string
+        location          string
+        repo              string
+        pem               string
+        key               string
+        quiet             bool
+        ssl               string
+        gitops            bool
+        dapr              bool
+        arcEnabled        bool
+        digitalOcean      bool
+        dryRun            bool
+        debug             bool
+        cores             int
+        managedIdentityID = os.Getenv("AKDC_MI")
+
+        // kic fleet create command
+        CreateCmd = &amp;cobra.Command{
+                Use:   "create",
+                Short: "Create a new cluster",
+                Args:  validateCreateCmd,
+                RunE:  runCreateCmd,
+        }
+)
+
+// add kic fleet create specific flags
+func init() <span class="cov8" title="1">{
+        CreateCmd.Flags().StringVarP(&amp;cluster, "cluster", "c", "", "Kubernetes cluster name (required)")
+        CreateCmd.MarkFlagRequired("cluster")
+        CreateCmd.Flags().StringVarP(&amp;group, "group", "g", "", "Azure resource group name")
+        CreateCmd.Flags().StringVarP(&amp;location, "location", "l", "centralus", "Azure location")
+        CreateCmd.Flags().StringVarP(&amp;repo, "repo", "r", "retaildevcrews/edge-gitops", "GitOps repo name")
+        CreateCmd.Flags().StringVarP(&amp;ssl, "ssl", "s", "", "SSL domain name")
+        CreateCmd.Flags().StringVarP(&amp;pem, "pem", "p", "~/.ssh/certs.pem", "Path to SSL .pem file")
+        CreateCmd.Flags().StringVarP(&amp;key, "key", "k", "~/.ssh/certs.key", " Path to SSL .key file")
+        CreateCmd.Flags().BoolVarP(&amp;dapr, "dapr", "", false, "Install Dapr and Radius")
+        CreateCmd.Flags().BoolVarP(&amp;quiet, "quiet", "q", false, "Quiet mode")
+        CreateCmd.Flags().BoolVarP(&amp;debug, "debug", "d", false, "Create VM in debug mode")
+        CreateCmd.Flags().BoolVarP(&amp;arcEnabled, "arc", "a", false, "Connect kubernetes cluster to Azure via Azure ARC")
+        CreateCmd.Flags().BoolVarP(&amp;digitalOcean, "do", "", false, "Generate setup script for Digital Ocean droplet")
+        CreateCmd.Flags().BoolVarP(&amp;gitops, "gitops", "", false, "Generate GitOps targets in --repo")
+        CreateCmd.Flags().BoolVarP(&amp;dryRun, "dry-run", "", false, "Show values that would be used")
+        CreateCmd.Flags().IntVarP(&amp;cores, "cores", "", 2, "VM core count")
+
+        CreateCmd.RegisterFlagCompletionFunc("cluster", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) </span><span class="cov0" title="0">{
+                return getClusterComplete(), cobra.ShellCompDirectiveDefault
+        }</span>)
+
+        <span class="cov8" title="1">CreateCmd.RegisterFlagCompletionFunc("cores", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) </span><span class="cov0" title="0">{
+                return []string{"02", "04", "08", "16", "32"}, cobra.ShellCompDirectiveDefault
+        }</span>)
+}
+
+// get a list of valid clusters for shell completion
+func getClusterComplete() []string <span class="cov0" title="0">{
+        return []string{
+                "central-tx-dallas-101",
+                "central-tx-dallas-102",
+                "central-tx-dallas-103",
+                "central-tx-dallas-104",
+                "central-tx-dallas-105",
+                "east-ga-atl-101",
+                "east-ga-atl-102",
+                "east-ga-atl-103",
+                "east-ga-atl-104",
+                "east-ga-atl-105",
+                "west-ca-la-101",
+                "west-ca-la-102",
+                "west-ca-la-103",
+                "west-ca-la-104",
+                "west-ca-la-105",
+        }
+}</span>
+
+// validation function for CreateCmd
+func validateCreateCmd(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
+        // validate ssl and domain
+        hasError := validateSSL()
+
+        // validate cluster name against reserved prefixes (if set)
+        hasError = hasError &amp;&amp; validateClusterPrefix()
+
+        // managed identity is required for Azure VMs
+        hasError = hasError &amp;&amp; validateManagedIdentity()
+
+        // validate cores
+        hasError = hasError &amp;&amp; validateCores()
+
+        if hasError </span><span class="cov0" title="0">{
+                return fmt.Errorf("create command aborted")
+        }</span>
+
+        // default resource group is cluster name
+        <span class="cov8" title="1">if group == "" </span><span class="cov8" title="1">{
+                group = cluster
+        }</span>
+
+        <span class="cov8" title="1">return nil</span>
+}
+
+// validate --ssl
+func validateSSL() bool <span class="cov8" title="1">{
+        hasError := false
+
+        if ssl != "" </span><span class="cov8" title="1">{
+                if pem == "" </span><span class="cov0" title="0">{
+                        cfmt.ErrorE("you must specify --pem to use --ssl")
+                        hasError = true
+                }</span>
+
+                <span class="cov8" title="1">if key == "" </span><span class="cov0" title="0">{
+                        cfmt.ErrorE("you must specify --key to use --ssl")
+                        hasError = true
+                }</span>
+
+                <span class="cov8" title="1">if len(ssl) &lt; 3 </span><span class="cov0" title="0">{
+                        cfmt.ErrorE("--ssl parameter is too short")
+                        hasError = true
+                }</span>
+
+                <span class="cov8" title="1">if !strings.Contains(ssl, ".") </span><span class="cov0" title="0">{
+                        cfmt.ErrorE("malformed --ssl parameter")
+                        hasError = true
+                }</span>
+        }
+        <span class="cov8" title="1">return hasError</span>
+}
+
+// validate --cores
+func validateCores() bool <span class="cov0" title="0">{
+        validCores := map[int]int{2: 2, 4: 4, 8: 8, 16: 16, 32: 32}
+        _, ok := validCores[cores]
+
+        if !ok </span><span class="cov0" title="0">{
+                cfmt.ErrorE("invalid --cores")
+                fmt.Println("  valid: 2, 4, 8, 16, 32")
+        }</span>
+
+        <span class="cov0" title="0">return ok</span>
+}
+
+// validate managed identity
+func validateManagedIdentity() bool <span class="cov0" title="0">{
+        if !digitalOcean &amp;&amp; managedIdentityID == "" </span><span class="cov0" title="0">{
+                cfmt.ErrorE("managed identity is required")
+                fmt.Println("  export AKDC_MI=yourManagedIdentity")
+                return false
+        }</span>
+
+        <span class="cov0" title="0">return true</span>
+}
+
+// validate cluster prefix
+func validateClusterPrefix() bool <span class="cov0" title="0">{
+        cl := strings.ToLower(cluster)
+
+        blocked := boa.ReadConfigValue("reservedClusterPrefixes:")
+
+        lines := strings.Split(blocked, " ")
+
+        for _, line := range lines </span><span class="cov0" title="0">{
+                line = strings.ToLower(strings.TrimSpace(line))
+
+                if line != "" &amp;&amp; strings.HasPrefix(cl, line) </span><span class="cov0" title="0">{
+                        cfmt.ErrorE("cluster name is invalid - reserved prefix")
+                        return false
+                }</span>
+        }
+
+        <span class="cov0" title="0">return true</span>
+}
+
+// run the command
+func runCreateCmd(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
+        // create the setup script from the template
+        createVMSetupScript()
+
+        if dryRun </span><span class="cov8" title="1">{
+                return doDryRun()
+        }</span>
+
+        <span class="cov8" title="1">if digitalOcean </span><span class="cov8" title="1">{
+                // add the GitOps target
+                addTarget(cluster, ssl)
+
+                // no more automation for Digital Ocean droplets
+                cfmt.Info("Digital Ocean template created")
+                return nil
+        }</span>
+
+        // create the azure resource group
+        <span class="cov0" title="0">if err := createGroup(); err != nil </span><span class="cov0" title="0">{
+                cfmt.ErrorE(err)
+                return err
+        }</span>
+
+        // create the vm and get the IP
+        <span class="cov0" title="0">ip := createVM(managedIdentityID)
+
+        // remove the cluster template
+        os.Remove("cluster-" + cluster + ".sh")
+
+        // success
+        if ip != "" </span><span class="cov0" title="0">{
+                // add the GitOps target
+                addTarget(cluster, ssl)
+
+                cfmt.Info("VM Configured")
+                return nil
+        }</span>
+
+        <span class="cov0" title="0">return fmt.Errorf("VM Creation Failed")</span>
+}
+
+// handle --dry-run
+func doDryRun() error <span class="cov8" title="1">{
+        fmt.Println("Cluster:             ", cluster)
+        fmt.Println("Cores:               ", cores)
+        fmt.Println("Group:               ", group)
+
+        fmt.Println("Managed Identity:    ", strings.Contains(managedIdentityID, "/Microsoft.ManagedIdentity/"))
+        fmt.Println("Location:            ", location)
+        fmt.Println("Repo:                ", repo)
+
+        if len(ssl) &gt; 0 </span><span class="cov8" title="1">{
+                fmt.Println("SSL Domain:          ", ssl)
+                fmt.Println("SSL pem:             ", pem)
+                fmt.Println("SSL key:             ", key)
+        }</span> else<span class="cov0" title="0"> {
+                fmt.Println("SSL Domain:           none")
+        }</span>
+
+        <span class="cov8" title="1">fmt.Println("Enable Arc:          ", arcEnabled)
+        fmt.Println("Enable Dapr:         ", dapr)
+        fmt.Println("Enable Digital Ocean:", digitalOcean)
+        fmt.Println("Enable GitOps:       ", gitops)
+
+        if !digitalOcean </span><span class="cov0" title="0">{
+                fmt.Println("Cluster Exists:      ", vmExists())
+                fmt.Println("Group Exists:        ", groupExists())
+        }</span>
+
+        <span class="cov8" title="1">return nil</span>
+}
+
+// check to see if the Azure Resource Group exists
+func groupExists() bool <span class="cov0" title="0">{
+        ex, _ := boa.ShellExecOut("az group exists -g " + group)
+        return strings.HasPrefix(ex, "true")
+}</span>
+
+// check to see if the VM exists in the RG
+func vmExists() bool <span class="cov0" title="0">{
+        command := fmt.Sprintf("az vm show -g %s --name %s --query 'name' -o tsv", group, cluster)
+        res, _ := boa.ShellExecOut(command)
+        return strings.EqualFold(cluster, strings.TrimSpace(res))
+}</span>
+
+// get the path to template file
+func getTemplatePath() string <span class="cov8" title="1">{
+        return boa.GetRepoBase() + "/assets/akdc.templ"
+}</span>
+
+// create Azure Resource Group
+func createGroup() error <span class="cov0" title="0">{
+        // fail if the Azure VM exists
+        if vmExists() </span><span class="cov0" title="0">{
+                cfmt.ErrorE("Azure VM exists")
+                return fmt.Errorf("Please use a different VM or delete the VM")
+        }</span>
+
+        // don't create the group if it exists
+        <span class="cov0" title="0">if groupExists() </span><span class="cov0" title="0">{
+                return nil
+        }</span>
+
+        <span class="cov0" title="0">cfmt.Info("Creating Azure Resource Group")
+
+        rgTags := "akdc=true server=" + cluster
+
+        if ssl != "" </span><span class="cov0" title="0">{
+                rgTags += " zone=" + ssl
+        }</span>
+
+        <span class="cov0" title="0">command := "az group create -l " + location + " -n " + group + " -o table --tags " + rgTags
+
+        err := boa.ShellExecE(command)
+        if err != nil </span><span class="cov0" title="0">{
+                cfmt.ErrorE(err)
+        }</span>
+
+        <span class="cov0" title="0">return err</span>
+}
+
+// create vm setup script
+func createVMSetupScript() <span class="cov8" title="1">{
+        os.Remove("cluster-" + cluster + ".sh")
+
+        // create the custom VM script
+        content, err := os.ReadFile(getTemplatePath())
+
+        if err != nil </span><span class="cov0" title="0">{
+                cfmt.ErrorE(err)
+                return
+        }</span>
+
+        // create the vm setup script from the template
+        <span class="cov8" title="1">command := string(content)
+        command = strings.Replace(command, "{{cluster}}", cluster, -1)
+        command = strings.Replace(command, "{{dapr}}", strconv.FormatBool(dapr), -1)
+        command = strings.Replace(command, "{{debug}}", strconv.FormatBool(debug), -1)
+        command = strings.Replace(command, "{{fqdn}}", cluster+"."+ssl, -1)
+        command = strings.Replace(command, "{{repo}}", repo, -1)
+        command = strings.Replace(command, "{{group}}", group, -1)
+        command = strings.Replace(command, "{{arcEnabled}}", strconv.FormatBool(arcEnabled), -1)
+        command = strings.Replace(command, "{{do}}", strconv.FormatBool(digitalOcean), -1)
+        command = strings.Replace(command, "{{zone}}", ssl, -1)
+        // todo - define dnsRG
+        // command = strings.Replace(command, "{{dnsRG}}", dnsRG, -1)
+        os.WriteFile("cluster-"+cluster+".sh", []byte(command), 0644)</span>
+}
+
+// create Azure VM
+func createVM(managedIdentityID string) string <span class="cov0" title="0">{
+        cfmt.Info("Creating Azure VM")
+
+        command := "az vm create \\\n"
+        command += " -g " + group + " \\\n"
+        command += " -l " + location + " \\\n"
+        command += " -n " + cluster + " \\\n"
+        command += " --admin-username akdc \\\n"
+        command += " --assign-identity " + managedIdentityID + "\\\n"
+        command += " --size standard_D" + strconv.Itoa(cores) + "as_v5 \\\n"
+        command += " --image Canonical:0001-com-ubuntu-server-focal:20_04-lts-gen2:latest \\\n"
+        command += " --os-disk-size-gb 128 \\\n"
+        command += " --storage-sku Premium_LRS \\\n"
+        command += " --generate-ssh-keys \\\n"
+        command += " --public-ip-sku Standard \\\n"
+        command += " --query publicIpAddress \\\n"
+        command += " -o tsv \\\n"
+        command += " --custom-data cluster-" + cluster + ".sh"
+
+        ip, _ := boa.ShellExecOut(command)
+        ip = strings.TrimSpace(ip)
+
+        if ip == "" </span><span class="cov0" title="0">{
+                cfmt.ErrorE("Failed to create cluster")
+                return ""
+        }</span>
+        <span class="cov0" title="0">cfmt.Info("VM created")
+        fmt.Println(cluster, ip)
+
+        f, err := os.OpenFile("ips", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+        if err != nil </span><span class="cov0" title="0">{
+                cfmt.ErrorE(err)
+        }</span>
+
+        <span class="cov0" title="0">if _, err := f.WriteString(fmt.Sprintf("%s\t%s\n", cluster, ip)); err != nil </span><span class="cov0" title="0">{
+                log.Println(err)
+        }</span>
+
+        <span class="cov0" title="0">f.Close()
+
+        cfmt.Info("Deleting default nsg")
+        command = "az network nsg rule delete -g " + group + " --nsg-name " + cluster + "NSG -o table --name default-allow-ssh"
+        boa.ShellExecOut(command)
+
+        cfmt.Info("Creating SSH rule on port 2222")
+
+        command = "az network nsg rule create \\\n"
+        command += "-g " + group + " \\\n"
+        command += "--nsg-name " + cluster + "NSG \\\n"
+        command += "-n SSH-http \\\n"
+        command += "--description \"SSH http https\" \\\n"
+        command += "--destination-port-ranges 2222 80 443 \\\n"
+        command += "--protocol tcp \\\n"
+        command += "--access allow \\\n"
+        command += "--priority 1202 -o table"
+        boa.ShellExecOut(command)
+
+        return ip</span>
+}
+
+// get GitOps template
+func getConfigJson(cluster string, zone string) []byte <span class="cov0" title="0">{
+        region := cluster
+        district := cluster
+
+        cols := strings.Split(cluster, "-")
+
+        if len(cols) &gt; 0 </span><span class="cov0" title="0">{
+                region = cols[0]
+
+                if len(cols) &gt; 2 </span><span class="cov0" title="0">{
+                        district = strings.Join(cols[:3], "-")
+                }</span>
+        }
+
+        <span class="cov0" title="0">json := boa.ReadTextFileFromBoaDir("gitops-config.templ")
+
+        if json == "" </span><span class="cov0" title="0">{
+                return nil
+        }</span>
+
+        // replace template values
+        <span class="cov0" title="0">json = strings.Replace(json, "{{cluster}}", cluster, -1)
+        json = strings.Replace(json, "{{region}}", region, -1)
+        json = strings.Replace(json, "{{district}}", district, -1)
+        json = strings.Replace(json, "{{zone}}", zone, -1)
+
+        return []byte(json)</span>
+}
+
+// add a target to GitOps
+func addTarget(cluster string, zone string) <span class="cov8" title="1">{
+        // only run if --gitops specified
+        if !gitops </span><span class="cov8" title="1">{
+                return
+        }</span>
+
+        // read the config.json file
+        <span class="cov0" title="0">json := getConfigJson(cluster, ssl)
+
+        if json == nil </span><span class="cov0" title="0">{
+                cfmt.ErrorE("unable to read gitops-config.templ")
+        }</span> else<span class="cov0" title="0"> {
+                // GitOps directories
+                repoName := repo
+                repoFull := repoName
+
+                if strings.HasPrefix(repo, "https://") </span><span class="cov0" title="0">{
+                        cols := strings.Split(repo[8:], "/")
+                        repoName = strings.Join(cols[len(cols)-2:], "/")
+                }</span> else<span class="cov0" title="0"> {
+                        repoFull = "https://github.com/" + repo
+                }</span>
+
+                <span class="cov0" title="0">cols := strings.Split(repoName, "/")
+                repoName = cols[len(cols)-1]
+
+                gitopsDir := filepath.Join(os.Getenv("HOME"), repoName)
+                bootstrapDir := filepath.Join(gitopsDir, "deploy", "bootstrap")
+                appsDir := filepath.Join(gitopsDir, "deploy", "apps")
+
+                dirExists := false
+
+                gitCmd := "git -C " + gitopsDir + " "
+
+                // clone or pull the repo
+                if _, err := os.Stat(gitopsDir); err == nil </span><span class="cov0" title="0">{
+                        boa.ShellExecE(gitCmd + "pull")
+                        dirExists = true
+                }</span> else<span class="cov0" title="0"> {
+                        boa.ShellExecE("git clone " + repoFull + " " + gitopsDir)
+                }</span>
+
+                // add the targets
+                <span class="cov0" title="0">if len(json) &gt; 0 &amp;&amp; !strings.Contains(string(json), "{{") </span><span class="cov0" title="0">{
+                        // make sure the dirs exist
+                        if _, err := os.Stat(bootstrapDir); err == nil </span><span class="cov0" title="0">{
+                                if _, err = os.Stat(appsDir); err == nil </span><span class="cov0" title="0">{
+                                        // add cluster to the dirs
+                                        bootstrapDir = filepath.Join(bootstrapDir, cluster)
+                                        appsDir = filepath.Join(appsDir, cluster)
+
+                                        // create the directories
+                                        boa.ShellExecE("mkdir -p " + bootstrapDir + " &amp;&amp; mkdir -p " + appsDir)
+
+                                        // write config.json to each dir
+                                        bootstrapDir = filepath.Join(bootstrapDir, "config.json")
+                                        appsDir = filepath.Join(appsDir, "config.json")
+
+                                        // don't overwrite existing config.json
+                                        if _, err := os.Stat(bootstrapDir); err != nil </span><span class="cov0" title="0">{
+                                                os.WriteFile(bootstrapDir, json, 0644)
+                                        }</span>
+
+                                        <span class="cov0" title="0">if _, err := os.Stat(appsDir); err != nil </span><span class="cov0" title="0">{
+                                                os.WriteFile(appsDir, json, 0644)
+                                        }</span>
+
+                                        // if there were repo changes
+                                        <span class="cov0" title="0">if res, _ := boa.ShellExecOut(gitCmd + "status -s"); res != "" </span><span class="cov0" title="0">{
+                                                agoDir := filepath.Join(gitopsDir, "autogitops")
+
+                                                if _, err := os.Stat(agoDir); err == nil </span><span class="cov0" title="0">{
+                                                        if file, err := os.OpenFile(filepath.Join(agoDir, "create.log"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644); err == nil </span><span class="cov0" title="0">{
+                                                                dt := time.Now().UTC()
+                                                                fmt.Fprintln(file, dt.Format("01-02-2006 15:04:05"), "added cluster:", cluster)
+                                                                file.Close()
+                                                        }</span>
+                                                }
+                                                // update the repo
+                                                <span class="cov0" title="0">boa.ShellExecE(gitCmd + "add .")
+                                                boa.ShellExecE(gitCmd + "commit -am 'kic fleet create'")
+                                                boa.ShellExecE(gitCmd + "pull")
+                                                boa.ShellExecE(gitCmd + "push")</span>
+                                        }
+
+                                        // delete the repo if we created it
+                                        <span class="cov0" title="0">if !dirExists </span><span class="cov0" title="0">{
+                                                boa.ShellExecE("rm -rf " + gitopsDir)
+                                        }</span>
+                                }
+                        }
+                }
+        }
+}
+</pre>
+		
+		<pre class="file" id="file16" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package fleet
+
+import (
+        "fmt"
+        "kic/boa"
+        "kic/boa/cfmt"
+        "os"
+
+        "github.com/spf13/cobra"
+)
+
+// DeleteCmd deletes a cluster and DNS entry
+var DeleteCmd = &amp;cobra.Command{
+        Use:               "delete",
+        Short:             "Delete an Azure Resource Group and associated Azure DNS record",
+        Args:              cobra.ExactValidArgs(1),
+        ValidArgsFunction: validArgsFleetDelete,
+        RunE:              runFleetDeleteE,
+}
+
+// run kic fleet delete command
+func runFleetDeleteE(cmd *cobra.Command, args []string) error <span class="cov0" title="0">{
+        cfmt.Info("Deleting Resource Group")
+        boa.ShellExecE(fmt.Sprintf("az group delete -n %s --yes --no-wait", args[0]))
+
+        cfmt.Info("Deleting DNS Record")
+        return (boa.ShellExecE(fmt.Sprintf("az network dns record-set a delete -g tld -z cseretail.com --yes -n %s", args[0])))
+}</span>
+
+// validate kic fleet delete args
+func validArgsFleetDelete(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) <span class="cov0" title="0">{
+        // don't use the defaultIPs
+        if _, err := os.Stat("ips"); err != nil </span><span class="cov0" title="0">{
+                return nil, cobra.ShellCompDirectiveNoFileComp
+        }</span>
+
+        // only one argument
+        <span class="cov0" title="0">if len(args) != 0 </span><span class="cov0" title="0">{
+                return nil, cobra.ShellCompDirectiveNoFileComp
+        }</span>
+
+        // suggest from the ips file
+        <span class="cov0" title="0">if ips, err := boa.ReadHostIPs(""); err != nil </span><span class="cov0" title="0">{
+                return nil, cobra.ShellCompDirectiveNoFileComp
+        }</span> else<span class="cov0" title="0"> {
+                return ips, cobra.ShellCompDirectiveNoFileComp
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file17" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package fleet
+
+import (
+        "fmt"
+        "kic/boa"
+        "kic/boa/cfmt"
+
+        "github.com/spf13/cobra"
+)
+
+// execCmd runs a bash command on each server
+var ExecCmd = &amp;cobra.Command{
+        Use:   "exec",
+        Short: "Execute a bash command on each server",
+        Args:  cobra.MinimumNArgs(1),
+        RunE:  runFleetExecE,
+}
+
+func init() <span class="cov8" title="1">{
+        ExecCmd.Flags().StringVarP(&amp;grep, "grep", "g", "", "grep conditional to filter by host")
+}</span>
+
+// run kic fleet exec command
+func runFleetExecE(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
+        command := fmt.Sprintf("%s", args)
+
+        // command will have []
+        if len(command) &lt; 3 </span><span class="cov0" title="0">{
+                return cfmt.ErrorE("Usage: flt exec bashCommand")
+        }</span>
+
+        // remove []
+        <span class="cov8" title="1">command = command[1 : len(command)-1]
+
+        return (boa.ExecClusters(command, grep))</span>
+}
+</pre>
+		
+		<pre class="file" id="file18" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package fleet
+
+import (
+        "kic/cmd/fleet/check"
+
+        "github.com/spf13/cobra"
+)
+
+var (
+        // option variables
+        grep string
+
+        // FleetCmd adds the kic fleet command tree
+        FleetCmd = &amp;cobra.Command{
+                Use:   "fleet",
+                Short: "Commands for fleet of clusters",
+        }
+)
+
+func init() <span class="cov8" title="1">{
+        FleetCmd.AddCommand(check.CheckCmd)
+        FleetCmd.AddCommand(CreateCmd)
+        FleetCmd.AddCommand(DeleteCmd)
+        FleetCmd.AddCommand(ExecCmd)
+        FleetCmd.AddCommand(GroupsCmd)
+        FleetCmd.AddCommand(ListCmd)
+        FleetCmd.AddCommand(PatchCmd)
+        FleetCmd.AddCommand(PullCmd)
+        FleetCmd.AddCommand(SshCmd)
+        FleetCmd.AddCommand(SyncCmd)
+        FleetCmd.AddCommand(ArcTokenCmd)
+}</span>
+</pre>
+		
+		<pre class="file" id="file19" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package fleet
+
+import (
+        "kic/boa"
+
+        "github.com/spf13/cobra"
+)
+
+// GroupsCmd gets the Azure Resource Groups from the subscription
+var GroupsCmd = &amp;cobra.Command{
+        Use:   "groups",
+        Short: "List Azure resource groups",
+
+        RunE: func(cmd *cobra.Command, args []string) error <span class="cov0" title="0">{
+                return (boa.ShellExecE("az group list -o table | sort | grep -e central- -e east- -e west- -e corp- -e retail-edge"))
+        }</span>,
+}
+</pre>
+		
+		<pre class="file" id="file20" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package fleet
+
+import (
+        "fmt"
+        "kic/boa"
+        "kic/boa/cfmt"
+        "strings"
+
+        "github.com/spf13/cobra"
+)
+
+// ListCmd lists the clusters in the fleet
+var ListCmd = &amp;cobra.Command{
+        Use:   "list",
+        Short: "List the clusters in the fleet",
+        RunE:  runFleetList,
+}
+
+func init() <span class="cov8" title="1">{
+        ListCmd.Flags().StringVarP(&amp;grep, "grep", "g", "", "grep conditional to filter by host")
+}</span>
+
+// run the kic fleet list command
+func runFleetList(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
+        cfmt.Info("Clusters in the fleet")
+        fmt.Println()
+
+        hostIPs, err := boa.ReadHostIPs("")
+
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">for _, line := range hostIPs </span><span class="cov8" title="1">{
+                if len(line) &lt; 30 </span><span class="cov8" title="1">{
+                        line = strings.Replace(line, "\t", "\t\t", -1)
+                }</span>
+                <span class="cov8" title="1">fmt.Println(line)</span>
+        }
+
+        <span class="cov8" title="1">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file21" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package fleet
+
+import (
+        "kic/boa"
+
+        "github.com/spf13/cobra"
+)
+
+// PatchCmd runs ~/gitops/fleet/scripts/patch.sh on each cluster
+var PatchCmd = &amp;cobra.Command{
+        Use:   "patch",
+        Short: "Run a patch command on each cluster",
+        RunE: func(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
+                return (boa.ExecClusters("gitops/fleet/scripts/patch.sh", grep))
+        }</span>,
+}
+
+func init() <span class="cov8" title="1">{
+        PatchCmd.Flags().StringVarP(&amp;grep, "grep", "g", "", "grep conditional to filter by host")
+}</span>
+</pre>
+		
+		<pre class="file" id="file22" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package fleet
+
+import (
+        "kic/boa"
+
+        "github.com/spf13/cobra"
+)
+
+// PullCmd runs git pull on the akdc repo on each cluster
+var PullCmd = &amp;cobra.Command{
+        Use:   "pull",
+        Short: "Git pull the akdc repo",
+        RunE: func(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
+                return (boa.ExecClusters("git -C gitops pull", grep))
+        }</span>,
+}
+
+func init() <span class="cov8" title="1">{
+        PullCmd.Flags().StringVarP(&amp;grep, "grep", "g", "", "grep conditional to filter by host")
+}</span>
+</pre>
+		
+		<pre class="file" id="file23" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package fleet
+
+import (
+        "kic/boa"
+        "kic/boa/cfmt"
+        "strings"
+
+        "github.com/spf13/cobra"
+)
+
+var (
+        // sshCmd opens an ssh terminal on a cluster
+        SshCmd = &amp;cobra.Command{
+                Use:   "ssh",
+                Short: "Open an SSH shell to the cluster",
+                Args:  cobra.ExactValidArgs(1),
+
+                ValidArgsFunction: validArgsFleetSsh,
+
+                RunE: runFleetSsh,
+        }
+)
+
+// run kic fleet ssh command
+func runFleetSsh(cmd *cobra.Command, args []string) error <span class="cov0" title="0">{
+        // get the ip from the ips file
+        hostIPs, err := boa.ReadHostIPs(args[0])
+
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov0" title="0">ip := args[0]
+
+        // try to lookup partial DNS name
+        if len(hostIPs) &gt; 0 </span><span class="cov0" title="0">{
+                ip = hostIPs[len(hostIPs)-1]
+                cols := strings.Split(ip, "\t")
+
+                if len(cols) &gt; 1 </span><span class="cov0" title="0">{
+                        ip = strings.TrimSpace(cols[1])
+                }</span>
+        }
+
+        <span class="cov0" title="0">if ip != "" </span><span class="cov0" title="0">{
+                boa.ShellExecE("ssh -p 2222 -o \"StrictHostKeyChecking=no\" akdc@" + ip)
+        }</span> else<span class="cov0" title="0"> {
+                cfmt.ErrorE("unable to find host or IP")
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+// validate kic fleet ssh arg
+func validArgsFleetSsh(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) <span class="cov0" title="0">{
+        hostIPs, err := boa.ReadHostIPs("")
+
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, cobra.ShellCompDirectiveNoFileComp
+        }</span>
+
+        // only one arg
+        <span class="cov0" title="0">if len(args) != 0 </span><span class="cov0" title="0">{
+                return nil, cobra.ShellCompDirectiveNoFileComp
+        }</span>
+
+        // sugest from the ips or defaultIPs file
+        <span class="cov0" title="0">return hostIPs, cobra.ShellCompDirectiveNoFileComp</span>
+}
+</pre>
+		
+		<pre class="file" id="file24" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package fleet
+
+import (
+        "kic/boa"
+
+        "github.com/spf13/cobra"
+)
+
+// SyncCmd runs flux sync (reconcile) on each cluster
+var SyncCmd = &amp;cobra.Command{
+        Use:   "sync",
+        Short: "Sync (reconcile) flux on each cluster",
+
+        RunE: func(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
+                return boa.ExecClusters("flux reconcile source git gitops", grep)
+        }</span>,
+}
+
+func init() <span class="cov8" title="1">{
+        SyncCmd.Flags().StringVarP(&amp;grep, "grep", "g", "", "grep conditional to filter by host")
+}</span>
+</pre>
+		
+		<pre class="file" id="file25" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package cmd
+
+import (
+        "kic/boa"
+        "kic/cmd/fleet"
+        "kic/cmd/targets"
+        "kic/cmd/test"
+        "os"
+
+        "github.com/spf13/cobra"
+)
+
+// rootCmd represents the base command and adds commands, options, and flags
+var rootCmd = &amp;cobra.Command{
+        Use:   "kic",
+        Short: "Kubernetes in Codespaces CLI",
+}
+
+// initialize the root command
+func init() <span class="cov8" title="1">{
+        // load the commands from the bin location ./.appName directory
+        boa.LoadCommands(rootCmd)
+
+        if boa.GetCommandByUse(rootCmd, "test") == nil </span><span class="cov8" title="1">{
+                // this can't be a boa command [easily]
+                //    because of the rich command line params
+                rootCmd.AddCommand(test.TestCmd)
+        }</span>
+
+        // add to manage command if exists - otherwise add to root
+        <span class="cov8" title="1">manageCmd := boa.GetCommandByUse(rootCmd, "manage")
+
+        if manageCmd == nil </span><span class="cov0" title="0">{
+                manageCmd = rootCmd
+        }</span>
+
+        // add built-in commands if not exits
+        <span class="cov8" title="1">if boa.GetCommandByUse(rootCmd, "fleet") == nil </span><span class="cov8" title="1">{
+                // this can't be a boa command [easily]
+                // this is the old akdc set of commands
+                manageCmd.AddCommand(fleet.FleetCmd)
+        }</span>
+
+        <span class="cov8" title="1">if boa.GetCommandByUse(rootCmd, "targets") == nil </span><span class="cov8" title="1">{
+                // this can't be a boa command [easily]
+                //    modifies autogitops.json
+                manageCmd.AddCommand(targets.TargetsCmd)
+        }</span>
+
+        // this will set a new root if specified
+        // this will also remove any hidden commands so they don't exist
+        <span class="cov8" title="1">boa.SetNewRoot()</span>
+}
+
+// execute the root command
+func Execute() <span class="cov0" title="0">{
+        err := rootCmd.Execute()
+        if err != nil </span><span class="cov0" title="0">{
+                os.Exit(1)
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file26" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package targets
+
+import (
+        "fmt"
+        "kic/boa/cfmt"
+
+        "github.com/spf13/cobra"
+)
+
+// AddCmd adds a target to GitOps
+var AddCmd = &amp;cobra.Command{
+        Use:   "add",
+        Short: "Add a GitOps target",
+
+        Args: argsTargets,
+
+        RunE: runTargetsAddE,
+}
+
+func runTargetsAddE(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
+        if len(args) == 0 </span><span class="cov0" title="0">{
+                return cfmt.ErrorE("Error: specify the target to add")
+        }</span>
+
+        <span class="cov8" title="1">result := getAutoGitOpsConfigMap()
+
+        if result != nil </span><span class="cov8" title="1">{
+                t := result["targets"]
+
+                var nt []interface{}
+
+                found := false
+
+                if t != nil </span><span class="cov8" title="1">{
+                        for _, v := range t.([]interface{}) </span><span class="cov8" title="1">{
+                                nt = append(nt, v)
+
+                                if v == args[0] </span><span class="cov0" title="0">{
+                                        found = true
+                                }</span>
+                        }
+                }
+
+                <span class="cov8" title="1">if !found </span><span class="cov8" title="1">{
+                        nt = append(nt, args[0])
+                }</span>
+
+                <span class="cov8" title="1">result["targets"] = nt
+
+                saveAutoGitOpsConfig(result)
+
+                fmt.Println(nt)</span>
+        }
+
+        <span class="cov8" title="1">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file27" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package targets
+
+import (
+        "fmt"
+        "kic/boa/cfmt"
+
+        "github.com/spf13/cobra"
+)
+
+// ClearCmd clears the GitOps targets
+var ClearCmd = &amp;cobra.Command{
+        Use:   "clear",
+        Short: "Clear all GitOps targets",
+        Args:  argsTargets,
+        RunE:  runTargetsClearE,
+}
+
+func runTargetsClearE(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
+        result := getAutoGitOpsConfigMap()
+
+        if result != nil </span><span class="cov8" title="1">{
+                var nt []interface{}
+
+                result["targets"] = nt
+
+                saveAutoGitOpsConfig(result)
+
+                fmt.Println("targets cleared")
+
+                return nil
+        }</span>
+
+        <span class="cov0" title="0">return cfmt.ErrorE("Unable to read targets")</span>
+}
+</pre>
+		
+		<pre class="file" id="file28" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package targets
+
+import (
+        "fmt"
+        "kic/boa/cfmt"
+
+        "github.com/spf13/cobra"
+)
+
+// ListCmd lists the GitOps targets
+var ListCmd = &amp;cobra.Command{
+        Use:   "list",
+        Short: "List current targets",
+        Args:  argsTargets,
+        RunE:  runTargetsListE,
+}
+
+func runTargetsListE(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
+        result := getAutoGitOpsConfigMap()
+
+        if result != nil </span><span class="cov8" title="1">{
+                if result["targets"] == nil </span><span class="cov0" title="0">{
+                        cfmt.Info("targets", "is empty")
+                }</span> else<span class="cov8" title="1"> {
+                        cfmt.Info("Targets")
+                        fmt.Println(result["targets"])
+                }</span>
+                <span class="cov8" title="1">return nil</span>
+        } else<span class="cov0" title="0"> {
+                return cfmt.ErrorE("failed to read autogitops.json")
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file29" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package targets
+
+import (
+        "kic/boa"
+        "kic/boa/cfmt"
+
+        "github.com/spf13/cobra"
+)
+
+// PushCmd adds, commits, and pushes the GitOps targets to the repo
+var PushCmd = &amp;cobra.Command{
+        Use:   "push",
+        Short: "Push the changes to GitHub",
+        Args:  argsTargets,
+        RunE:  runTargetsPushE,
+}
+
+func runTargetsPushE(cmd *cobra.Command, args []string) error <span class="cov0" title="0">{
+        // make sure the repo is up to date
+        if res, _ := boa.ShellExecOut("git status -s"); res == "" </span><span class="cov0" title="0">{
+                cfmt.Info("nothing to push")
+        }</span> else<span class="cov0" title="0"> {
+                cfmt.Info("pulling from GitHub")
+                boa.ShellExecE("git pull")
+
+                cfmt.Info("committing changes to GitHub")
+                boa.ShellExecE("git commit -am 'updated targets with akdc CLI'")
+
+                cfmt.Info("pushing changes to GitHub")
+                boa.ShellExecE("git push")
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file30" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package targets
+
+import (
+        "fmt"
+        "kic/boa/cfmt"
+
+        "github.com/spf13/cobra"
+)
+
+// RemoveCmd removes a target from GitOps
+var RemoveCmd = &amp;cobra.Command{
+        Use:   "remove",
+        Short: "Remove a GitOps target",
+        Args:  argsTargets,
+        RunE:  runTargetsRemoveE,
+}
+
+func runTargetsRemoveE(cmd *cobra.Command, args []string) error <span class="cov0" title="0">{
+        if len(args) == 0 </span><span class="cov0" title="0">{
+                return cfmt.ErrorE("Error: specify the target to remove")
+        }</span>
+
+        <span class="cov0" title="0">result := getAutoGitOpsConfigMap()
+
+        if result != nil </span><span class="cov0" title="0">{
+                return cfmt.ErrorE("Error: unable to read autogitops.json")
+        }</span> else<span class="cov0" title="0"> {
+                t := result["targets"]
+
+                if t == nil </span><span class="cov0" title="0">{
+                        fmt.Println("targets is empty")
+                        return nil
+                }</span>
+
+                <span class="cov0" title="0">var nt []interface{}
+
+                for _, v := range t.([]interface{}) </span><span class="cov0" title="0">{
+                        if v != args[0] </span><span class="cov0" title="0">{
+                                nt = append(nt, v)
+                        }</span>
+                }
+
+                <span class="cov0" title="0">result["targets"] = nt
+
+                saveAutoGitOpsConfig(result)
+
+                fmt.Println(nt)</span>
+        }
+
+        <span class="cov0" title="0">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file31" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package targets
+
+import (
+        "encoding/json"
+        "fmt"
+        "kic/boa"
+        "kic/boa/cfmt"
+        "os"
+        "path/filepath"
+
+        "github.com/spf13/cobra"
+)
+
+var (
+        AutoGitOpsConfigFile = filepath.Join(".", "autogitops", "autogitops.json")
+
+        // TargetsCmd contains the GitOps targets commands
+        TargetsCmd = &amp;cobra.Command{
+                Use:   "targets",
+                Short: "Manage GitOps targets",
+        }
+)
+
+func init() <span class="cov8" title="1">{
+        TargetsCmd.AddCommand(AddCmd)
+        TargetsCmd.AddCommand(ClearCmd)
+        TargetsCmd.AddCommand(ListCmd)
+        TargetsCmd.AddCommand(PushCmd)
+        TargetsCmd.AddCommand(RemoveCmd)
+}</span>
+
+// args validation for targets commands
+func argsTargets(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
+        return checkForConfigFile()
+}</span>
+
+// check for the config file
+func checkForConfigFile() error <span class="cov8" title="1">{
+        if _, err := os.Stat(AutoGitOpsConfigFile); err != nil </span><span class="cov8" title="1">{
+                return fmt.Errorf("GitOps file not found - please cd to an app with GitOps setup")
+        }</span>
+
+        <span class="cov8" title="1">return nil</span>
+}
+
+// read config file into map
+func getAutoGitOpsConfigMap() map[string]interface{} <span class="cov8" title="1">{
+        // make sure the repo is up to date
+        boa.ShellExecOut("git pull")
+
+        content, err := os.ReadFile(AutoGitOpsConfigFile)
+
+        if err != nil </span><span class="cov0" title="0">{
+                fmt.Println(err)
+                return nil
+        }</span>
+
+        <span class="cov8" title="1">txt := string(content)
+
+        var result map[string]interface{}
+
+        err = json.Unmarshal([]byte(txt), &amp;result)
+
+        if err != nil </span><span class="cov0" title="0">{
+                cfmt.ErrorE("unmarshal json faile")
+                fmt.Println(err)
+                return nil
+        }</span>
+
+        <span class="cov8" title="1">return result</span>
+}
+
+// save config file from map
+func saveAutoGitOpsConfig(result map[string]interface{}) <span class="cov8" title="1">{
+        val, err := json.MarshalIndent(result, "", "    ")
+
+        if err != nil </span><span class="cov0" title="0">{
+                fmt.Println("Error saving:", err)
+        }</span> else<span class="cov8" title="1"> {
+                os.WriteFile(AutoGitOpsConfigFile, val, 0644)
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file32" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package test
+
+import (
+        "fmt"
+        "kic/boa"
+        "kic/boa/cfmt"
+        "os"
+
+        "github.com/spf13/cobra"
+)
+
+var (
+        // command line options
+        fileIntegration string
+        maxErrors       int
+        summary         string
+
+        // test-integration command
+        IntegrationCmd = &amp;cobra.Command{
+                Use:   "integration",
+                Short: "Run an integration test on each cluster",
+                RunE:  runTestIntegrationE,
+        }
+)
+
+// add command specific options
+func init() <span class="cov8" title="1">{
+        IntegrationCmd.Flags().StringVarP(&amp;fileIntegration, "file", "f", "baseline.json", "Test file to use")
+        IntegrationCmd.Flags().IntVarP(&amp;maxErrors, "max-errors", "", 10, "Max validation errors before terminating test")
+        IntegrationCmd.Flags().StringVarP(&amp;summary, "summary", "", "None", "Test summary display &lt;None|Tsv|Xml&gt;")
+}</span>
+
+// run the test-integration command
+func runTestIntegrationE(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
+        cfmt.Info("Running integration test")
+
+        command := "test"
+
+        if sleep &lt; 0 </span><span class="cov0" title="0">{
+                sleep = 0
+        }</span>
+
+        // get shared options
+        <span class="cov8" title="1">params := getTestFlagValues()
+
+        // add test-integration specific options to command line
+        if fileIntegration != "" </span><span class="cov8" title="1">{
+                params += " --files " + fileIntegration
+        }</span>
+
+        <span class="cov8" title="1">if maxErrors &gt; 0 </span><span class="cov8" title="1">{
+                params += fmt.Sprintf(" --max-errors %d", maxErrors)
+        }</span>
+
+        <span class="cov8" title="1">if summary != "" </span><span class="cov8" title="1">{
+                params += " --summary " + summary
+        }</span>
+
+        <span class="cov8" title="1">path := boa.GetBinDir() + "/.kic/commands/" + command
+
+        // execute the file with "bash -c" if it exists
+        if _, err := os.Stat(path); err == nil </span><span class="cov8" title="1">{
+                return boa.ShellExecE(fmt.Sprintf("%s %s", path, params))
+        }</span> else<span class="cov0" title="0"> {
+                return cfmt.ErrorE(err)
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file33" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package test
+
+import (
+        "fmt"
+        "kic/boa"
+        "kic/boa/cfmt"
+        "os"
+
+        "github.com/spf13/cobra"
+)
+
+var (
+        // command line options
+        fileLoad   string
+        delayStart int
+        duration   int
+        random     bool
+
+        // test-load command
+        LoadCmd = &amp;cobra.Command{
+                Use:   "load",
+                Short: "Run a load test on each cluster",
+                RunE:  runTestLoadE,
+        }
+)
+
+// add command specific options
+func init() <span class="cov8" title="1">{
+        LoadCmd.Flags().StringVarP(&amp;fileLoad, "file", "f", "benchmark.json", "Test file to use")
+        LoadCmd.Flags().IntVarP(&amp;delayStart, "delay-start", "", 0, "Delay test start (seconds)")
+        LoadCmd.Flags().IntVarP(&amp;duration, "duration", "", 30, "Test duration (seconds)")
+        LoadCmd.Flags().BoolVarP(&amp;random, "random", "", false, "Randomize tests")
+}</span>
+
+// run the test-load command
+func runTestLoadE(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
+        cfmt.Info("Running load test")
+
+        if sleep &lt; 1 </span><span class="cov0" title="0">{
+                sleep = 100
+        }</span>
+
+        // get shared options
+        <span class="cov8" title="1">params := getTestFlagValues()
+
+        // add test-load specific options to command line
+        params += " --run-loop "
+
+        if fileLoad != "" </span><span class="cov8" title="1">{
+                params += " --files " + fileLoad
+        }</span>
+
+        <span class="cov8" title="1">if delayStart &gt; 0 </span><span class="cov8" title="1">{
+                params += fmt.Sprintf(" --delay-start %d", delayStart)
+        }</span>
+
+        <span class="cov8" title="1">if duration &gt; 0 </span><span class="cov8" title="1">{
+                params += fmt.Sprintf(" --duration %d", duration)
+        }</span>
+
+        <span class="cov8" title="1">if random </span><span class="cov8" title="1">{
+                params += " --random"
+        }</span>
+
+        // build the path to the script
+        <span class="cov8" title="1">path := boa.GetBinDir() + "/.kic/commands/test"
+
+        // execute the file with "bash -c" if it exists
+        if _, err := os.Stat(path); err == nil </span><span class="cov8" title="1">{
+                return boa.ShellExecE(fmt.Sprintf("%s %s", path, params))
+        }</span> else<span class="cov0" title="0"> {
+                return cfmt.ErrorE(err)
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file34" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package test
+
+import (
+        "fmt"
+        "github.com/spf13/cobra"
+)
+
+var (
+        // shared options
+        dryRun    bool
+        logFormat string
+        region    string
+        sleep     int
+        tag       string
+        verbose   bool
+        zone      string
+
+        // test command
+        TestCmd = &amp;cobra.Command{
+                Use:   "test",
+                Short: "Run cluster tests",
+        }
+)
+
+// initialize the test command
+func init() <span class="cov8" title="1">{
+        // add sub-commands
+        TestCmd.AddCommand(IntegrationCmd)
+        TestCmd.AddCommand(LoadCmd)
+
+        // add common options
+        TestCmd.PersistentFlags().BoolVarP(&amp;dryRun, "dry-run", "d", false, "Validate configuration without running")
+        TestCmd.PersistentFlags().StringVarP(&amp;logFormat, "log-format", "", "", "Log format &lt;Json|JsonCamel|None|Tsv|TsvMin&gt;")
+        TestCmd.PersistentFlags().StringVarP(&amp;region, "region", "", "", "Region deployed to (user defined)")
+        TestCmd.PersistentFlags().IntVarP(&amp;sleep, "sleep", "l", 0, "Sleep (ms) between each request")
+        TestCmd.PersistentFlags().StringVarP(&amp;tag, "tag", "", "", "Tag for log (user defined)")
+        TestCmd.PersistentFlags().BoolVarP(&amp;verbose, "verbose", "v", false, "Show verbose results")
+        TestCmd.PersistentFlags().StringVarP(&amp;zone, "zone", "", "", "Zone deployed to (user defined)")
+}</span>
+
+// add the shared flags to the command line
+func getTestFlagValues() string <span class="cov8" title="1">{
+        cmd := ""
+
+        if verbose </span><span class="cov8" title="1">{
+                cmd += " --verbose"
+        }</span>
+        <span class="cov8" title="1">if sleep &gt; 0 </span><span class="cov8" title="1">{
+                cmd += fmt.Sprintf(" --sleep %d", sleep)
+        }</span>
+        <span class="cov8" title="1">if dryRun </span><span class="cov8" title="1">{
+                cmd += " --dry-run"
+        }</span>
+        <span class="cov8" title="1">if region != "" </span><span class="cov8" title="1">{
+                cmd += " --region " + region
+        }</span>
+        <span class="cov8" title="1">if zone != "" </span><span class="cov8" title="1">{
+                cmd += " --zone " + zone
+        }</span>
+        <span class="cov8" title="1">if tag != "" </span><span class="cov8" title="1">{
+                cmd += " --tag " + tag
+        }</span>
+        <span class="cov8" title="1">if logFormat != "" </span><span class="cov8" title="1">{
+                cmd += " --log-format " + logFormat
+        }</span>
+
+        <span class="cov8" title="1">return cmd</span>
+}
+</pre>
+		
+		<pre class="file" id="file35" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package main
+
+import "kic/cmd"
+
+// execute the root command in cmd/root.go
+func main() <span class="cov8" title="1">{
+        cmd.Execute()
+}</span>
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

@@ -14,14 +14,9 @@ import (
 var FluxCmd = &cobra.Command{
 	Use:   "flux",
 	Short: "Check flux status on each cluster",
+	Args:  argsFleetCheck,
 
-	Args: func(cmd *cobra.Command, args []string) error {
-		// this will exit with an error
-		boa.ReadHostIPs("")
-		return nil
-	},
-
-	Run: func(cmd *cobra.Command, args []string) {
-		boa.ExecClusters("./gitops/fleet/scripts/check-flux", grep)
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return boa.ExecClusters("./gitops/fleet/scripts/check-flux", grep)
 	},
 }

@@ -32,12 +32,16 @@ cp src/_* "$HOME/.oh-my-zsh/completions"
     echo "export GOPATH=\$HOME/go"
 
     # create aliases
-    echo "alias mk='cd $REPO_BASE/src/kic && make all; cd \$OLDPWD'"
-    echo "alias akdc='kic fleet'"
-    echo "alias flt='kic fleet'"
+    echo "alias mk='cd $REPO_BASE/src/kic && make build; cd \$OLDPWD'"
+    echo "alias akdc='kic manage fleet'"
+    echo "alias flt='kic manage fleet'"
 
     echo "export REPO_BASE=$PWD"
-    echo "export AKDC_REPO=retaildevcrews/red-gitops"
+    echo "export AKDC_REPO=retaildevcrews/edge-gitops"
+    echo "export AKDC_SSL=cseretail.com"
+    echo "export AKDC_GITOPS=true"
+    echo "export KIC_PATH=/workspaces/akdc/bin"
+    echo "export KIC_NAME=kic"
     echo "compinit"
 } >> "$HOME/.zshrc"
 

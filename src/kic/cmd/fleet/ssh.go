@@ -5,7 +5,6 @@
 package fleet
 
 import (
-	"fmt"
 	"kic/boa"
 	"kic/boa/cfmt"
 	"strings"
@@ -13,39 +12,62 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// sshCmd opens an ssh terminal on a cluster
-var SshCmd = &cobra.Command{
-	Use:   "ssh",
-	Short: "Open an SSH shell to the cluster",
-	Args: func(cmd *cobra.Command, args []string) error {
-		// this will exit with an error
-		boa.ReadHostIPs("")
-		return nil
-	},
+var (
+	// sshCmd opens an ssh terminal on a cluster
+	SshCmd = &cobra.Command{
+		Use:   "ssh",
+		Short: "Open an SSH shell to the cluster",
+		Args:  cobra.ExactValidArgs(1),
 
-	Run: func(cmd *cobra.Command, args []string) {
+		ValidArgsFunction: validArgsFleetSsh,
 
-		if len(args) < 1 {
-			fmt.Println("akdc ssh requires a server name from the ips file")
-		} else {
-			hostIPs := boa.ReadHostIPs(args[0])
+		RunE: runFleetSsh,
+	}
+)
 
-			ip := ""
+// run kic fleet ssh command
+func runFleetSsh(cmd *cobra.Command, args []string) error {
+	// get the ip from the ips file
+	hostIPs, err := boa.ReadHostIPs(args[0])
 
-			if len(hostIPs) > 0 {
-				ip = hostIPs[len(hostIPs)-1]
-				cols := strings.Split(ip, "\t")
+	if err != nil {
+		return err
+	}
 
-				if len(cols) > 1 {
-					ip = strings.TrimSpace(cols[1])
-				}
-			}
+	ip := args[0]
 
-			if ip != "" {
-				boa.ShellExecE("ssh -p 2222 -o \"StrictHostKeyChecking=no\" akdc@" + ip)
-			} else {
-				cfmt.ExitErrorMessage("unable to find host or IP")
-			}
+	// try to lookup partial DNS name
+	if len(hostIPs) > 0 {
+		ip = hostIPs[len(hostIPs)-1]
+		cols := strings.Split(ip, "\t")
+
+		if len(cols) > 1 {
+			ip = strings.TrimSpace(cols[1])
 		}
-	},
+	}
+
+	if ip != "" {
+		boa.ShellExecE("ssh -p 2222 -o \"StrictHostKeyChecking=no\" akdc@" + ip)
+	} else {
+		cfmt.ErrorE("unable to find host or IP")
+	}
+
+	return nil
+}
+
+// validate kic fleet ssh arg
+func validArgsFleetSsh(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	hostIPs, err := boa.ReadHostIPs("")
+
+	if err != nil {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
+
+	// only one arg
+	if len(args) != 0 {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
+
+	// sugest from the ips or defaultIPs file
+	return hostIPs, cobra.ShellCompDirectiveNoFileComp
 }

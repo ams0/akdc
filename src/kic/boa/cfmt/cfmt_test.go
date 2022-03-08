@@ -1,10 +1,12 @@
 package cfmt
 
 import (
+	"fmt"
 	"testing"
 )
 
-func TestSum(t *testing.T) {
-	Info("unit test: info")
-	Error("unit test error")
+func TestCfmt(t *testing.T) {
+	Info("unit ", "test: info")
+	err := ErrorE("unit test ", "error")
+	fmt.Println(err)
 }

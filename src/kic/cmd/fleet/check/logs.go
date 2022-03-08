@@ -14,14 +14,9 @@ import (
 var LogsCmd = &cobra.Command{
 	Use:   "logs",
 	Short: "Check the cloudinit logs on the VMs",
+	Args:  argsFleetCheck,
 
-	Args: func(cmd *cobra.Command, args []string) error {
-		// this will exit with an error
-		boa.ReadHostIPs("")
-		return nil
-	},
-
-	Run: func(cmd *cobra.Command, args []string) {
-		boa.ExecClusters("./gitops/fleet/scripts/check-logs", grep)
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return boa.ExecClusters("./gitops/fleet/scripts/check-logs", grep)
 	},
 }

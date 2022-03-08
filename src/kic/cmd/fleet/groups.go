@@ -15,7 +15,7 @@ var GroupsCmd = &cobra.Command{
 	Use:   "groups",
 	Short: "List Azure resource groups",
 
-	Run: func(cmd *cobra.Command, args []string) {
-		boa.ShellExecE("az group list -o table | sort | grep -e central- -e east- -e west- -e corp- -e retail-edge")
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return (boa.ShellExecE("az group list -o table | sort | grep -e central- -e east- -e west- -e corp- -e retail-edge"))
 	},
 }

@@ -11,26 +11,26 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// checkFluxCmd checks each cluster for flux-check namespace
+// ListCmd lists the GitOps targets
 var ListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List current targets",
+	Args:  argsTargets,
+	RunE:  runTargetsListE,
+}
 
-	Args: func(cmd *cobra.Command, args []string) error {
-		return checkForConfigFile()
-	},
-	Run: func(cmd *cobra.Command, args []string) {
-		result := getAutoGitOpsConfigMap()
+func runTargetsListE(cmd *cobra.Command, args []string) error {
+	result := getAutoGitOpsConfigMap()
 
-		if result != nil {
-			if result["targets"] == nil {
-				cfmt.Info("targets", "is empty")
-			} else {
-				cfmt.Info("Targets")
-				fmt.Println(result["targets"])
-			}
+	if result != nil {
+		if result["targets"] == nil {
+			cfmt.Info("targets", "is empty")
 		} else {
-			cfmt.Error("failed to read autogitops.json")
+			cfmt.Info("Targets")
+			fmt.Println(result["targets"])
 		}
-	},
+		return nil
+	} else {
+		return cfmt.ErrorE("failed to read autogitops.json")
+	}
 }

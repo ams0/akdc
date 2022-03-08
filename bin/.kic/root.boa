@@ -15,14 +15,22 @@ root
 ###    short: Force Flux to sync (reconcile) to the local cluster\n  include blank lines with \n
 ###    long:
 ###    path: sync
+
 runCommand
 	path: sync
+
+#popCommand
+#runCommand
+#	path: dev/gitops
+
+popCommand
+
+command
+	name: get
+	short: Get local cluster details
 
 runCommand
 	path: pods
 
 runCommand
 	path: svc
-
-runCommand
-	path: gitops

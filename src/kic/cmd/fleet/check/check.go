@@ -5,21 +5,28 @@
 package check
 
 import (
+	"kic/boa"
+
 	"github.com/spf13/cobra"
 )
 
-// fleetCheckCmd adds check subcommands
-var CheckCmd = &cobra.Command{
-	Use:   "check",
-	Short: "Check cluster status",
-}
+var (
+	// option variables
+	grep string
+
+	// fleetCheckCmd adds check subcommands
+	CheckCmd = &cobra.Command{
+		Use:   "check",
+		Short: "Check cluster status",
+	}
+)
 
 func init() {
 	// todo - these can all be generated
 	CheckCmd.AddCommand(FluxCmd)
 	CheckCmd.AddCommand(HeartbeatCmd)
 	CheckCmd.AddCommand(LogsCmd)
-	CheckCmd.AddCommand(NgsaCmd)
+	CheckCmd.AddCommand(AioaCmd)
 	CheckCmd.AddCommand(RetriesCmd)
 	CheckCmd.AddCommand(SetupCmd)
 	// CheckCmd.AddCommand(DaprCmd)
@@ -28,6 +35,9 @@ func init() {
 	CheckCmd.PersistentFlags().StringVarP(&grep, "grep", "g", "", "grep conditional to filter by host")
 }
 
-// option variables
-// common across several commands
-var grep string
+// check the args
+func argsFleetCheck(cmd *cobra.Command, args []string) error {
+	// this will exit with an error
+	boa.ReadHostIPs("")
+	return nil
+}

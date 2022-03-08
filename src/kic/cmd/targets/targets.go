@@ -10,15 +10,20 @@ import (
 	"kic/boa"
 	"kic/boa/cfmt"
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 )
 
-// checkCmd adds check subcommands
-var TargetsCmd = &cobra.Command{
-	Use:   "targets",
-	Short: "Manage GitOps targets",
-}
+var (
+	AutoGitOpsConfigFile = filepath.Join(".", "autogitops", "autogitops.json")
+
+	// TargetsCmd contains the GitOps targets commands
+	TargetsCmd = &cobra.Command{
+		Use:   "targets",
+		Short: "Manage GitOps targets",
+	}
+)
 
 func init() {
 	TargetsCmd.AddCommand(AddCmd)
@@ -28,8 +33,12 @@ func init() {
 	TargetsCmd.AddCommand(RemoveCmd)
 }
 
-var AutoGitOpsConfigFile = "./autogitops/autogitops.json"
+// args validation for targets commands
+func argsTargets(cmd *cobra.Command, args []string) error {
+	return checkForConfigFile()
+}
 
+// check for the config file
 func checkForConfigFile() error {
 	if _, err := os.Stat(AutoGitOpsConfigFile); err != nil {
 		return fmt.Errorf("GitOps file not found - please cd to an app with GitOps setup")
@@ -38,6 +47,7 @@ func checkForConfigFile() error {
 	return nil
 }
 
+// read config file into map
 func getAutoGitOpsConfigMap() map[string]interface{} {
 	// make sure the repo is up to date
 	boa.ShellExecOut("git pull")
@@ -56,7 +66,7 @@ func getAutoGitOpsConfigMap() map[string]interface{} {
 	err = json.Unmarshal([]byte(txt), &result)
 
 	if err != nil {
-		cfmt.Error("unmarshal json faile")
+		cfmt.ErrorE("unmarshal json faile")
 		fmt.Println(err)
 		return nil
 	}
@@ -64,6 +74,7 @@ func getAutoGitOpsConfigMap() map[string]interface{} {
 	return result
 }
 
+// save config file from map
 func saveAutoGitOpsConfig(result map[string]interface{}) {
 	val, err := json.MarshalIndent(result, "", "    ")
 
