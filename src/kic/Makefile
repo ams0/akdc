@@ -1,20 +1,20 @@
 .PHONY: all build test
 
-all : test build
+all : cover
 
 build :
 	@# build
 	@gofmt -s -w .
-	@go build -o ../../bin/kic main.go
+	@go build -o ../../bin/akdc main.go
 
 	@# copy the cli bin
-	@cp ../../bin/kic ../../fleet/bin
+	@cp ../../bin/akdc ../../fleet/bin
 
 	# make complete
 
-test :
-	@go test ./...
+test : build
+	@go test ./... -cover
 
-cover :
-	@go test ./... -cover -coverprofile kic.out
-	@go tool cover -html kic.out -o kic.html
+cover : build
+	@go test ./... -cover -coverprofile cover.out
+	@go tool cover -html cover.out -o cover.html

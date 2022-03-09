@@ -110,8 +110,7 @@ cp .oh-my-bash/templates/bashrc.osh-template .bashrc
   echo "alias kcgc='kubectl config get-contexts'"
   echo "alias kj='kubectl exec -it jumpbox -- bash -l'"
   echo "alias kje='kubectl exec -it jumpbox -- '"
-  echo "alias sync='flux reconcile source git gitops && kubectl get pods -A'"
-  echo "alias ht='http https://\$AKDC_FQDN/heartbeat/17'"
+  echo "alias kic='akdc'"
 
   echo ""
   echo 'export PATH="$PATH:$HOME/bin:$HOME/gitops/bin"'
@@ -125,9 +124,8 @@ cp .oh-my-bash/templates/bashrc.osh-template .bashrc
   echo "export AKDC_DNS_RG=$AKDC_DNS_RG"
 
   echo ""
-  echo "if [ -f /home/akdc/.oh-my-bash/completions/kic ]; then source /home/akdc/.oh-my-bash/completions/kic; fi"
+  echo "source <(akdc completion bash)"
   echo 'complete -F __start_kubectl k'
-  echo 'complete -F __start_kubectl kl'
 } >> /etc/bash.bashrc
 
 # source .bashrc for non-interactive logins
@@ -227,8 +225,8 @@ sudo -HEu akdc git clone "https://$(cat .ssh/akdc.pat)@github.com/$AKDC_REPO" gi
 
 # download latest CLI
 # todo - working on akdc release pipeline
-#wget -q -O gitops/bin/kic https://github.com/retaildevcrews/akdc/releases/download/v0.2.0/kic
-chmod +x gitops/bin/kic
+#wget -q -O gitops/bin/akdc https://github.com/retaildevcrews/akdc/releases/download/v0.2.0/akdc
+chmod +x gitops/bin/akdc
 
 # change ownership
 chown -R ${AKDC_ME}:${AKDC_ME} /home/${AKDC_ME}

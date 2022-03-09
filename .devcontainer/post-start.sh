@@ -15,8 +15,11 @@ docker pull ghcr.io/cse-labs/webv-red:beta
 docker pull ghcr.io/retaildevcrews/autogitops:beta
 
 # build the cli
+export KIC_PATH=/workspaces/akdc/bin
+export KIC_NAME=akdc
+
 cd src/kic || exit
 make all
-cd "$OLDPWD" || exit
+cd ../..
 
 echo "$(date +'%Y-%m-%d %H:%M:%S')    post-start complete" >> "$HOME/status"

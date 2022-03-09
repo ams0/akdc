@@ -30,13 +30,12 @@ git -C "$HOME/.oh-my-zsh" pull
 # update repos
 git -C ../webvalidate pull
 git -C ../ngsa-app pull
-git -C ../edge-apps pull
 git -C ../edge-gitops pull
-git -C ../red-apps pull
 git -C ../red-gitops pull
 
-cd src/kic || exit
-make all
-cd ../..
+{
+    echo "export KIC_PATH=/workspaces/akdc/bin"
+    echo "export KIC_NAME=akdc"
+} >> "$HOME/.zshrc"
 
 echo "$(date +'%Y-%m-%d %H:%M:%S')    post-create complete" >> "$HOME/status"

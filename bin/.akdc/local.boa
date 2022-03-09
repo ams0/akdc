@@ -1,0 +1,81 @@
+###
+# local commands and sub-commands
+###
+
+command
+	name: local
+	short: Kubernetes in Codespaces CLI
+	long: Kubernetes in Codespaces CLI\n\n  A CLI for automating many inner-loop Kubernetes development tasks
+
+command
+	name: gitops
+	short: GitOps commands
+
+runCommand
+	path: sync
+
+runCommand
+	path: dev/gitops
+
+popCommand
+
+runCommand
+	path: pods
+
+runCommand
+	path: svc
+
+command
+	name: apps
+	short: Local apps commands
+
+runCommand
+	path: dev/aioa
+
+runCommand
+	path: dev/webv
+
+popCommand
+
+command
+	name: checks
+	short: Check status on the local k3d cluster
+
+runCommand
+	path: check/all
+
+runCommand
+	path: check/aioa
+
+runCommand
+	path: check/webv
+
+runCommand
+	path: check/grafana
+
+runCommand
+	path: check/prometheus
+
+popCommand
+
+command
+	name: cluster
+	short: k3d cluster commands
+
+runCommand
+	path: cluster/rebuild
+
+runCommand
+	path: cluster/create
+
+runCommand
+	path: cluster/delete
+
+runCommand
+	path: cluster/jumpbox
+
+runCommand
+	path: cluster/clean
+
+runCommand
+	path: cluster/deploy

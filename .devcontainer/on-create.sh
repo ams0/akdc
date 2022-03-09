@@ -10,8 +10,6 @@ export AKDC_REPO=retaildevcrews/edge-gitops
 export PATH="$PATH:$REPO_BASE/bin"
 export GOPATH="$HOME/go"
 
-mkdir -p .ssh
-
 mkdir -p "$HOME/.ssh"
 mkdir -p "$HOME/.oh-my-zsh/completions"
 
@@ -33,8 +31,8 @@ cp src/_* "$HOME/.oh-my-zsh/completions"
 
     # create aliases
     echo "alias mk='cd $REPO_BASE/src/kic && make build; cd \$OLDPWD'"
-    echo "alias akdc='kic manage fleet'"
-    echo "alias flt='kic manage fleet'"
+    echo "alias kic='akdc local'"
+    echo "alias flt='akdc fleet'"
 
     echo "export REPO_BASE=$PWD"
     echo "export AKDC_REPO=retaildevcrews/edge-gitops"
@@ -85,9 +83,7 @@ cp -r .devcontainer/.vscode .
 cd ..
 git clone https://github.com/microsoft/webvalidate
 git clone https://github.com/retaildevcrews/ngsa-app
-git clone https://github.com/retaildevcrews/edge-apps
 git clone https://github.com/retaildevcrews/edge-gitops
-git clone https://github.com/retaildevcrews/red-apps
 git clone https://github.com/retaildevcrews/red-gitops
 cd "$OLDPWD" || exit
 

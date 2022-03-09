@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# name: gitops
+# name: run
 # short: Run GitOps in the current directory (GitOps must be configured)
 
 # change to this directory

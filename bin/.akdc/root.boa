@@ -1,0 +1,8 @@
+###
+# root description and commands
+###
+
+root
+	name: akdc
+	short: Kubernetes in Codespaces CLI
+	long: Kubernetes in Codespaces CLI\n\n  A CLI for automating many inner-loop Kubernetes development tasks

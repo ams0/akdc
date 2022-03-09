@@ -25,8 +25,7 @@ func TestTargets(t *testing.T) {
 	boa.ExecCmdNoErrorE(t, TargetsCmd)
 	boa.ExecCmdNoErrorE(t, TargetsCmd, "list")
 	boa.ExecCmdNoErrorE(t, TargetsCmd, "add", "foo")
-	// todo - fix this test
-	// boa.ExecCmdNoErrorE(t, TargetsCmd, "remove", "foo")
+	boa.ExecCmdNoErrorE(t, TargetsCmd, "remove", "foo")
 	boa.ExecCmdNoErrorE(t, TargetsCmd, "clear")
 	// do not run push!
 

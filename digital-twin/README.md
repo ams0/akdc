@@ -29,10 +29,10 @@ cd digital-twin
 #### do not run kic all
 
 # create the cluster
-kic manage cluster create
+kic cluster create
 
 # deploy jumpbox
-kic manage cluster jumpbox
+kic cluster jumpbox
 
 ```
 
@@ -55,15 +55,15 @@ flux suspend ks --all
 
 ## Check the store cluster for the problem
 
-> kic fleet is the CLI for working with a fleet of clusters
+> flt is the CLI for working with a fleet of clusters
 
 ```bash
 
 # check heartbeat
-kic fleet check heartbeat
+flt check heartbeat
 
 # get the pods
-kic fleet exec "k get po -A"
+flt exec "k get po -A"
 
 ```
 
@@ -118,7 +118,7 @@ flux resume ks --all
 
 # wait for flux to sync
 ### you may have to repeat these two steps a few times while CI-CD runs and Flux syncs
-kic sync
+kic gitops sync
 k get po -A
 
 # use the jumpbox to execute the http command against the endpoint
@@ -132,8 +132,8 @@ kje http http://badapp.badapp.svc.cluster.local:8080/badapp/17
 
 # validate pods
 ### you may have to repeat these two steps a few times while CI-CD runs and Flux syncs
-kic fleet sync
-kic fleet exec "k get po -A"
+flt sync
+flt exec "k get po -A"
 
 # test the endpoint
 http https://central-tx-austin-103.cseretail.com/badapp/17
@@ -163,12 +163,12 @@ cd /workspaces/akdc/digital-twin
 
 # pod should be broken again
 ### you may have to repeat these commands
-kic sync
+kic gitops sync
 k get po -A
 
 # store should be broken again
 ### you may have to repeat these commands
-kic fleet sync
-kic fleet exec "k get po -A"
+flt sync
+flt exec "k get po -A"
 
 ```

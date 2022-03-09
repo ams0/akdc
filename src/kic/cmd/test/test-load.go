@@ -9,6 +9,7 @@ import (
 	"kic/boa"
 	"kic/boa/cfmt"
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 )
@@ -67,7 +68,7 @@ func runTestLoadE(cmd *cobra.Command, args []string) error {
 	}
 
 	// build the path to the script
-	path := boa.GetBinDir() + "/.kic/commands/test"
+	path := filepath.Join(boa.GetBoaCommandPath(), "test")
 
 	// execute the file with "bash -c" if it exists
 	if _, err := os.Stat(path); err == nil {

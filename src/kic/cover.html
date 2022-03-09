@@ -55,7 +55,7 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">kic/boa/boa.go (63.1%)</option>
+				<option value="file0">kic/boa/boa.go (63.6%)</option>
 				
 				<option value="file1">kic/boa/boaExecCmd.go (0.0%)</option>
 				
@@ -105,7 +105,7 @@
 				
 				<option value="file24">kic/cmd/fleet/sync.go (100.0%)</option>
 				
-				<option value="file25">kic/cmd/root.go (71.4%)</option>
+				<option value="file25">kic/cmd/root.go (72.2%)</option>
 				
 				<option value="file26">kic/cmd/targets/targets-add.go (88.9%)</option>
 				
@@ -291,7 +291,7 @@ func loadCommand(fileName string) <span class="cov8" title="1">{
                                 if strings.HasPrefix(sw, "popCommand") </span><span class="cov8" title="1">{
                                         // popCommand resets the command to the parent or boaRootCmd
                                         addBoaCommand(fileName, boaCmd, modType, name, short, long, path, parent, hidden)
-                                        if boaCmd != nil </span><span class="cov0" title="0">{
+                                        if boaCmd != nil </span><span class="cov8" title="1">{
                                                 boaCmd = boaCmd.Parent()
                                                 if boaCmd == boaRootCmd </span><span class="cov0" title="0">{
                                                         boaCmd = nil
@@ -441,7 +441,7 @@ func addCommand(modCmd *cobra.Command, name string, short string, long string, p
 
         // use boaRootCmd if modCmd is nil
         <span class="cov8" title="1">aCmd := modCmd
-        if aCmd == nil </span><span class="cov8" title="1">{
+        if aCmd == nil </span><span class="cov0" title="0">{
                 aCmd = boaRootCmd
         }</span>
 
@@ -735,30 +735,30 @@ import (
 )
 
 var (
-        Reset string
-        Blue string
-        Cyan string
-        Gray string
-        Green string
+        Reset  string
+        Blue   string
+        Cyan   string
+        Gray   string
+        Green  string
         Purple string
-        Red string
-        White string
+        Red    string
+        White  string
         Yellow string
 )
 
 // print an info message in cyan
 func Info(msg ...interface{}) <span class="cov8" title="1">{
         fmt.Print(Cyan)
-        fmt.Print(msg ...)
+        fmt.Print(msg...)
         fmt.Println(Reset)
 }</span>
 
 // print the error in red and return params as error
 func ErrorE(msg ...interface{}) error <span class="cov8" title="1">{
         fmt.Print(Red)
-        fmt.Print(msg ...)
+        fmt.Print(msg...)
         fmt.Println(Reset)
-        return fmt.Errorf("%v", fmt.Sprint(msg ...))
+        return fmt.Errorf("%v", fmt.Sprint(msg...))
 }</span>
 
 func init() <span class="cov8" title="1">{
@@ -2237,30 +2237,29 @@ func init() <span class="cov8" title="1">{
         // load the commands from the bin location ./.appName directory
         boa.LoadCommands(rootCmd)
 
-        if boa.GetCommandByUse(rootCmd, "test") == nil </span><span class="cov8" title="1">{
-                // this can't be a boa command [easily]
-                //    because of the rich command line params
-                rootCmd.AddCommand(test.TestCmd)
-        }</span>
+        // add commands to vm command
+        vmCmd := boa.GetCommandByUse(rootCmd, "vms")
+        if vmCmd != nil &amp;&amp; !vmCmd.Hidden </span><span class="cov0" title="0">{
+                if boa.GetCommandByUse(vmCmd, "test") == nil </span><span class="cov0" title="0">{
+                        vmCmd.AddCommand(test.TestCmd)
+                }</span>
+        }
 
-        // add to manage command if exists - otherwise add to root
-        <span class="cov8" title="1">manageCmd := boa.GetCommandByUse(rootCmd, "manage")
+        // add commands to local command
+        <span class="cov8" title="1">localCmd := boa.GetCommandByUse(rootCmd, "local")
+        if localCmd != nil &amp;&amp; !localCmd.Hidden </span><span class="cov8" title="1">{
+                if boa.GetCommandByUse(localCmd, "targets") == nil </span><span class="cov8" title="1">{
+                        localCmd.AddCommand(targets.TargetsCmd)
+                }</span>
+                <span class="cov8" title="1">if boa.GetCommandByUse(localCmd, "test") == nil </span><span class="cov8" title="1">{
+                        localCmd.AddCommand(test.TestCmd)
+                }</span>
+        }
 
-        if manageCmd == nil </span><span class="cov0" title="0">{
-                manageCmd = rootCmd
-        }</span>
-
-        // add built-in commands if not exits
-        <span class="cov8" title="1">if boa.GetCommandByUse(rootCmd, "fleet") == nil </span><span class="cov8" title="1">{
-                // this can't be a boa command [easily]
-                // this is the old akdc set of commands
-                manageCmd.AddCommand(fleet.FleetCmd)
-        }</span>
-
-        <span class="cov8" title="1">if boa.GetCommandByUse(rootCmd, "targets") == nil </span><span class="cov8" title="1">{
-                // this can't be a boa command [easily]
-                //    modifies autogitops.json
-                manageCmd.AddCommand(targets.TargetsCmd)
+        // add fleet command to root
+        <span class="cov8" title="1">if boa.GetCommandByUse(rootCmd, "fleet") == nil &amp;&amp; fleet.FleetCmd != nil </span><span class="cov8" title="1">{
+                rootCmd.AddCommand(fleet.FleetCmd)
+                fleet.FleetCmd.AddCommand(targets.TargetsCmd)
         }</span>
 
         // this will set a new root if specified
@@ -2485,7 +2484,7 @@ func runTargetsRemoveE(cmd *cobra.Command, args []string) error <span class="cov
 
         <span class="cov0" title="0">result := getAutoGitOpsConfigMap()
 
-        if result != nil </span><span class="cov0" title="0">{
+        if result == nil </span><span class="cov0" title="0">{
                 return cfmt.ErrorE("Error: unable to read autogitops.json")
         }</span> else<span class="cov0" title="0"> {
                 t := result["targets"]
@@ -2613,6 +2612,7 @@ import (
         "kic/boa"
         "kic/boa/cfmt"
         "os"
+        "path/filepath"
 
         "github.com/spf13/cobra"
 )
@@ -2664,7 +2664,7 @@ func runTestIntegrationE(cmd *cobra.Command, args []string) error <span class="c
                 params += " --summary " + summary
         }</span>
 
-        <span class="cov8" title="1">path := boa.GetBinDir() + "/.kic/commands/" + command
+        <span class="cov8" title="1">path := filepath.Join(boa.GetBoaCommandPath(), command)
 
         // execute the file with "bash -c" if it exists
         if _, err := os.Stat(path); err == nil </span><span class="cov8" title="1">{
@@ -2686,6 +2686,7 @@ import (
         "kic/boa"
         "kic/boa/cfmt"
         "os"
+        "path/filepath"
 
         "github.com/spf13/cobra"
 )
@@ -2744,7 +2745,7 @@ func runTestLoadE(cmd *cobra.Command, args []string) error <span class="cov8" ti
         }</span>
 
         // build the path to the script
-        <span class="cov8" title="1">path := boa.GetBinDir() + "/.kic/commands/test"
+        <span class="cov8" title="1">path := filepath.Join(boa.GetBoaCommandPath(), "test")
 
         // execute the file with "bash -c" if it exists
         if _, err := os.Stat(path); err == nil </span><span class="cov8" title="1">{

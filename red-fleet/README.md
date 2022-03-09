@@ -9,7 +9,7 @@
 
 - Once the VMs are setup, it's easier to reset the k3d cluster on the VM than rebuild the VM
   - From an ssh shell into the VM
-    - `kic manage cluster create`
+    - `kic reset`
 
 ## Setup
 
@@ -48,7 +48,7 @@ cd red-fleet
 ```bash
 
 # check all clusters
-kic fleet check setup
+flt check setup
 
 ```
 
@@ -57,7 +57,7 @@ kic fleet check setup
 ```bash
 
 # check all clusters
-kic fleet check flux
+flt check flux
 
 ```
 
@@ -84,6 +84,6 @@ kic fleet check flux
 
 ```bash
 
-kic fleet groups
+flt groups
 
 ```
