@@ -33,9 +33,4 @@ git -C ../ngsa-app pull
 git -C ../edge-gitops pull
 git -C ../red-gitops pull
 
-{
-    echo "export KIC_PATH=/workspaces/akdc/bin"
-    echo "export KIC_NAME=akdc"
-} >> "$HOME/.zshrc"
-
 echo "$(date +'%Y-%m-%d %H:%M:%S')    post-create complete" >> "$HOME/status"

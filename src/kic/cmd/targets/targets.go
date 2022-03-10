@@ -29,7 +29,7 @@ func init() {
 	TargetsCmd.AddCommand(AddCmd)
 	TargetsCmd.AddCommand(ClearCmd)
 	TargetsCmd.AddCommand(ListCmd)
-	TargetsCmd.AddCommand(PushCmd)
+	TargetsCmd.AddCommand(DeployCmd)
 	TargetsCmd.AddCommand(RemoveCmd)
 }
 

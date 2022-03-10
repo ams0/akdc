@@ -111,11 +111,11 @@
 				
 				<option value="file27">kic/cmd/targets/targets-clear.go (87.5%)</option>
 				
-				<option value="file28">kic/cmd/targets/targets-list.go (75.0%)</option>
+				<option value="file28">kic/cmd/targets/targets-deploy.go (0.0%)</option>
 				
-				<option value="file29">kic/cmd/targets/targets-push.go (0.0%)</option>
+				<option value="file29">kic/cmd/targets/targets-list.go (75.0%)</option>
 				
-				<option value="file30">kic/cmd/targets/targets-remove.go (0.0%)</option>
+				<option value="file30">kic/cmd/targets/targets-remove.go (76.5%)</option>
 				
 				<option value="file31">kic/cmd/targets/targets.go (76.9%)</option>
 				
@@ -2385,6 +2385,54 @@ func runTargetsClearE(cmd *cobra.Command, args []string) error <span class="cov8
 package targets
 
 import (
+        "kic/boa"
+        "kic/boa/cfmt"
+        "os"
+        "path/filepath"
+
+        "github.com/spf13/cobra"
+)
+
+// DeployCmd adds, commits, and deploys the GitOps targets to the repo
+var DeployCmd = &amp;cobra.Command{
+        Use:   "deploy",
+        Short: "Deploy to the target stores",
+        Args:  argsTargets,
+        RunE:  runTargetsDeployE,
+}
+
+// run targets deploy cmd
+func runTargetsDeployE(cmd *cobra.Command, args []string) error <span class="cov0" title="0">{
+        // make sure the repo is up to date
+        if res, _ := boa.ShellExecOut("git status -s"); res == "" </span><span class="cov0" title="0">{
+                cfmt.Info("no changes found")
+        }</span> else<span class="cov0" title="0"> {
+                // build the commit message from app name
+                app, _ := os.Getwd()
+                app = filepath.Base(app)
+                commit := "git commit -am 'Secure Build: " + app + "'"
+
+                // make sure repo is up-to-date
+                boa.ShellExecOut("git pull")
+
+                // commit and push
+                boa.ShellExecOut(commit)
+                boa.ShellExecOut("git push")
+
+                cfmt.Info("updated " + app)
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file29" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
+package targets
+
+import (
         "fmt"
         "kic/boa/cfmt"
 
@@ -2416,46 +2464,6 @@ func runTargetsListE(cmd *cobra.Command, args []string) error <span class="cov8"
 }
 </pre>
 		
-		<pre class="file" id="file29" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
-//   See LICENSE in the project root for license information.
-
-package targets
-
-import (
-        "kic/boa"
-        "kic/boa/cfmt"
-
-        "github.com/spf13/cobra"
-)
-
-// PushCmd adds, commits, and pushes the GitOps targets to the repo
-var PushCmd = &amp;cobra.Command{
-        Use:   "push",
-        Short: "Push the changes to GitHub",
-        Args:  argsTargets,
-        RunE:  runTargetsPushE,
-}
-
-func runTargetsPushE(cmd *cobra.Command, args []string) error <span class="cov0" title="0">{
-        // make sure the repo is up to date
-        if res, _ := boa.ShellExecOut("git status -s"); res == "" </span><span class="cov0" title="0">{
-                cfmt.Info("nothing to push")
-        }</span> else<span class="cov0" title="0"> {
-                cfmt.Info("pulling from GitHub")
-                boa.ShellExecE("git pull")
-
-                cfmt.Info("committing changes to GitHub")
-                boa.ShellExecE("git commit -am 'updated targets with akdc CLI'")
-
-                cfmt.Info("pushing changes to GitHub")
-                boa.ShellExecE("git push")
-        }</span>
-
-        <span class="cov0" title="0">return nil</span>
-}
-</pre>
-		
 		<pre class="file" id="file30" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
@@ -2477,16 +2485,16 @@ var RemoveCmd = &amp;cobra.Command{
         RunE:  runTargetsRemoveE,
 }
 
-func runTargetsRemoveE(cmd *cobra.Command, args []string) error <span class="cov0" title="0">{
+func runTargetsRemoveE(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
         if len(args) == 0 </span><span class="cov0" title="0">{
                 return cfmt.ErrorE("Error: specify the target to remove")
         }</span>
 
-        <span class="cov0" title="0">result := getAutoGitOpsConfigMap()
+        <span class="cov8" title="1">result := getAutoGitOpsConfigMap()
 
         if result == nil </span><span class="cov0" title="0">{
                 return cfmt.ErrorE("Error: unable to read autogitops.json")
-        }</span> else<span class="cov0" title="0"> {
+        }</span> else<span class="cov8" title="1"> {
                 t := result["targets"]
 
                 if t == nil </span><span class="cov0" title="0">{
@@ -2494,22 +2502,22 @@ func runTargetsRemoveE(cmd *cobra.Command, args []string) error <span class="cov
                         return nil
                 }</span>
 
-                <span class="cov0" title="0">var nt []interface{}
+                <span class="cov8" title="1">var nt []interface{}
 
-                for _, v := range t.([]interface{}) </span><span class="cov0" title="0">{
-                        if v != args[0] </span><span class="cov0" title="0">{
+                for _, v := range t.([]interface{}) </span><span class="cov8" title="1">{
+                        if v != args[0] </span><span class="cov8" title="1">{
                                 nt = append(nt, v)
                         }</span>
                 }
 
-                <span class="cov0" title="0">result["targets"] = nt
+                <span class="cov8" title="1">result["targets"] = nt
 
                 saveAutoGitOpsConfig(result)
 
                 fmt.Println(nt)</span>
         }
 
-        <span class="cov0" title="0">return nil</span>
+        <span class="cov8" title="1">return nil</span>
 }
 </pre>
 		
@@ -2544,7 +2552,7 @@ func init() <span class="cov8" title="1">{
         TargetsCmd.AddCommand(AddCmd)
         TargetsCmd.AddCommand(ClearCmd)
         TargetsCmd.AddCommand(ListCmd)
-        TargetsCmd.AddCommand(PushCmd)
+        TargetsCmd.AddCommand(DeployCmd)
         TargetsCmd.AddCommand(RemoveCmd)
 }</span>
 

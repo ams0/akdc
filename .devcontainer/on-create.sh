@@ -39,7 +39,7 @@ cp src/_* "$HOME/.oh-my-zsh/completions"
     echo "export AKDC_SSL=cseretail.com"
     echo "export AKDC_GITOPS=true"
     echo "export KIC_PATH=/workspaces/akdc/bin"
-    echo "export KIC_NAME=kic"
+    echo "export KIC_NAME=akdc"
     echo "compinit"
 } >> "$HOME/.zshrc"
 

@@ -27,7 +27,7 @@ func TestTargets(t *testing.T) {
 	boa.ExecCmdNoErrorE(t, TargetsCmd, "add", "foo")
 	boa.ExecCmdNoErrorE(t, TargetsCmd, "remove", "foo")
 	boa.ExecCmdNoErrorE(t, TargetsCmd, "clear")
-	// do not run push!
+	// do not run deploy!
 
 	// remove test file
 	boa.ShellExecE("rm -rf autogitops")

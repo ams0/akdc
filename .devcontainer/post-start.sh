@@ -19,7 +19,7 @@ export KIC_PATH=/workspaces/akdc/bin
 export KIC_NAME=akdc
 
 cd src/kic || exit
-make all
+make build
 cd ../..
 
 echo "$(date +'%Y-%m-%d %H:%M:%S')    post-start complete" >> "$HOME/status"

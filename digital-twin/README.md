@@ -107,8 +107,8 @@ git pull
 # make the same change to the file
 code apps/badapp/autogitops/dev/badapp.yaml
 
-# push the change
-kic targets push
+# deploy the change
+kic targets deploy
 
 # change to the digital twin directory
 cd /workspaces/akdc/digital-twin
@@ -155,8 +155,8 @@ git pull
 # change "-u" back to "-url"
 code apps/badapp/autogitops/dev/badapp.yaml
 
-# push the change
-kic targets push
+# deploy the change
+kic targets deploy
 
 # wait for flux to sync
 cd /workspaces/akdc/digital-twin
