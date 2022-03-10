@@ -103,9 +103,13 @@ data:
         static_configs:
           - targets: [ 'ai-order-accuracy.ai-order-accuracy.svc.cluster.local:8080' ]
 
-      - job_name: 'webv'
+      - job_name: 'webv-aioa'
         static_configs:
-          - targets: [ 'webv.ai-order-accuracy.svc.cluster.local:8080' ]
+          - targets: [ 'webv-aioa.ai-order-accuracy.svc.cluster.local:8080' ]
+
+      - job_name: 'webv-heartbeat'
+        static_configs:
+          - targets: [ 'webv-heartbeat.heartbeat.svc.cluster.local:8080' ]
 
       - job_name: 'kubernetes-cadvisor'
 

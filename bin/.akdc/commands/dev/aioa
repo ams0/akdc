@@ -22,6 +22,6 @@ kubectl delete -f deploy/aioa --ignore-not-found=true
 kubectl apply -f deploy/aioa-local
 kubectl wait pod ai-order-accuracy -n ai-order-accuracy --for condition=ready --timeout=30s
 kubectl apply -f deploy/webv
-kubectl wait pod webv -n ai-order-accuracy --for condition=ready --timeout=30s
+kubectl wait pod -l app=webv-aioa -n ai-order-accuracy --for condition=ready --timeout=30s
 kubectl get po -n ai-order-accuracy
 http localhost:30080/version

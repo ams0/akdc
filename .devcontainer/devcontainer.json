@@ -26,7 +26,9 @@
 	"forwardPorts": [
 		30000,
 		30080,
+		31080,
 		30088,
+		31088,
 		32000
 	],
 
@@ -34,7 +36,9 @@
 	"portsAttributes": {
 		"30000": { "label": "Prometheus" },
 		"30080": { "label": "AI Order Accuracy" },
-		"30088": { "label": "WebV" },
+		"31080": { "label": "Heartbeat" },
+		"30088": { "label": "WebV-AIOA" },
+		"31088": { "label": "WebV-Heartbeat" },
 		"32000": { "label": "Grafana" },
 	},
 

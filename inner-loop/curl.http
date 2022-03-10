@@ -73,11 +73,27 @@ GET http://localhost:30080/api/movies?rating=8.0 HTTP/1.1
 
 ###
 
-# WebValidate version
+# WebValidate-AIOA version
 # note the / url will fail by design
 GET http://localhost:30088/version HTTP/1.1
 
 ###
 
-# WebValidate metrics
+# WebValidate-AIOA metrics
 GET http://localhost:30088/metrics HTTP/1.1
+
+###
+
+# Heartbeat API
+GET http://localhost:31080/heartbeat/17 HTTP/1.1
+
+###
+
+# WebValidate-Heartbeat version
+# note the / url will fail by design
+GET http://localhost:31088/version HTTP/1.1
+
+###
+
+# WebValidate-Heartbeat metrics
+GET http://localhost:31088/metrics HTTP/1.1

@@ -18,13 +18,14 @@ kubectl apply -f deploy
 # deploy ai-order-accuracy
 kubectl apply -f deploy/aioa
 
-# deploy prometheus, grafana, and fluent bit
+# deploy heartbeat, prometheus, grafana, and fluent bit
 kubectl apply -f deploy/bootstrap
 kubectl apply -R -f deploy/bootstrap
 
 "$(dirname "${BASH_SOURCE[0]}")/jumpbox"
 
 # deploy WebV after the app starts
-kubectl wait pod ai-order-accuracy -n ai-order-accuracy --for condition=ready --timeout=60s
+kubectl wait pod -l app=ai-order-accuracy -n ai-order-accuracy --for condition=ready --timeout=60s
+
 kubectl apply -f deploy/webv
-kubectl wait pod webv -n ai-order-accuracy --for condition=ready --timeout=30s
+kubectl wait pod -l app=webv-aioa -n ai-order-accuracy --for condition=ready --timeout=30s

@@ -16,6 +16,6 @@ docker build /workspaces/webvalidate -t k3d-registry.localhost:5500/webv:local
 		docker push k3d-registry.localhost:5500/webv:local
 		kubectl delete -f deploy/webv --ignore-not-found=true
 		kubectl apply -f deploy/webv-local
-		kubectl wait pod webv -n ai-order-accuracy --for condition=ready --timeout=30s
+		kubectl wait pod -l app=webv-aioa -n ai-order-accuracy --for condition=ready --timeout=30s
 		kubectl get po -n ai-order-accuracy
 		http localhost:30088/version
