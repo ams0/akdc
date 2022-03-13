@@ -20,39 +20,17 @@ kic cluster rebuild
 
 ```
 
-## Other CLI commands
-
-- `kic cluster` implements various cluster management tasks
+## Check cluster status
 
 ```bash
 
-kic cluster
+kic checks all
 
 ```
 
-- Output
+## Other CLI commands
 
-```text
-
-k3d cluster commands
-
-Usage:
-  kic cluster [command]
-
-Available Commands:
-  clean       Remove the apps from the local k3d cluster
-  create      Create a new local k3d cluster
-  delete      Delete the k3d cluster
-  deploy      Deploy the apps to the local k3d cluster
-  jumpbox     Deploy a 'jumpbox' to the local k3d cluster
-  rebuild     Create and bootstrap a local k3d cluster and deploy the apps
-
-Flags:
-  -h, --help   help for cluster
-
-Use "kic cluster [command] --help" for more information about a command.
-
-```
+- run `kic -h` for a list of commands
 
 ## Hands-on Lab
 

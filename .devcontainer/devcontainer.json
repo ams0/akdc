@@ -35,9 +35,9 @@
 	// add labels
 	"portsAttributes": {
 		"30000": { "label": "Prometheus" },
-		"30080": { "label": "AI Order Accuracy" },
+		"30080": { "label": "IMDb App" },
 		"31080": { "label": "Heartbeat" },
-		"30088": { "label": "WebV-AIOA" },
+		"30088": { "label": "WebV-IMDb" },
 		"31088": { "label": "WebV-Heartbeat" },
 		"32000": { "label": "Grafana" },
 	},

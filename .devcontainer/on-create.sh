@@ -2,6 +2,7 @@
 
 # this runs as part of pre-build
 
+echo "on-create start"
 echo "$(date +'%Y-%m-%d %H:%M:%S')    on-create start" >> "$HOME/status"
 
 export REPO_BASE=$PWD
@@ -82,9 +83,22 @@ cp -r .devcontainer/.vscode .
 # clone repos
 cd ..
 git clone https://github.com/microsoft/webvalidate
-git clone https://github.com/retaildevcrews/ngsa-app
+git clone https://github.com/cse-labs/imdb-app
 git clone https://github.com/retaildevcrews/edge-gitops
 git clone https://github.com/retaildevcrews/red-gitops
 cd "$OLDPWD" || exit
 
+echo "building cli"
+cd src/kic || exit
+export KIC_PATH=/workspaces/akdc/bin
+export KIC_NAME=akdc
+make build
+cd ../..
+
+echo "creating k3d cluster"
+cd inner-loop || exit
+akdc local cluster rebuild
+cd ..
+
+echo "on-create complete"
 echo "$(date +'%Y-%m-%d %H:%M:%S')    on-create complete" >> "$HOME/status"

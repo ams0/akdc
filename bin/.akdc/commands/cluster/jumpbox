@@ -8,4 +8,3 @@
 
 kubectl delete pod jumpbox --ignore-not-found=true
 kubectl run jumpbox --image=ghcr.io/cse-labs/jumpbox --restart=Always
-kubectl wait pod jumpbox --for condition=ready --timeout=30s

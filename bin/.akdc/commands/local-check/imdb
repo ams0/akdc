@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#name: ai-order-accuracy
-#short: Check AI Order Accuracy status on the local cluster
+#name: imdb
+#short: Check IMDb reference app status on the local cluster
 
 # change to this directory
 #cd "$(dirname "${BASH_SOURCE[0]}")" || exit

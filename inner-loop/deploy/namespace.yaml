@@ -4,3 +4,12 @@ metadata:
   labels:
     name: ai-order-accuracy
   name: ai-order-accuracy
+
+---
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    name: imdb
+  name: imdb

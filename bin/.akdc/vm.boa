@@ -4,8 +4,8 @@
 
 command
 	name: vm
-	short: Kubernetes in Codespaces CLI for VM clusters
-	long: Kubernetes in Codespaces CLI\n\n  A CLI for automating many Kubernetes development tasks on VM clusters
+	short: Retail Edge Fleet Cluster CLI
+	long: Retail Edge CLI\n\n  A CLI for automating many Kubernetes development tasks on fleet clusters
 
 runCommand
 	path: vm/sync

@@ -27,6 +27,14 @@ git clone https://$(cat ~/.ssh/akdc.pat)@github.com/retaildevcrews/private-test 
 
 ```
 
+## Retail Edge Demo Dashboard
+
+- [dashboard](https://retailedge.grafana.net/d/pQOetffnz)
+
+## CLI Code Coverage
+
+- [code coverage](https://htmlpreview.github.io/?https://github.com/retaildevcrews/akdc/blob/main/src/kic/cover.html)
+
 ## Inner-loop Developer Experience
 
 - [Readme](./inner-loop/README.md)

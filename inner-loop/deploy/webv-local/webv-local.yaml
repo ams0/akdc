@@ -1,10 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: webv-aioa
-  namespace: ai-order-accuracy
+  name: webv
+  namespace: imdb
   labels:
-    app.kubernetes.io/name: webv-aioa
+    app.kubernetes.io/name: webv
 spec:
   replicas: 1
   strategy:
@@ -14,20 +14,38 @@ spec:
        maxUnavailable: 1
   selector:
     matchLabels:
-      app: webv-aioa
+      app: webv
   template:
     metadata:
       labels:
-        app: webv-aioa
+        app: webv
     spec:
       containers:
         - name: app
           image: k3d-registry.localhost:5500/webv:local
           imagePullPolicy: Always
+
           ports:
             - name: http
               containerPort: 8080
               protocol: TCP
+
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+            failureThreshold: 10
+            periodSeconds: 60
+
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+            failureThreshold: 60
+            periodSeconds: 2
+
           resources:
             limits:
               memory: "512Mi"
@@ -35,6 +53,7 @@ spec:
             requests:
               memory: "256Mi"
               cpu: "250m"
+
           args:
           - --sleep
           - "100"
@@ -44,7 +63,7 @@ spec:
           - --log-format
           - Json
           - --server
-          - http://ai-order-accuracy:8080
+          - http://imdb:8080
           - --files
           - benchmark.json
           - --zone
@@ -56,10 +75,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: webv-aioa
-  namespace: ai-order-accuracy
+  name: webv
+  namespace: imdb
   labels:
-    app: webv-aioa
+    app: webv
 spec:
   type: NodePort
   ports:
@@ -69,4 +88,4 @@ spec:
       protocol: TCP
       name: http
   selector:
-    app: webv-aioa
+    app: webv

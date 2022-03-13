@@ -4,8 +4,8 @@
 
 command
 	name: local
-	short: Kubernetes in Codespaces CLI
-	long: Kubernetes in Codespaces CLI\n\n  A CLI for automating many inner-loop Kubernetes development tasks
+	short: Retail Edge Inner-loop CLI
+	long: Retail Edge CLI\n\n  A CLI for automating many inner-loop Kubernetes development tasks
 
 command
 	name: gitops
@@ -30,7 +30,7 @@ command
 	short: Local apps commands
 
 runCommand
-	path: dev/aioa
+	path: dev/imdb
 
 runCommand
 	path: dev/webv
@@ -42,19 +42,22 @@ command
 	short: Check status on the local k3d cluster
 
 runCommand
-	path: check/all
+	path: local-check/all
 
 runCommand
-	path: check/aioa
+	path: local-check/heartbeat
 
 runCommand
-	path: check/webv
+	path: local-check/imdb
 
 runCommand
-	path: check/grafana
+	path: local-check/webv
 
 runCommand
-	path: check/prometheus
+	path: local-check/grafana
+
+runCommand
+	path: local-check/prometheus
 
 popCommand
 

@@ -3,22 +3,22 @@ GET http://localhost:30080 HTTP/1.1
 
 ###
 
-# NGSA version
+# IMDb version
 GET http://localhost:30080/version HTTP/1.1
 
 ###
 
-# NGSA metrics
+# IMDb metrics
 GET http://localhost:30080/metrics HTTP/1.1
 
 ###
 
-# NGSA healthz
+# IMDb healthz
 GET http://localhost:30080/healthz HTTP/1.1
 
 ###
 
-# NGSA healthz ietf
+# IMDb healthz ietf
 GET http://localhost:30080/healthz/ietf HTTP/1.1
 
 ###

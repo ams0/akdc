@@ -99,13 +99,13 @@ data:
         static_configs:
           - targets: ['kube-state-metrics.kube-system.svc.cluster.local:8080']
 
-      - job_name: 'ngsa'
+      - job_name: 'imdb'
         static_configs:
-          - targets: [ 'ai-order-accuracy.ai-order-accuracy.svc.cluster.local:8080' ]
+          - targets: [ 'imdb.imdb.svc.cluster.local:8080' ]
 
-      - job_name: 'webv-aioa'
+      - job_name: 'webv-imdb'
         static_configs:
-          - targets: [ 'webv-aioa.ai-order-accuracy.svc.cluster.local:8080' ]
+          - targets: [ 'webv.imdb.svc.cluster.local:8080' ]
 
       - job_name: 'webv-heartbeat'
         static_configs:

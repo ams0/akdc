@@ -22,17 +22,17 @@ cd digital-twin
 
 ## Create the local k3d cluster
 
-> kic is the Kubernetes in Codespaces CLI
+> re is the Retail Edge CLI
 
 ```bash
 
-#### do not run kic all
+#### do not run re all
 
 # create the cluster
-kic cluster create
+re cluster create
 
 # deploy jumpbox
-kic cluster jumpbox
+re cluster jumpbox
 
 ```
 
@@ -108,7 +108,7 @@ git pull
 code apps/badapp/autogitops/dev/badapp.yaml
 
 # deploy the change
-kic targets deploy
+re targets deploy
 
 # change to the digital twin directory
 cd /workspaces/akdc/digital-twin
@@ -118,7 +118,7 @@ flux resume ks --all
 
 # wait for flux to sync
 ### you may have to repeat these two steps a few times while CI-CD runs and Flux syncs
-kic gitops sync
+re gitops sync
 k get po -A
 
 # use the jumpbox to execute the http command against the endpoint
@@ -156,14 +156,14 @@ git pull
 code apps/badapp/autogitops/dev/badapp.yaml
 
 # deploy the change
-kic targets deploy
+re targets deploy
 
 # wait for flux to sync
 cd /workspaces/akdc/digital-twin
 
 # pod should be broken again
 ### you may have to repeat these commands
-kic gitops sync
+re gitops sync
 k get po -A
 
 # store should be broken again

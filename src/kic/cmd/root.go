@@ -16,8 +16,8 @@ import (
 
 // rootCmd represents the base command and adds commands, options, and flags
 var rootCmd = &cobra.Command{
-	Use:   "kic",
-	Short: "Kubernetes in Codespaces CLI",
+	Use:   "akdc",
+	Short: "Retail Edge CLI",
 }
 
 // initialize the root command

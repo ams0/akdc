@@ -30,7 +30,7 @@ var (
 
 // add command specific options
 func init() {
-	IntegrationCmd.Flags().StringVarP(&fileIntegration, "file", "f", "baseline.json", "Test file to use")
+	//IntegrationCmd.Flags().StringVarP(&fileIntegration, "file", "f", "baseline.json", "Test file to use")
 	IntegrationCmd.Flags().IntVarP(&maxErrors, "max-errors", "", 10, "Max validation errors before terminating test")
 	IntegrationCmd.Flags().StringVarP(&summary, "summary", "", "None", "Test summary display <None|Tsv|Xml>")
 }
@@ -39,19 +39,12 @@ func init() {
 func runTestIntegrationE(cmd *cobra.Command, args []string) error {
 	cfmt.Info("Running integration test")
 
-	command := "test"
-
 	if sleep < 0 {
 		sleep = 0
 	}
 
 	// get shared options
 	params := getTestFlagValues()
-
-	// add test-integration specific options to command line
-	if fileIntegration != "" {
-		params += " --files " + fileIntegration
-	}
 
 	if maxErrors > 0 {
 		params += fmt.Sprintf(" --max-errors %d", maxErrors)
@@ -61,7 +54,13 @@ func runTestIntegrationE(cmd *cobra.Command, args []string) error {
 		params += " --summary " + summary
 	}
 
-	path := filepath.Join(boa.GetBoaCommandPath(), command)
+	// add test-integration specific options to command line
+	// keep this arg last to override for innerloop test run
+	if fileIntegration != "" {
+		params += " --files " + fileIntegration
+	}
+
+	path := filepath.Join(boa.GetBoaCommandPath(), "test-integration")
 
 	// execute the file with "bash -c" if it exists
 	if _, err := os.Stat(path); err == nil {

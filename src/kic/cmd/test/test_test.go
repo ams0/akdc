@@ -18,7 +18,7 @@ func TestTest(t *testing.T) {
 	}
 
 	boa.ExecCmdNoErrorE(t, TestCmd)
-	boa.ExecCmdNoErrorE(t, TestCmd, "integration", "--dry-run", "-f", "bad-file.json", "-l", "10", "--verbose", "--region", "test", "--zone", "test", "--tag", "test", "--log-format", "tsv", "--dry-run", "--max-errors", "1", "--summary", "Tsv")
+	boa.ExecCmdNoErrorE(t, TestCmd, "integration", "--dry-run", "-l", "10", "--verbose", "--region", "test", "--zone", "test", "--tag", "test", "--log-format", "tsv", "--dry-run", "--max-errors", "1", "--summary", "Tsv")
 	boa.ExecCmdNoErrorE(t, TestCmd, "load", "--dry-run", "-f", "bad-file.json", "-l", "10", "--verbose", "--region", "test", "--zone", "test", "--tag", "test", "--log-format", "tsv", "--dry-run", "--delay-start", "1", "--duration", "10", "--random")
 
 	fmt.Println(boa.GetBinDir(), boa.GetBinName())

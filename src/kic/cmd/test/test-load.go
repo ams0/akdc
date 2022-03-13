@@ -51,10 +51,6 @@ func runTestLoadE(cmd *cobra.Command, args []string) error {
 	// add test-load specific options to command line
 	params += " --run-loop "
 
-	if fileLoad != "" {
-		params += " --files " + fileLoad
-	}
-
 	if delayStart > 0 {
 		params += fmt.Sprintf(" --delay-start %d", delayStart)
 	}
@@ -67,8 +63,13 @@ func runTestLoadE(cmd *cobra.Command, args []string) error {
 		params += " --random"
 	}
 
+	// keep this arg last to override for innerloop test run
+	if fileLoad != "" {
+		params += " --files " + fileLoad
+	}
+
 	// build the path to the script
-	path := filepath.Join(boa.GetBoaCommandPath(), "test")
+	path := filepath.Join(boa.GetBoaCommandPath(), "test-load")
 
 	// execute the file with "bash -c" if it exists
 	if _, err := os.Stat(path); err == nil {

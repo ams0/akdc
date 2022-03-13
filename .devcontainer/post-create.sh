@@ -2,9 +2,10 @@
 
 # this runs at Codespace creation - not part of pre-build
 
+echo "post-create start"
 echo "$(date)    post-create start" >> "$HOME/status"
 
-# secrets are not available on on-create
+# secrets are not available during on-create
 
 # save ssl certs
 echo "$INGRESS_KEY" | base64 -d > "$HOME/.ssh/certs.key"
@@ -29,8 +30,9 @@ git -C "$HOME/.oh-my-zsh" pull
 
 # update repos
 git -C ../webvalidate pull
-git -C ../ngsa-app pull
+git -C ../imdb-app pull
 git -C ../edge-gitops pull
 git -C ../red-gitops pull
 
+echo "post-create complete"
 echo "$(date +'%Y-%m-%d %H:%M:%S')    post-create complete" >> "$HOME/status"
