@@ -23,7 +23,7 @@ var (
 	// test-integration command
 	IntegrationCmd = &cobra.Command{
 		Use:   "integration",
-		Short: "Run an integration test on each cluster",
+		Short: "Run an integration test on the cluster",
 		RunE:  runTestIntegrationE,
 	}
 )

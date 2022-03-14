@@ -24,7 +24,7 @@ var (
 	// test-load command
 	LoadCmd = &cobra.Command{
 		Use:   "load",
-		Short: "Run a load test on each cluster",
+		Short: "Run a load test on the cluster",
 		RunE:  runTestLoadE,
 	}
 )
