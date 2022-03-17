@@ -97,9 +97,9 @@ make build
 cd ../..
 
 echo "creating k3d cluster"
-cd inner-loop || exit
+pushd ../inner-loop || exit
 akdc local cluster rebuild
-cd ..
+popd || exit
 
 echo "on-create complete"
 echo "$(date +'%Y-%m-%d %H:%M:%S')    on-create complete" >> "$HOME/status"
