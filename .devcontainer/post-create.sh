@@ -28,11 +28,15 @@ chmod 600 "$HOME"/.ssh/*.key
 # update oh-my-zsh
 git -C "$HOME/.oh-my-zsh" pull
 
+### todo - remove once merged
+git -C ../inner-loop checkout retail-edge
+
 # update repos
 git -C ../webvalidate pull
 git -C ../imdb-app pull
 git -C ../edge-gitops pull
 git -C ../red-gitops pull
+git -C ../inner-loop pull
 
 echo "post-create complete"
 echo "$(date +'%Y-%m-%d %H:%M:%S')    post-create complete" >> "$HOME/status"

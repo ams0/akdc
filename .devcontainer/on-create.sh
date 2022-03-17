@@ -84,6 +84,7 @@ cp -r .devcontainer/.vscode .
 cd ..
 git clone https://github.com/microsoft/webvalidate
 git clone https://github.com/cse-labs/imdb-app
+git clone https://github.com/cse-labs/kubernetes-in-codespaces inner-loop
 git clone https://github.com/retaildevcrews/edge-gitops
 git clone https://github.com/retaildevcrews/red-gitops
 cd "$OLDPWD" || exit

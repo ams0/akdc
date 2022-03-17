@@ -37,7 +37,18 @@ git clone https://$(cat ~/.ssh/akdc.pat)@github.com/retaildevcrews/private-test 
 
 ## Inner-loop Developer Experience
 
-- [Readme](./inner-loop/README.md)
+- [Readme](../inner-loop/README.md)
+
+> Make sure to start in the inner-loop directory
+
+- We use the `Kubernetes in Codespaces` repo from <https://github.com/cse-labs/kubernetes-in-codespaces>
+  - This was cloned to `/workspaces/inner-loop` as part of Codespaces setup
+
+```bash
+
+cd ../inner-loop
+
+```
 
 ## Outer-loop Developer Experience
 
