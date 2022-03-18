@@ -99,9 +99,6 @@ cd ../..
 echo "creating k3d cluster"
 pushd ../inner-loop || exit
 
-### todo - remove once merged
-git checkout retail-edge
-
 akdc local cluster rebuild
 popd || exit
 
