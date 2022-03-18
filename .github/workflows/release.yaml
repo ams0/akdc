@@ -11,13 +11,13 @@ jobs:
 
     strategy:
       matrix:
-        # build and publish in parallel: linux/amd64
         goos: [linux]
         goarch: [amd64]
 
     steps:
       - uses: actions/checkout@v2
 
+      # add kic CLI to release
       - uses: wangyoucao577/go-release-action@v1.25
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -26,4 +26,13 @@ jobs:
           project_path: "./src/kic"
           binary_name: "kic"
           ldflags: "-s -w"
-          extra_files: LICENSE README.md
+
+      # add akdc CLI to release
+      - uses: wangyoucao577/go-release-action@v1.25
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          goos: ${{ matrix.goos }}
+          goarch: ${{ matrix.goarch }}
+          project_path: "./src/kic"
+          binary_name: "akdc"
+          ldflags: "-s -w"
