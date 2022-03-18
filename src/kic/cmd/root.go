@@ -44,6 +44,11 @@ func init() {
 		}
 	}
 
+	// add commands to kic
+	if rootCmd.Name() == "kic" {
+		rootCmd.AddCommand(test.TestCmd)
+	}
+
 	// add fleet command to root
 	if boa.GetCommandByUse(rootCmd, "fleet") == nil && fleet.FleetCmd != nil {
 		rootCmd.AddCommand(fleet.FleetCmd)
