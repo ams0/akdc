@@ -8,7 +8,7 @@ echo "$(date +'%Y-%m-%d %H:%M:%S')    on-create start" >> "$HOME/status"
 export REPO_BASE=$PWD
 export AKDC_REPO=retaildevcrews/edge-gitops
 
-export PATH="$PATH:$REPO_BASE/bin"
+export PATH="$PATH:$REPO_BASE/bin:$(dirname "$REPO_BASE")/inner-loop/bin"
 export GOPATH="$HOME/go"
 
 mkdir -p "$HOME/.ssh"
@@ -27,20 +27,16 @@ cp src/_* "$HOME/.oh-my-zsh/completions"
     echo 'hsort() { read -r; printf "%s\\n" "$REPLY"; sort }'
 
     # add cli to path
-    echo "export PATH=\$PATH:$REPO_BASE/bin"
+    echo "export PATH=\$PATH:$REPO_BASE/bin:$(dirname "$REPO_BASE")/inner-loop/bin"
     echo "export GOPATH=\$HOME/go"
 
     # create aliases
     echo "alias mk='cd $REPO_BASE/src/kic && make build; cd \$OLDPWD'"
-    echo "alias kic='akdc local'"
-    echo "alias flt='akdc fleet'"
 
     echo "export REPO_BASE=$PWD"
     echo "export AKDC_REPO=retaildevcrews/edge-gitops"
     echo "export AKDC_SSL=cseretail.com"
     echo "export AKDC_GITOPS=true"
-    echo "export KIC_PATH=/workspaces/akdc/bin"
-    echo "export KIC_NAME=akdc"
     echo "compinit"
 } >> "$HOME/.zshrc"
 
@@ -87,20 +83,21 @@ git clone https://github.com/cse-labs/imdb-app
 git clone https://github.com/cse-labs/kubernetes-in-codespaces inner-loop
 git clone https://github.com/retaildevcrews/edge-gitops
 git clone https://github.com/retaildevcrews/red-gitops
-cd "$OLDPWD" || exit
+git clone https://github.com/retaildevcrews/fleet-vm
+cd "$REPO_BASE" || exit
 
 echo "building cli"
 cd src/kic || exit
-export KIC_PATH=/workspaces/akdc/bin
-export KIC_NAME=akdc
 make build
-cd ../..
+cd "$REPO_BASE" || exit
+
+echo "generating kic completion"
+kic completion zsh > "$HOME/.oh-my-zsh/completions/_kic"
 
 echo "creating k3d cluster"
-pushd ../inner-loop || exit
-
-akdc local cluster rebuild
-popd || exit
+cd ../inner-loop || exit
+kic cluster rebuild
+cd "$REPO_BASE" || exit
 
 echo "on-create complete"
 echo "$(date +'%Y-%m-%d %H:%M:%S')    on-create complete" >> "$HOME/status"

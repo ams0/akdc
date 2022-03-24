@@ -11,6 +11,7 @@ cluster-*
 # we need the other files in bin
 **/bin/kic
 **/bin/akdc
+**/bin/flt
 
 dotFiles/.**
 

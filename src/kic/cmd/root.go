@@ -7,6 +7,7 @@ package cmd
 import (
 	"kic/boa"
 	"kic/cmd/fleet"
+	"kic/cmd/fleet/check"
 	"kic/cmd/targets"
 	"kic/cmd/test"
 	"os"
@@ -25,34 +26,33 @@ func init() {
 	// load the commands from the bin location ./.appName directory
 	boa.LoadCommands(rootCmd)
 
-	// add commands to vm command
-	vmCmd := boa.GetCommandByUse(rootCmd, "vms")
-	if vmCmd != nil && !vmCmd.Hidden {
-		if boa.GetCommandByUse(vmCmd, "test") == nil {
-			vmCmd.AddCommand(test.TestCmd)
-		}
-	}
-
-	// add commands to local command
-	localCmd := boa.GetCommandByUse(rootCmd, "local")
-	if localCmd != nil && !localCmd.Hidden {
-		if boa.GetCommandByUse(localCmd, "targets") == nil {
-			localCmd.AddCommand(targets.TargetsCmd)
-		}
-		if boa.GetCommandByUse(localCmd, "test") == nil {
-			localCmd.AddCommand(test.TestCmd)
-		}
-	}
-
 	// add commands to kic
 	if rootCmd.Name() == "kic" {
-		rootCmd.AddCommand(test.TestCmd)
+
+		if boa.GetCommandByUse(rootCmd, "test") == nil {
+			rootCmd.AddCommand(test.TestCmd)
+		}
+
+		if boa.GetCommandByUse(rootCmd, "targets") == nil {
+			rootCmd.AddCommand(targets.TargetsCmd)
+		}
+
 	}
 
-	// add fleet command to root
-	if boa.GetCommandByUse(rootCmd, "fleet") == nil && fleet.FleetCmd != nil {
-		rootCmd.AddCommand(fleet.FleetCmd)
-		fleet.FleetCmd.AddCommand(targets.TargetsCmd)
+	// add fleet commands
+	if rootCmd.Name() == "flt" {
+		rootCmd.AddCommand(check.CheckCmd)
+		rootCmd.AddCommand(fleet.CreateCmd)
+		rootCmd.AddCommand(fleet.DeleteCmd)
+		rootCmd.AddCommand(fleet.ExecCmd)
+		rootCmd.AddCommand(fleet.GroupsCmd)
+		rootCmd.AddCommand(fleet.ListCmd)
+		rootCmd.AddCommand(fleet.PatchCmd)
+		rootCmd.AddCommand(fleet.PullCmd)
+		rootCmd.AddCommand(fleet.SshCmd)
+		rootCmd.AddCommand(fleet.SyncCmd)
+		rootCmd.AddCommand(fleet.ArcTokenCmd)
+		rootCmd.AddCommand(targets.TargetsCmd)
 	}
 
 	// this will set a new root if specified

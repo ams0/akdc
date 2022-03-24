@@ -16,7 +16,7 @@ var ArcTokenCmd = &cobra.Command{
 	Short: "Get Arc token from each cluster",
 
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return (boa.ExecClusters("'echo -e \"\"$(hostname)\"\n$(/home/akdc/gitops/fleet/scripts/get-service-account-token.sh)\n\"'", grep))
+		return (boa.ExecClusters("'echo -e \"\"$(hostname)\"\n$(./fleet-vm/scripts/get-service-account-token.sh)\n\"'", grep))
 	},
 }
 

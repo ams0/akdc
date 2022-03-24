@@ -15,7 +15,7 @@ var PullCmd = &cobra.Command{
 	Use:   "pull",
 	Short: "Git pull the akdc repo",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return (boa.ExecClusters("git -C gitops pull", grep))
+		return boa.ExecClusters("./fleet-vm/scripts/pull.sh", grep)
 	},
 }
 

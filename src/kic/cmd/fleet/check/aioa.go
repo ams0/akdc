@@ -17,6 +17,6 @@ var AioaCmd = &cobra.Command{
 	Args:  argsFleetCheck,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return boa.ExecClusters("./gitops/fleet/scripts/check-aioa", grep)
+		return boa.ExecClusters("./fleet-vm/scripts/check-aioa", grep)
 	},
 }

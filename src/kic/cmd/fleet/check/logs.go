@@ -17,6 +17,6 @@ var LogsCmd = &cobra.Command{
 	Args:  argsFleetCheck,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return boa.ExecClusters("./gitops/fleet/scripts/check-logs", grep)
+		return boa.ExecClusters("./fleet-vm/scripts/check-logs", grep)
 	},
 }

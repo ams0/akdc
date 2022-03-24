@@ -10,12 +10,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// PatchCmd runs ~/gitops/fleet/scripts/patch.sh on each cluster
+// PatchCmd runs ~/fleet-vm/scripts/patch.sh on each cluster
 var PatchCmd = &cobra.Command{
 	Use:   "patch",
 	Short: "Run a patch command on each cluster",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return (boa.ExecClusters("gitops/fleet/scripts/patch.sh", grep))
+		return (boa.ExecClusters("./fleet-vm/scripts/patch.sh", grep))
 	},
 }
 

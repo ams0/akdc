@@ -17,6 +17,6 @@ var FluxCmd = &cobra.Command{
 	Args:  argsFleetCheck,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return boa.ExecClusters("./gitops/fleet/scripts/check-flux", grep)
+		return boa.ExecClusters("./fleet-vm/scripts/check-flux", grep)
 	},
 }

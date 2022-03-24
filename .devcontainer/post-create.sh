@@ -17,7 +17,7 @@ echo "$ID_RSA_PUB" | base64 -d > "$HOME/.ssh/id_rsa.pub"
 
 # save keys
 echo "$AKDC_MI" > "$HOME/.ssh/mi.key"
-echo "$LOKI_URL" > "$HOME/.ssh/loki.key"
+echo "$LOKI_URL" > "$HOME/.ssh/fluent-bit.key"
 echo "$PROMETHEUS_KEY" > "$HOME/.ssh/prometheus.key"
 
 # set file mode
@@ -34,6 +34,7 @@ git -C ../imdb-app pull
 git -C ../edge-gitops pull
 git -C ../red-gitops pull
 git -C ../inner-loop pull
+git -C ../fleet-vm pull
 
 echo "post-create complete"
 echo "$(date +'%Y-%m-%d %H:%M:%S')    post-create complete" >> "$HOME/status"

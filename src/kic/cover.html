@@ -55,7 +55,7 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">kic/boa/boa.go (63.6%)</option>
+				<option value="file0">kic/boa/boa.go (37.9%)</option>
 				
 				<option value="file1">kic/boa/boaExecCmd.go (0.0%)</option>
 				
@@ -105,7 +105,7 @@
 				
 				<option value="file24">kic/cmd/fleet/sync.go (100.0%)</option>
 				
-				<option value="file25">kic/cmd/root.go (72.2%)</option>
+				<option value="file25">kic/cmd/root.go (69.6%)</option>
 				
 				<option value="file26">kic/cmd/targets/targets-add.go (88.9%)</option>
 				
@@ -248,13 +248,13 @@ func getStopWord(line string) string <span class="cov8" title="1">{
         if strings.HasPrefix(chk, "root") </span><span class="cov8" title="1">{
                 return "root"
         }</span>
-        <span class="cov8" title="1">if strings.HasPrefix(chk, "command") </span><span class="cov8" title="1">{
+        <span class="cov8" title="1">if strings.HasPrefix(chk, "command") </span><span class="cov0" title="0">{
                 return "command"
         }</span>
-        <span class="cov8" title="1">if strings.HasPrefix(chk, "runcommand") </span><span class="cov8" title="1">{
+        <span class="cov8" title="1">if strings.HasPrefix(chk, "runcommand") </span><span class="cov0" title="0">{
                 return "runCommand"
         }</span>
-        <span class="cov8" title="1">if strings.HasPrefix(chk, "popcommand") </span><span class="cov8" title="1">{
+        <span class="cov8" title="1">if strings.HasPrefix(chk, "popcommand") </span><span class="cov0" title="0">{
                 return "popCommand"
         }</span>
 
@@ -288,10 +288,10 @@ func loadCommand(fileName string) <span class="cov8" title="1">{
                         // check for stop word
                         sw := getStopWord(chk)
                         if sw != "" </span><span class="cov8" title="1">{
-                                if strings.HasPrefix(sw, "popCommand") </span><span class="cov8" title="1">{
+                                if strings.HasPrefix(sw, "popCommand") </span><span class="cov0" title="0">{
                                         // popCommand resets the command to the parent or boaRootCmd
                                         addBoaCommand(fileName, boaCmd, modType, name, short, long, path, parent, hidden)
-                                        if boaCmd != nil </span><span class="cov8" title="1">{
+                                        if boaCmd != nil </span><span class="cov0" title="0">{
                                                 boaCmd = boaCmd.Parent()
                                                 if boaCmd == boaRootCmd </span><span class="cov0" title="0">{
                                                         boaCmd = nil
@@ -318,7 +318,7 @@ func loadCommand(fileName string) <span class="cov8" title="1">{
                                 short = strings.TrimSpace(line[6:])
                         }</span> else<span class="cov8" title="1"> if strings.HasPrefix(strings.ToLower(line), "long:") </span><span class="cov8" title="1">{
                                 long = strings.TrimSpace(line[5:])
-                        }</span> else<span class="cov8" title="1"> if strings.HasPrefix(strings.ToLower(line), "path:") </span><span class="cov8" title="1">{
+                        }</span> else<span class="cov8" title="1"> if strings.HasPrefix(strings.ToLower(line), "path:") </span><span class="cov0" title="0">{
                                 path = strings.TrimSpace(line[5:])
                         }</span> else<span class="cov8" title="1"> if strings.HasPrefix(strings.ToLower(line), "hidden:") </span><span class="cov0" title="0">{
                                 hidden = strings.ToLower(strings.TrimSpace(line[7:])) == "true"
@@ -346,9 +346,9 @@ func addBoaCommand(fileName string, modCmd *cobra.Command, modType string, name 
         // handle different command and command types
         <span class="cov8" title="1">if modType == "root" </span><span class="cov8" title="1">{
                 return setRootValues(name, short, long)
-        }</span> else<span class="cov8" title="1"> if modType == "command" </span><span class="cov8" title="1">{
+        }</span> else<span class="cov0" title="0"> if modType == "command" </span><span class="cov0" title="0">{
                 return addParentCommand(modCmd, name, short, long, parent, hidden)
-        }</span> else<span class="cov8" title="1"> if modType == "runCommand" </span><span class="cov8" title="1">{
+        }</span> else<span class="cov0" title="0"> if modType == "runCommand" </span><span class="cov0" title="0">{
                 return addCommand(modCmd, name, short, long, path, hidden)
         }</span>
 
@@ -359,8 +359,8 @@ func addBoaCommand(fileName string, modCmd *cobra.Command, modType string, name 
 }
 
 // add a command to the command tree
-func addParentCommand(modCmd *cobra.Command, name string, short string, long string, parent string, hidden bool) *cobra.Command <span class="cov8" title="1">{
-        if !hidden </span><span class="cov8" title="1">{
+func addParentCommand(modCmd *cobra.Command, name string, short string, long string, parent string, hidden bool) *cobra.Command <span class="cov0" title="0">{
+        if !hidden </span><span class="cov0" title="0">{
                 // name and short are required
                 if err := checkNameAndShort(name, short); err != nil </span><span class="cov0" title="0">{
                         return modCmd
@@ -371,7 +371,7 @@ func addParentCommand(modCmd *cobra.Command, name string, short string, long str
         }</span>
 
         // create the new command
-        <span class="cov8" title="1">boaCmd := createCommand(name, short, long)
+        <span class="cov0" title="0">boaCmd := createCommand(name, short, long)
         boaCmd.Hidden = hidden
 
         if parent != "" </span><span class="cov0" title="0">{
@@ -387,7 +387,7 @@ func addParentCommand(modCmd *cobra.Command, name string, short string, long str
                 }
         }
 
-        <span class="cov8" title="1">if modCmd != nil </span><span class="cov8" title="1">{
+        <span class="cov0" title="0">if modCmd != nil </span><span class="cov0" title="0">{
                 // check for dupes
                 if GetCommandByUse(modCmd, name) != nil </span><span class="cov0" title="0">{
                         if hidden </span><span class="cov0" title="0">{
@@ -396,10 +396,10 @@ func addParentCommand(modCmd *cobra.Command, name string, short string, long str
                                 cfmt.ErrorE("Command already exists", modCmd.Use, name)
                                 os.Exit(1)
                         }</span>
-                } else<span class="cov8" title="1"> {
+                } else<span class="cov0" title="0"> {
                         modCmd.AddCommand(boaCmd)
                 }</span>
-        } else<span class="cov8" title="1"> {
+        } else<span class="cov0" title="0"> {
                 // check for dupes
                 if GetCommandByUse(boaRootCmd, name) != nil </span><span class="cov0" title="0">{
                         if hidden </span><span class="cov0" title="0">{
@@ -408,28 +408,28 @@ func addParentCommand(modCmd *cobra.Command, name string, short string, long str
                                 cfmt.ErrorE("Command already exists", boaRootCmd.Use, name)
                                 os.Exit(1)
                         }</span>
-                } else<span class="cov8" title="1"> {
+                } else<span class="cov0" title="0"> {
                         boaRootCmd.AddCommand(boaCmd)
                 }</span>
         }
 
         // set the new command to the parent
-        <span class="cov8" title="1">return boaCmd</span>
+        <span class="cov0" title="0">return boaCmd</span>
 }
 
 // add a command to a command in the command tree
-func addCommand(modCmd *cobra.Command, name string, short string, long string, path string, hidden bool) *cobra.Command <span class="cov8" title="1">{
+func addCommand(modCmd *cobra.Command, name string, short string, long string, path string, hidden bool) *cobra.Command <span class="cov0" title="0">{
         if path == "" </span><span class="cov0" title="0">{
                 cfmt.ErrorE("path is required", name, short, long, path)
                 os.Exit(1)
         }</span>
 
         // read the values from the command metadata if necessary
-        <span class="cov8" title="1">name = readFromCommandFile(path, "name", name)
+        <span class="cov0" title="0">name = readFromCommandFile(path, "name", name)
         short = readFromCommandFile(path, "short", short)
         long = readFromCommandFile(path, "long", long)
 
-        if !hidden </span><span class="cov8" title="1">{
+        if !hidden </span><span class="cov0" title="0">{
                 // name and short are required
                 if err := checkNameAndShort(name, short); err != nil </span><span class="cov0" title="0">{
                         return modCmd
@@ -440,19 +440,19 @@ func addCommand(modCmd *cobra.Command, name string, short string, long string, p
         }</span>
 
         // use boaRootCmd if modCmd is nil
-        <span class="cov8" title="1">aCmd := modCmd
+        <span class="cov0" title="0">aCmd := modCmd
         if aCmd == nil </span><span class="cov0" title="0">{
                 aCmd = boaRootCmd
         }</span>
 
         // check for dupes
-        <span class="cov8" title="1">if GetCommandByUse(aCmd, name) != nil </span><span class="cov0" title="0">{
+        <span class="cov0" title="0">if GetCommandByUse(aCmd, name) != nil </span><span class="cov0" title="0">{
                 cfmt.ErrorE("Command already exists", aCmd.Use, name)
                 os.Exit(1)
         }</span>
 
         // add the command
-        <span class="cov8" title="1">cmd := addRunCommand(name, short, long, path)
+        <span class="cov0" title="0">cmd := addRunCommand(name, short, long, path)
         cmd.Hidden = hidden
         aCmd.AddCommand(cmd)
 
@@ -493,27 +493,27 @@ func checkNameAndShort(name string, short string) error <span class="cov8" title
 }
 
 // read the metadata from the command
-func readFromCommandFile(path string, key string, value string) string <span class="cov8" title="1">{
+func readFromCommandFile(path string, key string, value string) string <span class="cov0" title="0">{
         // don't read if already set
         if value != "" </span><span class="cov0" title="0">{
                 return value
         }</span>
 
-        <span class="cov8" title="1">key = strings.TrimSpace(strings.ToLower(key)) + ":"
+        <span class="cov0" title="0">key = strings.TrimSpace(strings.ToLower(key)) + ":"
         p := filepath.Join(boaCommandPath, path)
 
         // read the file into an array
         txt := ReadTextFile(p)
         lines := strings.Split(txt, "\n")
 
-        for i := 0; i &lt; len(lines); i++ </span><span class="cov8" title="1">{
+        for i := 0; i &lt; len(lines); i++ </span><span class="cov0" title="0">{
                 line := strings.TrimSpace(lines[i])
 
-                if strings.HasPrefix(line, "#") </span><span class="cov8" title="1">{
+                if strings.HasPrefix(line, "#") </span><span class="cov0" title="0">{
                         // check all comments for metadata
                         line = strings.TrimSpace(strings.TrimLeft(line, "#"))
 
-                        if strings.HasPrefix(strings.ToLower(line), key) </span><span class="cov8" title="1">{
+                        if strings.HasPrefix(strings.ToLower(line), key) </span><span class="cov0" title="0">{
                                 // extract the metadata
                                 line = strings.TrimSpace(line[len(key):])
                                 return line
@@ -521,11 +521,11 @@ func readFromCommandFile(path string, key string, value string) string <span cla
                 }
         }
 
-        <span class="cov8" title="1">return ""</span>
+        <span class="cov0" title="0">return ""</span>
 }
 
 // add a command that has sub-commands
-func createCommand(use string, short string, long string) *cobra.Command <span class="cov8" title="1">{
+func createCommand(use string, short string, long string) *cobra.Command <span class="cov0" title="0">{
         cmd := &amp;cobra.Command{
                 Use:   use,
                 Short: short,
@@ -536,7 +536,7 @@ func createCommand(use string, short string, long string) *cobra.Command <span c
 }</span>
 
 // create a command that runs the bash command
-func addRunCommand(use string, short string, long string, command string) *cobra.Command <span class="cov8" title="1">{
+func addRunCommand(use string, short string, long string, command string) *cobra.Command <span class="cov0" title="0">{
         runCmd := &amp;cobra.Command{
                 Use:   use,
                 Short: short,
@@ -551,7 +551,7 @@ func addRunCommand(use string, short string, long string, command string) *cobra
                 },
         }
 
-        <span class="cov8" title="1">return runCmd</span>
+        <span class="cov0" title="0">return runCmd</span>
 }
 
 // create a command that runs the bash command
@@ -1070,7 +1070,7 @@ var ArcTokenCmd = &amp;cobra.Command{
         Short: "Get Arc token from each cluster",
 
         RunE: func(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
-                return (boa.ExecClusters("'echo -e \"\"$(hostname)\"\n$(/home/akdc/gitops/fleet/scripts/get-service-account-token.sh)\n\"'", grep))
+                return (boa.ExecClusters("'echo -e \"\"$(hostname)\"\n$(./fleet-vm/scripts/get-service-account-token.sh)\n\"'", grep))
         }</span>,
 }
 
@@ -1098,7 +1098,7 @@ var AioaCmd = &amp;cobra.Command{
         Args:  argsFleetCheck,
 
         RunE: func(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
-                return boa.ExecClusters("./gitops/fleet/scripts/check-aioa", grep)
+                return boa.ExecClusters("./fleet-vm/scripts/check-aioa", grep)
         }</span>,
 }
 </pre>
@@ -1167,7 +1167,7 @@ var DaprCmd = &amp;cobra.Command{
         Args:  argsFleetCheck,
 
         RunE: func(cmd *cobra.Command, args []string) error <span class="cov0" title="0">{
-                return boa.ExecClusters("./gitops/fleet/scripts/check-dapr", grep)
+                return boa.ExecClusters("./fleet-vm/scripts/check-dapr", grep)
         }</span>,
 }
 </pre>
@@ -1191,7 +1191,7 @@ var FluxCmd = &amp;cobra.Command{
         Args:  argsFleetCheck,
 
         RunE: func(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
-                return boa.ExecClusters("./gitops/fleet/scripts/check-flux", grep)
+                return boa.ExecClusters("./fleet-vm/scripts/check-flux", grep)
         }</span>,
 }
 </pre>
@@ -1216,7 +1216,7 @@ var HeartbeatCmd = &amp;cobra.Command{
         Args:  argsFleetCheck,
 
         RunE: func(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
-                return boa.ExecClusters("./gitops/fleet/scripts/check-heartbeat", grep)
+                return boa.ExecClusters("./fleet-vm/scripts/check-heartbeat", grep)
         }</span>,
 }
 </pre>
@@ -1240,7 +1240,7 @@ var LogsCmd = &amp;cobra.Command{
         Args:  argsFleetCheck,
 
         RunE: func(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
-                return boa.ExecClusters("./gitops/fleet/scripts/check-logs", grep)
+                return boa.ExecClusters("./fleet-vm/scripts/check-logs", grep)
         }</span>,
 }
 </pre>
@@ -1264,7 +1264,7 @@ var RadiusCmd = &amp;cobra.Command{
         Args:  argsFleetCheck,
 
         RunE: func(cmd *cobra.Command, args []string) error <span class="cov0" title="0">{
-                return boa.ExecClusters("./gitops/fleet/scripts/check-radius", grep)
+                return boa.ExecClusters("./fleet-vm/scripts/check-radius", grep)
         }</span>,
 }
 </pre>
@@ -1288,7 +1288,7 @@ var RetriesCmd = &amp;cobra.Command{
         Args:  argsFleetCheck,
 
         RunE: func(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
-                return boa.ExecClusters("./gitops/fleet/scripts/check-retries", grep)
+                return boa.ExecClusters("./fleet-vm/scripts/check-retries", grep)
         }</span>,
 }
 </pre>
@@ -2068,12 +2068,12 @@ import (
         "github.com/spf13/cobra"
 )
 
-// PatchCmd runs ~/gitops/fleet/scripts/patch.sh on each cluster
+// PatchCmd runs ~/fleet-vm/scripts/patch.sh on each cluster
 var PatchCmd = &amp;cobra.Command{
         Use:   "patch",
         Short: "Run a patch command on each cluster",
         RunE: func(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
-                return (boa.ExecClusters("gitops/fleet/scripts/patch.sh", grep))
+                return (boa.ExecClusters("./fleet-vm/scripts/patch.sh", grep))
         }</span>,
 }
 
@@ -2099,7 +2099,7 @@ var PullCmd = &amp;cobra.Command{
         Use:   "pull",
         Short: "Git pull the akdc repo",
         RunE: func(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
-                return (boa.ExecClusters("git -C gitops pull", grep))
+                return boa.ExecClusters("./fleet-vm/scripts/pull.sh", grep)
         }</span>,
 }
 
@@ -2219,6 +2219,7 @@ package cmd
 import (
         "kic/boa"
         "kic/cmd/fleet"
+        "kic/cmd/fleet/check"
         "kic/cmd/targets"
         "kic/cmd/test"
         "os"
@@ -2237,29 +2238,33 @@ func init() <span class="cov8" title="1">{
         // load the commands from the bin location ./.appName directory
         boa.LoadCommands(rootCmd)
 
-        // add commands to vm command
-        vmCmd := boa.GetCommandByUse(rootCmd, "vms")
-        if vmCmd != nil &amp;&amp; !vmCmd.Hidden </span><span class="cov0" title="0">{
-                if boa.GetCommandByUse(vmCmd, "test") == nil </span><span class="cov0" title="0">{
-                        vmCmd.AddCommand(test.TestCmd)
+        // add commands to kic
+        if rootCmd.Name() == "kic" </span><span class="cov0" title="0">{
+
+                if boa.GetCommandByUse(rootCmd, "test") == nil </span><span class="cov0" title="0">{
+                        rootCmd.AddCommand(test.TestCmd)
                 }</span>
+
+                <span class="cov0" title="0">if boa.GetCommandByUse(rootCmd, "targets") == nil </span><span class="cov0" title="0">{
+                        rootCmd.AddCommand(targets.TargetsCmd)
+                }</span>
+
         }
 
-        // add commands to local command
-        <span class="cov8" title="1">localCmd := boa.GetCommandByUse(rootCmd, "local")
-        if localCmd != nil &amp;&amp; !localCmd.Hidden </span><span class="cov8" title="1">{
-                if boa.GetCommandByUse(localCmd, "targets") == nil </span><span class="cov8" title="1">{
-                        localCmd.AddCommand(targets.TargetsCmd)
-                }</span>
-                <span class="cov8" title="1">if boa.GetCommandByUse(localCmd, "test") == nil </span><span class="cov8" title="1">{
-                        localCmd.AddCommand(test.TestCmd)
-                }</span>
-        }
-
-        // add fleet command to root
-        <span class="cov8" title="1">if boa.GetCommandByUse(rootCmd, "fleet") == nil &amp;&amp; fleet.FleetCmd != nil </span><span class="cov8" title="1">{
-                rootCmd.AddCommand(fleet.FleetCmd)
-                fleet.FleetCmd.AddCommand(targets.TargetsCmd)
+        // add fleet commands
+        <span class="cov8" title="1">if rootCmd.Name() == "flt" </span><span class="cov8" title="1">{
+                rootCmd.AddCommand(check.CheckCmd)
+                rootCmd.AddCommand(fleet.CreateCmd)
+                rootCmd.AddCommand(fleet.DeleteCmd)
+                rootCmd.AddCommand(fleet.ExecCmd)
+                rootCmd.AddCommand(fleet.GroupsCmd)
+                rootCmd.AddCommand(fleet.ListCmd)
+                rootCmd.AddCommand(fleet.PatchCmd)
+                rootCmd.AddCommand(fleet.PullCmd)
+                rootCmd.AddCommand(fleet.SshCmd)
+                rootCmd.AddCommand(fleet.SyncCmd)
+                rootCmd.AddCommand(fleet.ArcTokenCmd)
+                rootCmd.AddCommand(targets.TargetsCmd)
         }</span>
 
         // this will set a new root if specified
