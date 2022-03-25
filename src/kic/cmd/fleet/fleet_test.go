@@ -117,8 +117,7 @@ func TestFleet(t *testing.T) {
 
 	rlen := len(FleetCmd.Commands())
 	if rlen != 11 {
-		fmt.Println("todo: TestFleet len(Commands)(should be 11):", rlen)
-		// t.Errorf("FleetTest failed, got %d, wanted: 11", rlen)
+		t.Errorf("FleetTest failed, got %d, wanted: 11", rlen)
 	}
 
 	boa.ExecCmdNoErrorE(t, FleetCmd)

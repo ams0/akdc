@@ -24,10 +24,12 @@ var (
 	group             string
 	location          string
 	repo              string
+	branch            string
 	pem               string
 	key               string
 	quiet             bool
 	ssl               string
+	dnsRG             string
 	gitops            bool
 	dapr              bool
 	arcEnabled        bool
@@ -53,9 +55,11 @@ func init() {
 	CreateCmd.Flags().StringVarP(&group, "group", "g", "", "Azure resource group name")
 	CreateCmd.Flags().StringVarP(&location, "location", "l", "centralus", "Azure location")
 	CreateCmd.Flags().StringVarP(&repo, "repo", "r", "retaildevcrews/edge-gitops", "GitOps repo name")
+	CreateCmd.Flags().StringVarP(&branch, "branch", "b", "main", "GitOps branch name")
 	CreateCmd.Flags().StringVarP(&ssl, "ssl", "s", "", "SSL domain name")
 	CreateCmd.Flags().StringVarP(&pem, "pem", "p", "~/.ssh/certs.pem", "Path to SSL .pem file")
-	CreateCmd.Flags().StringVarP(&key, "key", "k", "~/.ssh/certs.key", " Path to SSL .key file")
+	CreateCmd.Flags().StringVarP(&key, "key", "k", "~/.ssh/certs.key", "Path to SSL .key file")
+	CreateCmd.Flags().StringVarP(&dnsRG, "dns-resource-group", "", "tld", "DNS Resource Group")
 	CreateCmd.Flags().BoolVarP(&dapr, "dapr", "", false, "Install Dapr and Radius")
 	CreateCmd.Flags().BoolVarP(&quiet, "quiet", "q", false, "Quiet mode")
 	CreateCmd.Flags().BoolVarP(&debug, "debug", "d", false, "Create VM in debug mode")
@@ -244,6 +248,7 @@ func doDryRun() error {
 	fmt.Println("Managed Identity:    ", strings.Contains(managedIdentityID, "/Microsoft.ManagedIdentity/"))
 	fmt.Println("Location:            ", location)
 	fmt.Println("Repo:                ", repo)
+	fmt.Println("Branch:              ", branch)
 
 	if len(ssl) > 0 {
 		fmt.Println("SSL Domain:          ", ssl)
@@ -334,12 +339,12 @@ func createVMSetupScript() {
 	command = strings.Replace(command, "{{debug}}", strconv.FormatBool(debug), -1)
 	command = strings.Replace(command, "{{fqdn}}", cluster+"."+ssl, -1)
 	command = strings.Replace(command, "{{repo}}", repo, -1)
+	command = strings.Replace(command, "{{branch}}", branch, -1)
 	command = strings.Replace(command, "{{group}}", group, -1)
 	command = strings.Replace(command, "{{arcEnabled}}", strconv.FormatBool(arcEnabled), -1)
 	command = strings.Replace(command, "{{do}}", strconv.FormatBool(digitalOcean), -1)
 	command = strings.Replace(command, "{{zone}}", ssl, -1)
-	// todo - define dnsRG
-	// command = strings.Replace(command, "{{dnsRG}}", dnsRG, -1)
+	command = strings.Replace(command, "{{dnsRG}}", dnsRG, -1)
 	os.WriteFile("cluster-"+cluster+".sh", []byte(command), 0644)
 }
 
@@ -461,7 +466,14 @@ func addTarget(cluster string, zone string) {
 		cols := strings.Split(repoName, "/")
 		repoName = cols[len(cols)-1]
 
-		gitopsDir := filepath.Join(os.Getenv("HOME"), repoName)
+		gitopsDir := filepath.Join("/", "workspaces")
+
+		if _, err := os.Stat(gitopsDir); err == nil {
+			gitopsDir = filepath.Join(gitopsDir, repoName)
+		} else {
+			gitopsDir = filepath.Join(os.Getenv("HOME"), repoName)
+		}
+
 		bootstrapDir := filepath.Join(gitopsDir, "deploy", "bootstrap")
 		appsDir := filepath.Join(gitopsDir, "deploy", "apps")
 
@@ -471,11 +483,15 @@ func addTarget(cluster string, zone string) {
 
 		// clone or pull the repo
 		if _, err := os.Stat(gitopsDir); err == nil {
-			boa.ShellExecE(gitCmd + "pull")
 			dirExists = true
 		} else {
 			boa.ShellExecE("git clone " + repoFull + " " + gitopsDir)
 		}
+
+		// checkout the branch
+		boa.ShellExecE(gitCmd + "pull")
+		boa.ShellExecE(gitCmd + "checkout " + branch)
+		boa.ShellExecE(gitCmd + "pull")
 
 		// add the targets
 		if len(json) > 0 && !strings.Contains(string(json), "{{") {

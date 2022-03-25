@@ -85,7 +85,7 @@
 				
 				<option value="file14">kic/cmd/fleet/check/setup.go (100.0%)</option>
 				
-				<option value="file15">kic/cmd/fleet/create.go (30.0%)</option>
+				<option value="file15">kic/cmd/fleet/create.go (30.8%)</option>
 				
 				<option value="file16">kic/cmd/fleet/delete.go (0.0%)</option>
 				
@@ -1344,10 +1344,12 @@ var (
         group             string
         location          string
         repo              string
+        branch            string
         pem               string
         key               string
         quiet             bool
         ssl               string
+        dnsRG             string
         gitops            bool
         dapr              bool
         arcEnabled        bool
@@ -1373,9 +1375,11 @@ func init() <span class="cov8" title="1">{
         CreateCmd.Flags().StringVarP(&amp;group, "group", "g", "", "Azure resource group name")
         CreateCmd.Flags().StringVarP(&amp;location, "location", "l", "centralus", "Azure location")
         CreateCmd.Flags().StringVarP(&amp;repo, "repo", "r", "retaildevcrews/edge-gitops", "GitOps repo name")
+        CreateCmd.Flags().StringVarP(&amp;branch, "branch", "b", "main", "GitOps branch name")
         CreateCmd.Flags().StringVarP(&amp;ssl, "ssl", "s", "", "SSL domain name")
         CreateCmd.Flags().StringVarP(&amp;pem, "pem", "p", "~/.ssh/certs.pem", "Path to SSL .pem file")
-        CreateCmd.Flags().StringVarP(&amp;key, "key", "k", "~/.ssh/certs.key", " Path to SSL .key file")
+        CreateCmd.Flags().StringVarP(&amp;key, "key", "k", "~/.ssh/certs.key", "Path to SSL .key file")
+        CreateCmd.Flags().StringVarP(&amp;dnsRG, "dns-resource-group", "", "tld", "DNS Resource Group")
         CreateCmd.Flags().BoolVarP(&amp;dapr, "dapr", "", false, "Install Dapr and Radius")
         CreateCmd.Flags().BoolVarP(&amp;quiet, "quiet", "q", false, "Quiet mode")
         CreateCmd.Flags().BoolVarP(&amp;debug, "debug", "d", false, "Create VM in debug mode")
@@ -1564,6 +1568,7 @@ func doDryRun() error <span class="cov8" title="1">{
         fmt.Println("Managed Identity:    ", strings.Contains(managedIdentityID, "/Microsoft.ManagedIdentity/"))
         fmt.Println("Location:            ", location)
         fmt.Println("Repo:                ", repo)
+        fmt.Println("Branch:              ", branch)
 
         if len(ssl) &gt; 0 </span><span class="cov8" title="1">{
                 fmt.Println("SSL Domain:          ", ssl)
@@ -1654,12 +1659,12 @@ func createVMSetupScript() <span class="cov8" title="1">{
         command = strings.Replace(command, "{{debug}}", strconv.FormatBool(debug), -1)
         command = strings.Replace(command, "{{fqdn}}", cluster+"."+ssl, -1)
         command = strings.Replace(command, "{{repo}}", repo, -1)
+        command = strings.Replace(command, "{{branch}}", branch, -1)
         command = strings.Replace(command, "{{group}}", group, -1)
         command = strings.Replace(command, "{{arcEnabled}}", strconv.FormatBool(arcEnabled), -1)
         command = strings.Replace(command, "{{do}}", strconv.FormatBool(digitalOcean), -1)
         command = strings.Replace(command, "{{zone}}", ssl, -1)
-        // todo - define dnsRG
-        // command = strings.Replace(command, "{{dnsRG}}", dnsRG, -1)
+        command = strings.Replace(command, "{{dnsRG}}", dnsRG, -1)
         os.WriteFile("cluster-"+cluster+".sh", []byte(command), 0644)</span>
 }
 
@@ -1781,8 +1786,15 @@ func addTarget(cluster string, zone string) <span class="cov8" title="1">{
                 <span class="cov0" title="0">cols := strings.Split(repoName, "/")
                 repoName = cols[len(cols)-1]
 
-                gitopsDir := filepath.Join(os.Getenv("HOME"), repoName)
-                bootstrapDir := filepath.Join(gitopsDir, "deploy", "bootstrap")
+                gitopsDir := filepath.Join("/", "workspaces")
+
+                if _, err := os.Stat(gitopsDir); err == nil </span><span class="cov0" title="0">{
+                        gitopsDir = filepath.Join(gitopsDir, repoName)
+                }</span> else<span class="cov0" title="0"> {
+                        gitopsDir = filepath.Join(os.Getenv("HOME"), repoName)
+                }</span>
+
+                <span class="cov0" title="0">bootstrapDir := filepath.Join(gitopsDir, "deploy", "bootstrap")
                 appsDir := filepath.Join(gitopsDir, "deploy", "apps")
 
                 dirExists := false
@@ -1791,14 +1803,18 @@ func addTarget(cluster string, zone string) <span class="cov8" title="1">{
 
                 // clone or pull the repo
                 if _, err := os.Stat(gitopsDir); err == nil </span><span class="cov0" title="0">{
-                        boa.ShellExecE(gitCmd + "pull")
                         dirExists = true
                 }</span> else<span class="cov0" title="0"> {
                         boa.ShellExecE("git clone " + repoFull + " " + gitopsDir)
                 }</span>
 
+                // checkout the branch
+                <span class="cov0" title="0">boa.ShellExecE(gitCmd + "pull")
+                boa.ShellExecE(gitCmd + "checkout " + branch)
+                boa.ShellExecE(gitCmd + "pull")
+
                 // add the targets
-                <span class="cov0" title="0">if len(json) &gt; 0 &amp;&amp; !strings.Contains(string(json), "{{") </span><span class="cov0" title="0">{
+                if len(json) &gt; 0 &amp;&amp; !strings.Contains(string(json), "{{") </span><span class="cov0" title="0">{
                         // make sure the dirs exist
                         if _, err := os.Stat(bootstrapDir); err == nil </span><span class="cov0" title="0">{
                                 if _, err = os.Stat(appsDir); err == nil </span><span class="cov0" title="0">{

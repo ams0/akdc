@@ -6,15 +6,13 @@ export AKDC_FQDN="{{fqdn}}"
 export AKDC_DEBUG="{{debug}}"
 export AKDC_DAPR="{{dapr}}"
 export AKDC_REPO="{{repo}}"
+export AKDC_BRANCH="{{branch}}"
 export AKDC_CLUSTER="{{cluster}}"
 export AKDC_ARC_ENABLED="{{arcEnabled}}"
 export AKDC_RESOURCE_GROUP="{{group}}"
 export AKDC_DO="{{do}}"
 export AKDC_ZONE="{{zone}}"
-export AKDC_DNS_RG="tld"
-
-# todo - define dnsRG
-# export AKDC_DNS_RG="{{dnsRG}}"
+export AKDC_DNS_RG="{{dnsRG}}"
 
 ###################################
 
@@ -114,6 +112,7 @@ cp .oh-my-bash/templates/bashrc.osh-template .bashrc
   echo ""
   echo 'export PATH="$PATH:$HOME/bin:$HOME/fleet-vm/bin"'
   echo "export AKDC_CLUSTER=$AKDC_CLUSTER"
+  echo "export AKDC_BRANCH=$AKDC_BRANCH"
   echo "export AKDC_REPO=$AKDC_REPO"
   echo "export AKDC_FQDN=$AKDC_FQDN"
   echo "export AKDC_DEBUG=$AKDC_DEBUG"
@@ -222,6 +221,12 @@ echo "$(date +'%Y-%m-%d %H:%M:%S')  cloning GitHub repos" >> status
 # run as akdc user
 sudo -HEu akdc git clone "https://$(cat .ssh/akdc.pat)@github.com/$AKDC_REPO" gitops
 sudo -HEu akdc git clone "https://$(cat .ssh/akdc.pat)@github.com/retaildevcrews/fleet-vm"
+
+# checkout the branch
+if [ "$AKDC_BRANCH" != "main" ]
+then
+  git -C gitops checkout $AKDC_BRANCH
+fi
 
 # change ownership
 chown -R ${AKDC_ME}:${AKDC_ME} /home/${AKDC_ME}
