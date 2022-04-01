@@ -1,8 +1,8 @@
 ## Purpose of PR
 
-- 
+-
 
-# Type of PR
+## Type of PR
 
 - [ ] Documentation changes
 - [ ] Code changes

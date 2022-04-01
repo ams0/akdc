@@ -67,7 +67,7 @@ func init() {
 	CreateCmd.Flags().BoolVarP(&digitalOcean, "do", "", false, "Generate setup script for Digital Ocean droplet")
 	CreateCmd.Flags().BoolVarP(&gitops, "gitops", "", false, "Generate GitOps targets in --repo")
 	CreateCmd.Flags().BoolVarP(&dryRun, "dry-run", "", false, "Show values that would be used")
-	CreateCmd.Flags().IntVarP(&cores, "cores", "", 2, "VM core count")
+	CreateCmd.Flags().IntVarP(&cores, "cores", "", 4, "VM core count")
 
 	CreateCmd.RegisterFlagCompletionFunc("cluster", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return getClusterComplete(), cobra.ShellCompDirectiveDefault

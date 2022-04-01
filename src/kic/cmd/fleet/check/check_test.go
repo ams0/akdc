@@ -12,8 +12,8 @@ func TestCheck(t *testing.T) {
 	}
 
 	rlen := len(CheckCmd.Commands())
-	if rlen != 6 {
-		t.Errorf("TestCheck len(Commands) failed, got %d, wanted: 6", rlen)
+	if rlen != 7 {
+		t.Errorf("TestCheck len(Commands) failed, got %d, wanted: 7", rlen)
 	}
 
 	boa.ExecCmdNoErrorE(t, CheckCmd)

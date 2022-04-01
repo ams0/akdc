@@ -15,5 +15,5 @@ curl https://west-wa-seattle-102.cseretail.com/heartbeat/17; echo "  west-wa-sea
 
 curl https://corp-monitoring.cseretail.com/heartbeat/17; echo "  corp-monitoring" &
 
-curl https://west-wa-redmond-101.cseretail.com/heartbeat/17; echo "  west-wa-redmond-101" &
+#curl https://west-wa-redmond-101.cseretail.com/heartbeat/17; echo "  west-wa-redmond-101" &
 curl https://west-wa-redmond-102.cseretail.com/heartbeat/17; echo "  west-wa-redmond-102" &

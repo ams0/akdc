@@ -29,6 +29,7 @@ func init() {
 	CheckCmd.AddCommand(AioaCmd)
 	CheckCmd.AddCommand(RetriesCmd)
 	CheckCmd.AddCommand(SetupCmd)
+	CheckCmd.AddCommand(TLogCmd)
 	// CheckCmd.AddCommand(DaprCmd)
 	// CheckCmd.AddCommand(RadiusCmd)
 

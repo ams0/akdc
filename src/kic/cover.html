@@ -85,47 +85,49 @@
 				
 				<option value="file14">kic/cmd/fleet/check/setup.go (100.0%)</option>
 				
-				<option value="file15">kic/cmd/fleet/create.go (30.8%)</option>
+				<option value="file15">kic/cmd/fleet/check/tlog.go (0.0%)</option>
 				
-				<option value="file16">kic/cmd/fleet/delete.go (0.0%)</option>
+				<option value="file16">kic/cmd/fleet/create.go (30.8%)</option>
 				
-				<option value="file17">kic/cmd/fleet/exec.go (83.3%)</option>
+				<option value="file17">kic/cmd/fleet/delete.go (0.0%)</option>
 				
-				<option value="file18">kic/cmd/fleet/fleet.go (100.0%)</option>
+				<option value="file18">kic/cmd/fleet/exec.go (83.3%)</option>
 				
-				<option value="file19">kic/cmd/fleet/groups.go (0.0%)</option>
+				<option value="file19">kic/cmd/fleet/fleet.go (100.0%)</option>
 				
-				<option value="file20">kic/cmd/fleet/list.go (90.9%)</option>
+				<option value="file20">kic/cmd/fleet/groups.go (0.0%)</option>
 				
-				<option value="file21">kic/cmd/fleet/patch.go (100.0%)</option>
+				<option value="file21">kic/cmd/fleet/list.go (90.9%)</option>
 				
-				<option value="file22">kic/cmd/fleet/pull.go (100.0%)</option>
+				<option value="file22">kic/cmd/fleet/patch.go (100.0%)</option>
 				
-				<option value="file23">kic/cmd/fleet/ssh.go (0.0%)</option>
+				<option value="file23">kic/cmd/fleet/pull.go (100.0%)</option>
 				
-				<option value="file24">kic/cmd/fleet/sync.go (100.0%)</option>
+				<option value="file24">kic/cmd/fleet/ssh.go (0.0%)</option>
 				
-				<option value="file25">kic/cmd/root.go (69.6%)</option>
+				<option value="file25">kic/cmd/fleet/sync.go (100.0%)</option>
 				
-				<option value="file26">kic/cmd/targets/targets-add.go (88.9%)</option>
+				<option value="file26">kic/cmd/root.go (69.6%)</option>
 				
-				<option value="file27">kic/cmd/targets/targets-clear.go (87.5%)</option>
+				<option value="file27">kic/cmd/targets/targets-add.go (88.9%)</option>
 				
-				<option value="file28">kic/cmd/targets/targets-deploy.go (0.0%)</option>
+				<option value="file28">kic/cmd/targets/targets-clear.go (87.5%)</option>
 				
-				<option value="file29">kic/cmd/targets/targets-list.go (75.0%)</option>
+				<option value="file29">kic/cmd/targets/targets-deploy.go (0.0%)</option>
 				
-				<option value="file30">kic/cmd/targets/targets-remove.go (76.5%)</option>
+				<option value="file30">kic/cmd/targets/targets-list.go (75.0%)</option>
 				
-				<option value="file31">kic/cmd/targets/targets.go (76.9%)</option>
+				<option value="file31">kic/cmd/targets/targets-remove.go (76.5%)</option>
 				
-				<option value="file32">kic/cmd/test/test-integration.go (81.2%)</option>
+				<option value="file32">kic/cmd/targets/targets.go (76.9%)</option>
 				
-				<option value="file33">kic/cmd/test/test-load.go (90.5%)</option>
+				<option value="file33">kic/cmd/test/test-integration.go (81.2%)</option>
 				
-				<option value="file34">kic/cmd/test/test.go (100.0%)</option>
+				<option value="file34">kic/cmd/test/test-load.go (90.5%)</option>
 				
-				<option value="file35">kic/main.go (100.0%)</option>
+				<option value="file35">kic/cmd/test/test.go (100.0%)</option>
+				
+				<option value="file36">kic/main.go (100.0%)</option>
 				
 				</select>
 			</div>
@@ -1134,6 +1136,7 @@ func init() <span class="cov8" title="1">{
         CheckCmd.AddCommand(AioaCmd)
         CheckCmd.AddCommand(RetriesCmd)
         CheckCmd.AddCommand(SetupCmd)
+        CheckCmd.AddCommand(TLogCmd)
         // CheckCmd.AddCommand(DaprCmd)
         // CheckCmd.AddCommand(RadiusCmd)
 
@@ -1322,6 +1325,30 @@ var SetupCmd = &amp;cobra.Command{
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
+package check
+
+import (
+        "kic/boa"
+
+        "github.com/spf13/cobra"
+)
+
+// CheckAioaCmd checks each cluster to see if AI Order Accuracy is installed
+var TLogCmd = &amp;cobra.Command{
+        Use:   "tlog",
+        Short: "Check Virtual TLog status on each cluster",
+        Args:  argsFleetCheck,
+
+        RunE: func(cmd *cobra.Command, args []string) error <span class="cov0" title="0">{
+                return boa.ExecClusters("./fleet-vm/scripts/check-tlog", grep)
+        }</span>,
+}
+</pre>
+		
+		<pre class="file" id="file16" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+//   See LICENSE in the project root for license information.
+
 package fleet
 
 import (
@@ -1387,7 +1414,7 @@ func init() <span class="cov8" title="1">{
         CreateCmd.Flags().BoolVarP(&amp;digitalOcean, "do", "", false, "Generate setup script for Digital Ocean droplet")
         CreateCmd.Flags().BoolVarP(&amp;gitops, "gitops", "", false, "Generate GitOps targets in --repo")
         CreateCmd.Flags().BoolVarP(&amp;dryRun, "dry-run", "", false, "Show values that would be used")
-        CreateCmd.Flags().IntVarP(&amp;cores, "cores", "", 2, "VM core count")
+        CreateCmd.Flags().IntVarP(&amp;cores, "cores", "", 4, "VM core count")
 
         CreateCmd.RegisterFlagCompletionFunc("cluster", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) </span><span class="cov0" title="0">{
                 return getClusterComplete(), cobra.ShellCompDirectiveDefault
@@ -1867,7 +1894,7 @@ func addTarget(cluster string, zone string) <span class="cov8" title="1">{
 }
 </pre>
 		
-		<pre class="file" id="file16" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file17" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -1921,7 +1948,7 @@ func validArgsFleetDelete(cmd *cobra.Command, args []string, toComplete string) 
 }
 </pre>
 		
-		<pre class="file" id="file17" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file18" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -1963,7 +1990,7 @@ func runFleetExecE(cmd *cobra.Command, args []string) error <span class="cov8" t
 }
 </pre>
 		
-		<pre class="file" id="file18" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file19" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2001,7 +2028,7 @@ func init() <span class="cov8" title="1">{
 }</span>
 </pre>
 		
-		<pre class="file" id="file19" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file20" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2024,7 +2051,7 @@ var GroupsCmd = &amp;cobra.Command{
 }
 </pre>
 		
-		<pre class="file" id="file20" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file21" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2072,7 +2099,7 @@ func runFleetList(cmd *cobra.Command, args []string) error <span class="cov8" ti
 }
 </pre>
 		
-		<pre class="file" id="file21" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file22" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2098,7 +2125,7 @@ func init() <span class="cov8" title="1">{
 }</span>
 </pre>
 		
-		<pre class="file" id="file22" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file23" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2124,7 +2151,7 @@ func init() <span class="cov8" title="1">{
 }</span>
 </pre>
 		
-		<pre class="file" id="file23" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file24" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2199,7 +2226,7 @@ func validArgsFleetSsh(cmd *cobra.Command, args []string, toComplete string) ([]
 }
 </pre>
 		
-		<pre class="file" id="file24" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file25" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2226,7 +2253,7 @@ func init() <span class="cov8" title="1">{
 }</span>
 </pre>
 		
-		<pre class="file" id="file25" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file26" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2297,7 +2324,7 @@ func Execute() <span class="cov0" title="0">{
 }
 </pre>
 		
-		<pre class="file" id="file26" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file27" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2359,7 +2386,7 @@ func runTargetsAddE(cmd *cobra.Command, args []string) error <span class="cov8" 
 }
 </pre>
 		
-		<pre class="file" id="file27" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file28" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2399,7 +2426,7 @@ func runTargetsClearE(cmd *cobra.Command, args []string) error <span class="cov8
 }
 </pre>
 		
-		<pre class="file" id="file28" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file29" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2447,7 +2474,7 @@ func runTargetsDeployE(cmd *cobra.Command, args []string) error <span class="cov
 }
 </pre>
 		
-		<pre class="file" id="file29" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file30" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2485,7 +2512,7 @@ func runTargetsListE(cmd *cobra.Command, args []string) error <span class="cov8"
 }
 </pre>
 		
-		<pre class="file" id="file30" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file31" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2542,7 +2569,7 @@ func runTargetsRemoveE(cmd *cobra.Command, args []string) error <span class="cov
 }
 </pre>
 		
-		<pre class="file" id="file31" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file32" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2630,7 +2657,7 @@ func saveAutoGitOpsConfig(result map[string]interface{}) <span class="cov8" titl
 }
 </pre>
 		
-		<pre class="file" id="file32" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file33" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2703,7 +2730,7 @@ func runTestIntegrationE(cmd *cobra.Command, args []string) error <span class="c
 }
 </pre>
 		
-		<pre class="file" id="file33" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file34" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2785,7 +2812,7 @@ func runTestLoadE(cmd *cobra.Command, args []string) error <span class="cov8" ti
 }
 </pre>
 		
-		<pre class="file" id="file34" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file35" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2859,7 +2886,7 @@ func getTestFlagValues() string <span class="cov8" title="1">{
 }
 </pre>
 		
-		<pre class="file" id="file35" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file36" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
