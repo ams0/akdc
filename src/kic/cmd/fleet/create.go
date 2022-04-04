@@ -37,7 +37,9 @@ var (
 	dryRun            bool
 	debug             bool
 	cores             int
-	managedIdentityID = os.Getenv("AKDC_MI")
+	gitCmd            string
+	dirExists         bool = true
+	managedIdentityID      = os.Getenv("AKDC_MI")
 
 	// kic fleet create command
 	CreateCmd = &cobra.Command{
@@ -55,7 +57,7 @@ func init() {
 	CreateCmd.Flags().StringVarP(&group, "group", "g", "", "Azure resource group name")
 	CreateCmd.Flags().StringVarP(&location, "location", "l", "centralus", "Azure location")
 	CreateCmd.Flags().StringVarP(&repo, "repo", "r", "retaildevcrews/edge-gitops", "GitOps repo name")
-	CreateCmd.Flags().StringVarP(&branch, "branch", "b", "main", "GitOps branch name")
+	CreateCmd.Flags().StringVarP(&branch, "branch", "b", "", "GitOps branch name")
 	CreateCmd.Flags().StringVarP(&ssl, "ssl", "s", "", "SSL domain name")
 	CreateCmd.Flags().StringVarP(&pem, "pem", "p", "~/.ssh/certs.pem", "Path to SSL .pem file")
 	CreateCmd.Flags().StringVarP(&key, "key", "k", "~/.ssh/certs.key", "Path to SSL .key file")
@@ -199,17 +201,23 @@ func validateClusterPrefix() bool {
 
 // run the command
 func runCreateCmd(cmd *cobra.Command, args []string) error {
-	// create the setup script from the template
-	createVMSetupScript()
-
 	if dryRun {
 		return doDryRun()
 	}
 
-	if digitalOcean {
-		// add the GitOps target
-		addTarget(cluster, ssl)
+	// add the GitOps target
+	if err := addTargetE(cluster, ssl); err != nil {
+		cfmt.ErrorE("Error: ", err)
 
+		// todo - if you return the error, usage info is printed
+		//        is there a way to return the error and not display usage info?
+		return nil
+	}
+
+	// create the setup script from the template
+	createVMSetupScript()
+
+	if digitalOcean {
 		// no more automation for Digital Ocean droplets
 		cfmt.Info("Digital Ocean template created")
 		return nil
@@ -229,9 +237,6 @@ func runCreateCmd(cmd *cobra.Command, args []string) error {
 
 	// success
 	if ip != "" {
-		// add the GitOps target
-		addTarget(cluster, ssl)
-
 		cfmt.Info("VM Configured")
 		return nil
 	}
@@ -294,7 +299,7 @@ func createGroup() error {
 	// fail if the Azure VM exists
 	if vmExists() {
 		cfmt.ErrorE("Azure VM exists")
-		return fmt.Errorf("Please use a different VM or delete the VM")
+		return fmt.Errorf("please use a different VM or delete the VM")
 	}
 
 	// don't create the group if it exists
@@ -440,108 +445,198 @@ func getConfigJson(cluster string, zone string) []byte {
 }
 
 // add a target to GitOps
-func addTarget(cluster string, zone string) {
+func addTargetE(cluster string, zone string) error {
 	// only run if --gitops specified
 	if !gitops {
-		return
+		return nil
 	}
 
 	// read the config.json file
 	json := getConfigJson(cluster, ssl)
 
-	if json == nil {
+	// make sure the json is valid
+	if json == nil || len(json) < 3 || strings.Contains(string(json), "{{") {
 		cfmt.ErrorE("unable to read gitops-config.templ")
+	}
+
+	return addTargetWorkerE(json)
+}
+
+// add a target to GitOps
+func addTargetWorkerE(json []byte) error {
+	// GitOps directories
+	repoName := repo
+
+	cols := strings.Split(repoName, "/")
+	repoName = cols[len(cols)-1]
+
+	gitopsDir := filepath.Join("/", "workspaces")
+
+	if _, err := os.Stat(gitopsDir); err == nil {
+		gitopsDir = filepath.Join(gitopsDir, repoName)
 	} else {
-		// GitOps directories
-		repoName := repo
-		repoFull := repoName
+		gitopsDir = filepath.Join(os.Getenv("HOME"), repoName)
+	}
 
-		if strings.HasPrefix(repo, "https://") {
-			cols := strings.Split(repo[8:], "/")
-			repoName = strings.Join(cols[len(cols)-2:], "/")
-		} else {
-			repoFull = "https://github.com/" + repo
+	gitCmd = "git -C " + gitopsDir + " "
+
+	if err := cloneGitOpsRepoE(gitopsDir); err != nil {
+		return nil
+	}
+
+	if err := setBranchE(); err != nil {
+		return err
+	}
+
+	targetsErr := addGitOpsTargetsE(gitopsDir, json)
+
+	// delete the repo if we created it
+	if !dirExists {
+		if err := boa.ShellExecE("rm -rf " + gitopsDir); err != nil {
+			return err
 		}
+	}
 
-		cols := strings.Split(repoName, "/")
-		repoName = cols[len(cols)-1]
+	return targetsErr
+}
 
-		gitopsDir := filepath.Join("/", "workspaces")
+// add the targets
+func addGitOpsTargetsE(gitopsDir string, json []byte) error {
+	bootstrapDir := filepath.Join(gitopsDir, "deploy", "bootstrap")
+	appsDir := filepath.Join(gitopsDir, "deploy", "apps")
 
-		if _, err := os.Stat(gitopsDir); err == nil {
-			gitopsDir = filepath.Join(gitopsDir, repoName)
-		} else {
-			gitopsDir = filepath.Join(os.Getenv("HOME"), repoName)
-		}
+	// add the targets
+	if len(json) > 0 && !strings.Contains(string(json), "{{") {
+		// make sure the dirs exist
+		if _, err := os.Stat(bootstrapDir); err == nil {
+			if _, err = os.Stat(appsDir); err == nil {
+				// add cluster to the dirs
+				bootstrapDir = filepath.Join(bootstrapDir, cluster)
+				appsDir = filepath.Join(appsDir, cluster)
 
-		bootstrapDir := filepath.Join(gitopsDir, "deploy", "bootstrap")
-		appsDir := filepath.Join(gitopsDir, "deploy", "apps")
+				// create the directories
+				if err := boa.ShellExecE("mkdir -p " + bootstrapDir + " && mkdir -p " + appsDir); err != nil {
+					return err
+				}
 
-		dirExists := false
+				// write config.json to each dir
+				bootstrapDir = filepath.Join(bootstrapDir, "config.json")
+				appsDir = filepath.Join(appsDir, "config.json")
 
-		gitCmd := "git -C " + gitopsDir + " "
-
-		// clone or pull the repo
-		if _, err := os.Stat(gitopsDir); err == nil {
-			dirExists = true
-		} else {
-			boa.ShellExecE("git clone " + repoFull + " " + gitopsDir)
-		}
-
-		// checkout the branch
-		boa.ShellExecE(gitCmd + "pull")
-		boa.ShellExecE(gitCmd + "checkout " + branch)
-		boa.ShellExecE(gitCmd + "pull")
-
-		// add the targets
-		if len(json) > 0 && !strings.Contains(string(json), "{{") {
-			// make sure the dirs exist
-			if _, err := os.Stat(bootstrapDir); err == nil {
-				if _, err = os.Stat(appsDir); err == nil {
-					// add cluster to the dirs
-					bootstrapDir = filepath.Join(bootstrapDir, cluster)
-					appsDir = filepath.Join(appsDir, cluster)
-
-					// create the directories
-					boa.ShellExecE("mkdir -p " + bootstrapDir + " && mkdir -p " + appsDir)
-
-					// write config.json to each dir
-					bootstrapDir = filepath.Join(bootstrapDir, "config.json")
-					appsDir = filepath.Join(appsDir, "config.json")
-
-					// don't overwrite existing config.json
-					if _, err := os.Stat(bootstrapDir); err != nil {
-						os.WriteFile(bootstrapDir, json, 0644)
-					}
-
-					if _, err := os.Stat(appsDir); err != nil {
-						os.WriteFile(appsDir, json, 0644)
-					}
-
-					// if there were repo changes
-					if res, _ := boa.ShellExecOut(gitCmd + "status -s"); res != "" {
-						agoDir := filepath.Join(gitopsDir, "autogitops")
-
-						if _, err := os.Stat(agoDir); err == nil {
-							if file, err := os.OpenFile(filepath.Join(agoDir, "create.log"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644); err == nil {
-								dt := time.Now().UTC()
-								fmt.Fprintln(file, dt.Format("01-02-2006 15:04:05"), "added cluster:", cluster)
-								file.Close()
-							}
-						}
-						// update the repo
-						boa.ShellExecE(gitCmd + "add .")
-						boa.ShellExecE(gitCmd + "commit -am 'kic fleet create'")
-						boa.ShellExecE(gitCmd + "pull")
-						boa.ShellExecE(gitCmd + "push")
-					}
-
-					// delete the repo if we created it
-					if !dirExists {
-						boa.ShellExecE("rm -rf " + gitopsDir)
+				// don't overwrite existing config.json
+				if _, err := os.Stat(bootstrapDir); err != nil {
+					if err := os.WriteFile(bootstrapDir, json, 0644); err != nil {
+						return err
 					}
 				}
+
+				if _, err := os.Stat(appsDir); err != nil {
+					if err := os.WriteFile(appsDir, json, 0644); err != nil {
+						return err
+					}
+				}
+
+				return updateGitOpsRepoE(gitopsDir)
 			}
 		}
 	}
+
+	return nil
+}
+
+// update the GitOps repo with changes
+func updateGitOpsRepoE(gitopsDir string) error {
+	// if there were repo changes
+	if res, _ := boa.ShellExecOut(gitCmd + "status -s"); res != "" {
+		agoDir := filepath.Join(gitopsDir, "autogitops")
+
+		// update create log
+		if _, err := os.Stat(agoDir); err == nil {
+			if file, err := os.OpenFile(filepath.Join(agoDir, "create.log"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644); err == nil {
+				dt := time.Now()
+				fmt.Fprintln(file, dt.Format("01-02-2006 15:04:05"), "added cluster:", cluster)
+				file.Close()
+			} else {
+				return err
+			}
+		} else {
+			return err
+		}
+
+		// pull to avoid conflicts
+		if err := boa.ShellExecE(gitCmd + "pull"); err != nil {
+			return err
+		}
+
+		// update the repo
+		if err := boa.ShellExecE(gitCmd + "add ."); err != nil {
+			return err
+		}
+
+		if err := boa.ShellExecE(gitCmd + "commit -am 'kic fleet create'"); err != nil {
+			return err
+		}
+
+		if err := boa.ShellExecE(gitCmd + "push"); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// clone GitOps repo if necessary
+func cloneGitOpsRepoE(gitopsDir string) error {
+	// clone the repo if doesn't exist
+	if _, err := os.Stat(gitopsDir); err != nil {
+		// GitOps directories
+		repoFull := repo
+
+		if !strings.HasPrefix(repo, "https://") {
+			repoFull = "https://github.com/" + repo
+		}
+
+		if err := boa.ShellExecE("git clone " + repoFull + " " + gitopsDir); err != nil {
+			return err
+		}
+
+		dirExists = false
+	}
+
+	return nil
+}
+
+// set the GitOps branch
+func setBranchE() error {
+	// pull the repo
+	if err := boa.ShellExecE(gitCmd + "pull"); err != nil {
+		return err
+	}
+
+	// get current branch
+	br, err := boa.ShellExecOut(gitCmd + "branch --show-current")
+	if err != nil {
+		return err
+	}
+
+	br = strings.TrimSpace(br)
+
+	// use current branch
+	if branch == "" {
+		branch = br
+	}
+
+	// checkout the branch
+	if br != branch {
+		if err := boa.ShellExecE(gitCmd + "checkout " + branch); err != nil {
+			return err
+		}
+	}
+
+	// pull the branch
+	if err := boa.ShellExecE(gitCmd + "pull"); err != nil {
+		return err
+	}
+
+	return nil
 }
