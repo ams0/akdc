@@ -15,12 +15,9 @@ mkdir -p "$HOME/.ssh"
 mkdir -p "$HOME/.oh-my-zsh/completions"
 
 {
-    echo "defaultIPs: /workspaces/akdc/red-fleet/ips"
+    echo "defaultIPs: /workspaces/red-gitops/ips"
     echo "reservedClusterPrefixes: corp-monitoring central-mo-kc central-tx-austin east-ga-atlanta east-nc-raleigh west-ca-sd west-wa-redmond west-wa-seattle"
 } > "$HOME/.kic"
-
-# add cli completions
-cp src/_* "$HOME/.oh-my-zsh/completions"
 
 {
     #shellcheck disable=2016,2028
@@ -38,11 +35,14 @@ cp src/_* "$HOME/.oh-my-zsh/completions"
     echo "export AKDC_SSL=cseretail.com"
     echo "export AKDC_GITOPS=true"
     echo "compinit"
-} >> "$HOME/.zshrc"
 
-# copy grafana.db to /grafana
-sudo cp .devcontainer/grafana.db /grafana
-sudo chown -R 472:0 /grafana
+    echo "if [ \"\$PAT\" != \"\" ]"
+    echo "then"
+    echo "    export GITHUB_TOKEN=\$PAT"
+    echo "    export AKDC_PAT=\$PAT"
+    echo "fi"
+
+} >> "$HOME/.zshrc"
 
 # create local registry
 docker network create k3d
@@ -84,6 +84,7 @@ git clone https://github.com/cse-labs/kubernetes-in-codespaces inner-loop
 git clone https://github.com/retaildevcrews/edge-gitops
 git clone https://github.com/retaildevcrews/red-gitops
 git clone https://github.com/retaildevcrews/fleet-vm
+git clone https://github.com/retaildevcrews/vtlog
 cd "$REPO_BASE" || exit
 
 echo "building cli"
@@ -93,6 +94,7 @@ cd "$REPO_BASE" || exit
 
 echo "generating kic completion"
 kic completion zsh > "$HOME/.oh-my-zsh/completions/_kic"
+flt completion zsh > "$HOME/.oh-my-zsh/completions/_flt"
 
 echo "creating k3d cluster"
 cd ../inner-loop || exit

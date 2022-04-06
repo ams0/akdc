@@ -3,27 +3,32 @@
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](code_of_conduct.md)
 
-- Open this repo in Codespaces
+> We use multiple GitHub Repos, so you have to use a PAT
 
-> Best Practice - set AKDC_PAT as a Codespaces secret
+- Create a Personal Access Token (PAT) in your GitHub account
+  - Grant repo and package access
+  - You can use an existing PAT
+  - <https://github.com/settings/tokens>
 
-- Export a valid GitHub PAT for Flux
-  - Flux will use this PAT to connect to the GitHub repo
-  - Flux needs write access
+- Create a personal Codespace secret
+  - <https://github.com/settings/codespaces>
+  - Name: PAT
+  - Value: the PAT you just created
+  - Grant access to this repo and any other repos you want
+
+## Create a Codespace
+
+- Click on `Code` then click `New Codespace`
+
+Once Codespaces is running:
+
+> Make sure your terminal is running zsh - bash is not supported and will not work
+
+- Login to Azure using the project Service Principle
 
 ```bash
 
-echo "YourValidGitHubPAT" > ~/.ssh/akdc.pat
-chmod 600 ~/.ssh/akdc.pat
-
-```
-
-- Validate the PAT
-
-```bash
-
-rm -rf /workspaces/private-test
-git clone https://$(cat ~/.ssh/akdc.pat)@github.com/retaildevcrews/private-test /workspaces/private-test
+flt az-login
 
 ```
 

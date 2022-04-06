@@ -7,6 +7,13 @@ echo "$(date +'%Y-%m-%d %H:%M:%S')    post-create start" >> "$HOME/status"
 
 # secrets are not available during on-create
 
+if [ "$PAT" != "" ]
+then
+    mkdir -p "$HOME/.ssh"
+    echo "$PAT" > "$HOME/.ssh/akdc.pat"
+    chmod 600 "$HOME/.ssh/akdc.pat"
+fi
+
 # save ssl certs
 echo "$INGRESS_KEY" | base64 -d > "$HOME/.ssh/certs.key"
 echo "$INGRESS_CERT" | base64 -d > "$HOME/.ssh/certs.pem"
@@ -35,6 +42,7 @@ git -C ../edge-gitops pull
 git -C ../red-gitops pull
 git -C ../inner-loop pull
 git -C ../fleet-vm pull
+git -C ../vtlog pull
 
 echo "post-create complete"
 echo "$(date +'%Y-%m-%d %H:%M:%S')    post-create complete" >> "$HOME/status"
