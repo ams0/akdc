@@ -25,6 +25,7 @@ var (
 	location          string
 	repo              string
 	branch            string
+	fleetBranch       string
 	pem               string
 	key               string
 	quiet             bool
@@ -58,6 +59,7 @@ func init() {
 	CreateCmd.Flags().StringVarP(&location, "location", "l", "centralus", "Azure location")
 	CreateCmd.Flags().StringVarP(&repo, "repo", "r", "retaildevcrews/edge-gitops", "GitOps repo name")
 	CreateCmd.Flags().StringVarP(&branch, "branch", "b", "", "GitOps branch name")
+	CreateCmd.Flags().StringVarP(&fleetBranch, "fleet-branch", "", "main", "Fleet VM branch name")
 	CreateCmd.Flags().StringVarP(&ssl, "ssl", "s", "", "SSL domain name")
 	CreateCmd.Flags().StringVarP(&pem, "pem", "p", "~/.ssh/certs.pem", "Path to SSL .pem file")
 	CreateCmd.Flags().StringVarP(&key, "key", "k", "~/.ssh/certs.key", "Path to SSL .key file")
@@ -122,6 +124,10 @@ func validateCreateCmd(cmd *cobra.Command, args []string) error {
 	// default resource group is cluster name
 	if group == "" {
 		group = cluster
+	}
+
+	if fleetBranch == "" {
+		fleetBranch = "main"
 	}
 
 	return nil
@@ -253,6 +259,7 @@ func doDryRun() error {
 	fmt.Println("Managed Identity:    ", strings.Contains(managedIdentityID, "/Microsoft.ManagedIdentity/"))
 	fmt.Println("Location:            ", location)
 	fmt.Println("Repo:                ", repo)
+	fmt.Println("Fleet Branch:        ", fleetBranch)
 	fmt.Println("Branch:              ", branch)
 
 	if len(ssl) > 0 {
@@ -345,6 +352,7 @@ func createVMSetupScript() {
 	command = strings.Replace(command, "{{fqdn}}", cluster+"."+ssl, -1)
 	command = strings.Replace(command, "{{repo}}", repo, -1)
 	command = strings.Replace(command, "{{branch}}", branch, -1)
+	command = strings.Replace(command, "{{fleet_branch}}", fleetBranch, -1)
 	command = strings.Replace(command, "{{group}}", group, -1)
 	command = strings.Replace(command, "{{arcEnabled}}", strconv.FormatBool(arcEnabled), -1)
 	command = strings.Replace(command, "{{do}}", strconv.FormatBool(digitalOcean), -1)

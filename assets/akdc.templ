@@ -13,6 +13,7 @@ export AKDC_RESOURCE_GROUP="{{group}}"
 export AKDC_DO="{{do}}"
 export AKDC_ZONE="{{zone}}"
 export AKDC_DNS_RG="{{dnsRG}}"
+export AKDC_FLEET_BRANCH="{{fleet_branch}}"
 
 ###################################
 
@@ -221,6 +222,7 @@ echo "$(date +'%Y-%m-%d %H:%M:%S')  cloning GitHub repos" >> status
 # run as akdc user
 sudo -HEu akdc git clone "https://$(cat .ssh/akdc.pat)@github.com/$AKDC_REPO" gitops
 sudo -HEu akdc git clone "https://$(cat .ssh/akdc.pat)@github.com/retaildevcrews/fleet-vm"
+sudo -HEu akdc git -C fleet-vm checkout $AKDC_FLEET_BRANCH
 
 # checkout the branch
 if [ "$AKDC_BRANCH" != "main" ]
