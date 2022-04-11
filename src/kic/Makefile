@@ -6,8 +6,9 @@ build :
 	@# build
 	@gofmt -s -w .
 	@go build -o ../../bin/flt main.go
-	@go build -o ../../../fleet-vm/bin/kic main.go
-	@go build -o ../../../inner-loop/bin/kic main.go
+	@go build -o ../../bin/kic main.go
+	@#go build -o ../../../fleet-vm/bin/kic main.go
+	@#go build -o ../../../inner-loop/bin/kic main.go
 
 	# make complete
 

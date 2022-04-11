@@ -11,8 +11,8 @@ func TestRoot(t *testing.T) {
 	}
 
 	rlen := len(rootCmd.Commands())
-	if rlen != 12 {
-		t.Errorf("TestRoot() failed, got %d, wanted: 12", rlen)
+	if rlen != 15 {
+		t.Errorf("TestRoot() failed, got %d, wanted: 15", rlen)
 	}
 
 	boa.ExecCmdNoErrorE(t, rootCmd)

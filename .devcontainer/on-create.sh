@@ -8,14 +8,14 @@ echo "$(date +'%Y-%m-%d %H:%M:%S')    on-create start" >> "$HOME/status"
 export REPO_BASE=$PWD
 export AKDC_REPO=retaildevcrews/edge-gitops
 
-export PATH="$PATH:$REPO_BASE/bin:$(dirname "$REPO_BASE")/inner-loop/bin"
+export PATH="$PATH:$REPO_BASE"
 export GOPATH="$HOME/go"
 
 mkdir -p "$HOME/.ssh"
 mkdir -p "$HOME/.oh-my-zsh/completions"
 
 {
-    echo "defaultIPs: /workspaces/red-gitops/ips"
+    echo "defaultIPs: /workspaces/edge-gitops/ips"
     echo "reservedClusterPrefixes: corp-monitoring central-mo-kc central-tx-austin east-ga-atlanta east-nc-raleigh west-ca-sd west-wa-redmond west-wa-seattle"
 } > "$HOME/.kic"
 
@@ -24,7 +24,7 @@ mkdir -p "$HOME/.oh-my-zsh/completions"
     echo 'hsort() { read -r; printf "%s\\n" "$REPLY"; sort }'
 
     # add cli to path
-    echo "export PATH=\$PATH:$REPO_BASE/bin:$(dirname "$REPO_BASE")/inner-loop/bin"
+    echo "export PATH=\$PATH:$REPO_BASE/bin"
     echo "export GOPATH=\$HOME/go"
 
     # create aliases

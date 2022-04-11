@@ -10,7 +10,6 @@ cluster-*
 # ignore the CLI binary
 # we need the other files in bin
 **/bin/kic
-**/bin/akdc
 **/bin/flt
 
 dotFiles/.**

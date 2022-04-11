@@ -113,6 +113,9 @@ func getStopWord(line string) string {
 	if strings.HasPrefix(chk, "runcommand") {
 		return "runCommand"
 	}
+	if strings.HasPrefix(chk, "fltcommand") {
+		return "fltCommand"
+	}
 	if strings.HasPrefix(chk, "popcommand") {
 		return "popCommand"
 	}
@@ -207,8 +210,8 @@ func addBoaCommand(fileName string, modCmd *cobra.Command, modType string, name 
 		return setRootValues(name, short, long)
 	} else if modType == "command" {
 		return addParentCommand(modCmd, name, short, long, parent, hidden)
-	} else if modType == "runCommand" {
-		return addCommand(modCmd, name, short, long, path, hidden)
+	} else if modType == "runCommand" || modType == "fltCommand" {
+		return addCommand(modCmd, modType, name, short, long, path, hidden)
 	}
 
 	// bad input file
@@ -277,7 +280,7 @@ func addParentCommand(modCmd *cobra.Command, name string, short string, long str
 }
 
 // add a command to a command in the command tree
-func addCommand(modCmd *cobra.Command, name string, short string, long string, path string, hidden bool) *cobra.Command {
+func addCommand(modCmd *cobra.Command, modType string, name string, short string, long string, path string, hidden bool) *cobra.Command {
 	if path == "" {
 		cfmt.ErrorE("path is required", name, short, long, path)
 		os.Exit(1)
@@ -311,7 +314,14 @@ func addCommand(modCmd *cobra.Command, name string, short string, long string, p
 	}
 
 	// add the command
-	cmd := addRunCommand(name, short, long, path)
+	var cmd *cobra.Command
+
+	if modType == "runCommand" {
+		cmd = addRunCommand(name, short, long, path)
+	} else if modType == "fltCommand" {
+		cmd = addFltCommand(name, short, long, path)
+	}
+
 	cmd.Hidden = hidden
 	aCmd.AddCommand(cmd)
 
@@ -411,6 +421,32 @@ func addRunCommand(use string, short string, long string, command string) *cobra
 	}
 
 	return runCmd
+}
+
+var grep string
+
+// create a command that runs the bash command across the fleet
+func addFltCommand(use string, short string, long string, command string) *cobra.Command {
+	fltCmd := &cobra.Command{
+		Use:   use,
+		Short: short,
+		Long:  long,
+
+		RunE: func(cmd *cobra.Command, args []string) error {
+			script := filepath.Join(".", "fleet-vm", "scripts", command)
+
+			// add the paramaters
+			if len(args) > 0 {
+				script += " " + strings.Join(args, " ")
+			}
+
+			return ExecClusters(script, grep)
+		},
+	}
+
+	fltCmd.PersistentFlags().StringVarP(&grep, "grep", "g", "", "grep conditional to filter by host")
+
+	return fltCmd
 }
 
 // create a command that runs the bash command

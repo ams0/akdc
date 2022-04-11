@@ -55,79 +55,57 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">kic/boa/boa.go (37.9%)</option>
+				<option value="file0">kic/boa/boa.go (62.6%)</option>
 				
 				<option value="file1">kic/boa/boaExecCmd.go (0.0%)</option>
 				
 				<option value="file2">kic/boa/cfmt/cfmt.go (100.0%)</option>
 				
-				<option value="file3">kic/boa/io.go (56.5%)</option>
+				<option value="file3">kic/boa/io.go (56.0%)</option>
 				
 				<option value="file4">kic/boa/shell.go (92.9%)</option>
 				
 				<option value="file5">kic/cmd/fleet/arcToken.go (100.0%)</option>
 				
-				<option value="file6">kic/cmd/fleet/check/aioa.go (100.0%)</option>
+				<option value="file6">kic/cmd/fleet/create.go (28.4%)</option>
 				
-				<option value="file7">kic/cmd/fleet/check/check.go (100.0%)</option>
+				<option value="file7">kic/cmd/fleet/delete.go (0.0%)</option>
 				
-				<option value="file8">kic/cmd/fleet/check/dapr.go (0.0%)</option>
+				<option value="file8">kic/cmd/fleet/exec.go (83.3%)</option>
 				
-				<option value="file9">kic/cmd/fleet/check/flux.go (100.0%)</option>
+				<option value="file9">kic/cmd/fleet/fleet.go (100.0%)</option>
 				
-				<option value="file10">kic/cmd/fleet/check/heartbeat.go (100.0%)</option>
+				<option value="file10">kic/cmd/fleet/list.go (90.9%)</option>
 				
-				<option value="file11">kic/cmd/fleet/check/logs.go (100.0%)</option>
+				<option value="file11">kic/cmd/fleet/patch.go (100.0%)</option>
 				
-				<option value="file12">kic/cmd/fleet/check/radius.go (0.0%)</option>
+				<option value="file12">kic/cmd/fleet/pull.go (100.0%)</option>
 				
-				<option value="file13">kic/cmd/fleet/check/retries.go (100.0%)</option>
+				<option value="file13">kic/cmd/fleet/ssh.go (0.0%)</option>
 				
-				<option value="file14">kic/cmd/fleet/check/setup.go (100.0%)</option>
+				<option value="file14">kic/cmd/fleet/sync.go (100.0%)</option>
 				
-				<option value="file15">kic/cmd/fleet/check/tlog.go (0.0%)</option>
+				<option value="file15">kic/cmd/root.go (64.5%)</option>
 				
-				<option value="file16">kic/cmd/fleet/create.go (27.6%)</option>
+				<option value="file16">kic/cmd/targets/targets-add.go (88.9%)</option>
 				
-				<option value="file17">kic/cmd/fleet/delete.go (0.0%)</option>
+				<option value="file17">kic/cmd/targets/targets-clear.go (87.5%)</option>
 				
-				<option value="file18">kic/cmd/fleet/exec.go (83.3%)</option>
+				<option value="file18">kic/cmd/targets/targets-deploy.go (0.0%)</option>
 				
-				<option value="file19">kic/cmd/fleet/fleet.go (100.0%)</option>
+				<option value="file19">kic/cmd/targets/targets-list.go (75.0%)</option>
 				
-				<option value="file20">kic/cmd/fleet/groups.go (0.0%)</option>
+				<option value="file20">kic/cmd/targets/targets-remove.go (76.5%)</option>
 				
-				<option value="file21">kic/cmd/fleet/list.go (90.9%)</option>
+				<option value="file21">kic/cmd/targets/targets.go (76.9%)</option>
 				
-				<option value="file22">kic/cmd/fleet/patch.go (100.0%)</option>
+				<option value="file22">kic/cmd/test/test-integration.go (81.2%)</option>
 				
-				<option value="file23">kic/cmd/fleet/pull.go (100.0%)</option>
+				<option value="file23">kic/cmd/test/test-load.go (90.5%)</option>
 				
-				<option value="file24">kic/cmd/fleet/ssh.go (0.0%)</option>
+				<option value="file24">kic/cmd/test/test.go (100.0%)</option>
 				
-				<option value="file25">kic/cmd/fleet/sync.go (100.0%)</option>
-				
-				<option value="file26">kic/cmd/root.go (69.6%)</option>
-				
-				<option value="file27">kic/cmd/targets/targets-add.go (88.9%)</option>
-				
-				<option value="file28">kic/cmd/targets/targets-clear.go (87.5%)</option>
-				
-				<option value="file29">kic/cmd/targets/targets-deploy.go (0.0%)</option>
-				
-				<option value="file30">kic/cmd/targets/targets-list.go (75.0%)</option>
-				
-				<option value="file31">kic/cmd/targets/targets-remove.go (76.5%)</option>
-				
-				<option value="file32">kic/cmd/targets/targets.go (76.9%)</option>
-				
-				<option value="file33">kic/cmd/test/test-integration.go (81.2%)</option>
-				
-				<option value="file34">kic/cmd/test/test-load.go (90.5%)</option>
-				
-				<option value="file35">kic/cmd/test/test.go (100.0%)</option>
-				
-				<option value="file36">kic/main.go (100.0%)</option>
+				<option value="file25">kic/main.go (100.0%)</option>
 				
 				</select>
 			</div>
@@ -250,11 +228,14 @@ func getStopWord(line string) string <span class="cov8" title="1">{
         if strings.HasPrefix(chk, "root") </span><span class="cov8" title="1">{
                 return "root"
         }</span>
-        <span class="cov8" title="1">if strings.HasPrefix(chk, "command") </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if strings.HasPrefix(chk, "command") </span><span class="cov8" title="1">{
                 return "command"
         }</span>
-        <span class="cov8" title="1">if strings.HasPrefix(chk, "runcommand") </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if strings.HasPrefix(chk, "runcommand") </span><span class="cov8" title="1">{
                 return "runCommand"
+        }</span>
+        <span class="cov8" title="1">if strings.HasPrefix(chk, "fltcommand") </span><span class="cov8" title="1">{
+                return "fltCommand"
         }</span>
         <span class="cov8" title="1">if strings.HasPrefix(chk, "popcommand") </span><span class="cov0" title="0">{
                 return "popCommand"
@@ -320,7 +301,7 @@ func loadCommand(fileName string) <span class="cov8" title="1">{
                                 short = strings.TrimSpace(line[6:])
                         }</span> else<span class="cov8" title="1"> if strings.HasPrefix(strings.ToLower(line), "long:") </span><span class="cov8" title="1">{
                                 long = strings.TrimSpace(line[5:])
-                        }</span> else<span class="cov8" title="1"> if strings.HasPrefix(strings.ToLower(line), "path:") </span><span class="cov0" title="0">{
+                        }</span> else<span class="cov8" title="1"> if strings.HasPrefix(strings.ToLower(line), "path:") </span><span class="cov8" title="1">{
                                 path = strings.TrimSpace(line[5:])
                         }</span> else<span class="cov8" title="1"> if strings.HasPrefix(strings.ToLower(line), "hidden:") </span><span class="cov0" title="0">{
                                 hidden = strings.ToLower(strings.TrimSpace(line[7:])) == "true"
@@ -348,10 +329,10 @@ func addBoaCommand(fileName string, modCmd *cobra.Command, modType string, name 
         // handle different command and command types
         <span class="cov8" title="1">if modType == "root" </span><span class="cov8" title="1">{
                 return setRootValues(name, short, long)
-        }</span> else<span class="cov0" title="0"> if modType == "command" </span><span class="cov0" title="0">{
+        }</span> else<span class="cov8" title="1"> if modType == "command" </span><span class="cov8" title="1">{
                 return addParentCommand(modCmd, name, short, long, parent, hidden)
-        }</span> else<span class="cov0" title="0"> if modType == "runCommand" </span><span class="cov0" title="0">{
-                return addCommand(modCmd, name, short, long, path, hidden)
+        }</span> else<span class="cov8" title="1"> if modType == "runCommand" || modType == "fltCommand" </span><span class="cov8" title="1">{
+                return addCommand(modCmd, modType, name, short, long, path, hidden)
         }</span>
 
         // bad input file
@@ -361,8 +342,8 @@ func addBoaCommand(fileName string, modCmd *cobra.Command, modType string, name 
 }
 
 // add a command to the command tree
-func addParentCommand(modCmd *cobra.Command, name string, short string, long string, parent string, hidden bool) *cobra.Command <span class="cov0" title="0">{
-        if !hidden </span><span class="cov0" title="0">{
+func addParentCommand(modCmd *cobra.Command, name string, short string, long string, parent string, hidden bool) *cobra.Command <span class="cov8" title="1">{
+        if !hidden </span><span class="cov8" title="1">{
                 // name and short are required
                 if err := checkNameAndShort(name, short); err != nil </span><span class="cov0" title="0">{
                         return modCmd
@@ -373,7 +354,7 @@ func addParentCommand(modCmd *cobra.Command, name string, short string, long str
         }</span>
 
         // create the new command
-        <span class="cov0" title="0">boaCmd := createCommand(name, short, long)
+        <span class="cov8" title="1">boaCmd := createCommand(name, short, long)
         boaCmd.Hidden = hidden
 
         if parent != "" </span><span class="cov0" title="0">{
@@ -389,7 +370,7 @@ func addParentCommand(modCmd *cobra.Command, name string, short string, long str
                 }
         }
 
-        <span class="cov0" title="0">if modCmd != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if modCmd != nil </span><span class="cov8" title="1">{
                 // check for dupes
                 if GetCommandByUse(modCmd, name) != nil </span><span class="cov0" title="0">{
                         if hidden </span><span class="cov0" title="0">{
@@ -398,10 +379,10 @@ func addParentCommand(modCmd *cobra.Command, name string, short string, long str
                                 cfmt.ErrorE("Command already exists", modCmd.Use, name)
                                 os.Exit(1)
                         }</span>
-                } else<span class="cov0" title="0"> {
+                } else<span class="cov8" title="1"> {
                         modCmd.AddCommand(boaCmd)
                 }</span>
-        } else<span class="cov0" title="0"> {
+        } else<span class="cov8" title="1"> {
                 // check for dupes
                 if GetCommandByUse(boaRootCmd, name) != nil </span><span class="cov0" title="0">{
                         if hidden </span><span class="cov0" title="0">{
@@ -410,28 +391,28 @@ func addParentCommand(modCmd *cobra.Command, name string, short string, long str
                                 cfmt.ErrorE("Command already exists", boaRootCmd.Use, name)
                                 os.Exit(1)
                         }</span>
-                } else<span class="cov0" title="0"> {
+                } else<span class="cov8" title="1"> {
                         boaRootCmd.AddCommand(boaCmd)
                 }</span>
         }
 
         // set the new command to the parent
-        <span class="cov0" title="0">return boaCmd</span>
+        <span class="cov8" title="1">return boaCmd</span>
 }
 
 // add a command to a command in the command tree
-func addCommand(modCmd *cobra.Command, name string, short string, long string, path string, hidden bool) *cobra.Command <span class="cov0" title="0">{
+func addCommand(modCmd *cobra.Command, modType string, name string, short string, long string, path string, hidden bool) *cobra.Command <span class="cov8" title="1">{
         if path == "" </span><span class="cov0" title="0">{
                 cfmt.ErrorE("path is required", name, short, long, path)
                 os.Exit(1)
         }</span>
 
         // read the values from the command metadata if necessary
-        <span class="cov0" title="0">name = readFromCommandFile(path, "name", name)
+        <span class="cov8" title="1">name = readFromCommandFile(path, "name", name)
         short = readFromCommandFile(path, "short", short)
         long = readFromCommandFile(path, "long", long)
 
-        if !hidden </span><span class="cov0" title="0">{
+        if !hidden </span><span class="cov8" title="1">{
                 // name and short are required
                 if err := checkNameAndShort(name, short); err != nil </span><span class="cov0" title="0">{
                         return modCmd
@@ -442,20 +423,27 @@ func addCommand(modCmd *cobra.Command, name string, short string, long string, p
         }</span>
 
         // use boaRootCmd if modCmd is nil
-        <span class="cov0" title="0">aCmd := modCmd
-        if aCmd == nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">aCmd := modCmd
+        if aCmd == nil </span><span class="cov8" title="1">{
                 aCmd = boaRootCmd
         }</span>
 
         // check for dupes
-        <span class="cov0" title="0">if GetCommandByUse(aCmd, name) != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if GetCommandByUse(aCmd, name) != nil </span><span class="cov0" title="0">{
                 cfmt.ErrorE("Command already exists", aCmd.Use, name)
                 os.Exit(1)
         }</span>
 
         // add the command
-        <span class="cov0" title="0">cmd := addRunCommand(name, short, long, path)
-        cmd.Hidden = hidden
+        <span class="cov8" title="1">var cmd *cobra.Command
+
+        if modType == "runCommand" </span><span class="cov8" title="1">{
+                cmd = addRunCommand(name, short, long, path)
+        }</span> else<span class="cov8" title="1"> if modType == "fltCommand" </span><span class="cov8" title="1">{
+                cmd = addFltCommand(name, short, long, path)
+        }</span>
+
+        <span class="cov8" title="1">cmd.Hidden = hidden
         aCmd.AddCommand(cmd)
 
         // parent doesn't change
@@ -495,27 +483,27 @@ func checkNameAndShort(name string, short string) error <span class="cov8" title
 }
 
 // read the metadata from the command
-func readFromCommandFile(path string, key string, value string) string <span class="cov0" title="0">{
+func readFromCommandFile(path string, key string, value string) string <span class="cov8" title="1">{
         // don't read if already set
-        if value != "" </span><span class="cov0" title="0">{
+        if value != "" </span><span class="cov8" title="1">{
                 return value
         }</span>
 
-        <span class="cov0" title="0">key = strings.TrimSpace(strings.ToLower(key)) + ":"
+        <span class="cov8" title="1">key = strings.TrimSpace(strings.ToLower(key)) + ":"
         p := filepath.Join(boaCommandPath, path)
 
         // read the file into an array
         txt := ReadTextFile(p)
         lines := strings.Split(txt, "\n")
 
-        for i := 0; i &lt; len(lines); i++ </span><span class="cov0" title="0">{
+        for i := 0; i &lt; len(lines); i++ </span><span class="cov8" title="1">{
                 line := strings.TrimSpace(lines[i])
 
-                if strings.HasPrefix(line, "#") </span><span class="cov0" title="0">{
+                if strings.HasPrefix(line, "#") </span><span class="cov8" title="1">{
                         // check all comments for metadata
                         line = strings.TrimSpace(strings.TrimLeft(line, "#"))
 
-                        if strings.HasPrefix(strings.ToLower(line), key) </span><span class="cov0" title="0">{
+                        if strings.HasPrefix(strings.ToLower(line), key) </span><span class="cov8" title="1">{
                                 // extract the metadata
                                 line = strings.TrimSpace(line[len(key):])
                                 return line
@@ -523,11 +511,11 @@ func readFromCommandFile(path string, key string, value string) string <span cla
                 }
         }
 
-        <span class="cov0" title="0">return ""</span>
+        <span class="cov8" title="1">return ""</span>
 }
 
 // add a command that has sub-commands
-func createCommand(use string, short string, long string) *cobra.Command <span class="cov0" title="0">{
+func createCommand(use string, short string, long string) *cobra.Command <span class="cov8" title="1">{
         cmd := &amp;cobra.Command{
                 Use:   use,
                 Short: short,
@@ -538,7 +526,7 @@ func createCommand(use string, short string, long string) *cobra.Command <span c
 }</span>
 
 // create a command that runs the bash command
-func addRunCommand(use string, short string, long string, command string) *cobra.Command <span class="cov0" title="0">{
+func addRunCommand(use string, short string, long string, command string) *cobra.Command <span class="cov8" title="1">{
         runCmd := &amp;cobra.Command{
                 Use:   use,
                 Short: short,
@@ -553,7 +541,33 @@ func addRunCommand(use string, short string, long string, command string) *cobra
                 },
         }
 
-        <span class="cov0" title="0">return runCmd</span>
+        <span class="cov8" title="1">return runCmd</span>
+}
+
+var grep string
+
+// create a command that runs the bash command across the fleet
+func addFltCommand(use string, short string, long string, command string) *cobra.Command <span class="cov8" title="1">{
+        fltCmd := &amp;cobra.Command{
+                Use:   use,
+                Short: short,
+                Long:  long,
+
+                RunE: func(cmd *cobra.Command, args []string) error </span><span class="cov0" title="0">{
+                        script := filepath.Join(".", "fleet-vm", "scripts", command)
+
+                        // add the paramaters
+                        if len(args) &gt; 0 </span><span class="cov0" title="0">{
+                                script += " " + strings.Join(args, " ")
+                        }</span>
+
+                        <span class="cov0" title="0">return ExecClusters(script, grep)</span>
+                },
+        }
+
+        <span class="cov8" title="1">fltCmd.PersistentFlags().StringVarP(&amp;grep, "grep", "g", "", "grep conditional to filter by host")
+
+        return fltCmd</span>
 }
 
 // create a command that runs the bash command
@@ -790,6 +804,7 @@ import (
         "kic/boa/cfmt"
         "log"
         "os"
+        "path"
         "path/filepath"
         "strings"
 )
@@ -867,6 +882,17 @@ func ReadHostIPs(grep string) ([]string, error) <span class="cov8" title="1">{
         <span class="cov0" title="0">return ips, nil</span>
 }
 
+// read a completion file
+func ReadCompletionFile(fileName string) ([]string, error) <span class="cov0" title="0">{
+        path := path.Join(GetBoaPath(), fileName)
+
+        if _, err := os.Stat(path); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">return ReadLinesFromFile(path), nil</span>
+}
+
 // get the path to the executable's directory
 func GetBinDir() string <span class="cov8" title="1">{
         // read from env var
@@ -916,8 +942,17 @@ func GetBoaPath() string <span class="cov8" title="1">{
         app := GetBinName()
         appConfig := "." + app
 
+        // todo - testing
+        if local, err := os.Getwd(); err == nil </span><span class="cov8" title="1">{
+                local = filepath.Join(local, appConfig)
+
+                if _, err := os.Stat(local); err == nil </span><span class="cov0" title="0">{
+                        return local
+                }</span>
+        }
+
         // running in debugger
-        if strings.HasPrefix(app, "__debug") </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if strings.HasPrefix(app, "__debug") </span><span class="cov0" title="0">{
                 // assume package name == source directory
                 app = filepath.Base(boaPath)
                 appConfig = "." + app
@@ -980,7 +1015,7 @@ func ReadTextFileFromBoaDir(name string) string <span class="cov8" title="1">{
 func ReadTextFile(path string) string <span class="cov8" title="1">{
         content, err := os.ReadFile(path)
 
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 return ""
         }</span>
 
@@ -1085,270 +1120,6 @@ func init() <span class="cov8" title="1">{
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
-package check
-
-import (
-        "kic/boa"
-
-        "github.com/spf13/cobra"
-)
-
-// CheckAioaCmd checks each cluster to see if AI Order Accuracy is installed
-var AioaCmd = &amp;cobra.Command{
-        Use:   "ai-order-accuracy",
-        Short: "Check AI Order Accuracy status on each cluster",
-        Args:  argsFleetCheck,
-
-        RunE: func(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
-                return boa.ExecClusters("./fleet-vm/scripts/check-aioa", grep)
-        }</span>,
-}
-</pre>
-		
-		<pre class="file" id="file7" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
-//   See LICENSE in the project root for license information.
-
-package check
-
-import (
-        "kic/boa"
-
-        "github.com/spf13/cobra"
-)
-
-var (
-        // option variables
-        grep string
-
-        // fleetCheckCmd adds check subcommands
-        CheckCmd = &amp;cobra.Command{
-                Use:   "check",
-                Short: "Check cluster status",
-        }
-)
-
-func init() <span class="cov8" title="1">{
-        // todo - these can all be generated
-        CheckCmd.AddCommand(FluxCmd)
-        CheckCmd.AddCommand(HeartbeatCmd)
-        CheckCmd.AddCommand(LogsCmd)
-        CheckCmd.AddCommand(AioaCmd)
-        CheckCmd.AddCommand(RetriesCmd)
-        CheckCmd.AddCommand(SetupCmd)
-        CheckCmd.AddCommand(TLogCmd)
-        // CheckCmd.AddCommand(DaprCmd)
-        // CheckCmd.AddCommand(RadiusCmd)
-
-        CheckCmd.PersistentFlags().StringVarP(&amp;grep, "grep", "g", "", "grep conditional to filter by host")
-}</span>
-
-// check the args
-func argsFleetCheck(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
-        // this will exit with an error
-        boa.ReadHostIPs("")
-        return nil
-}</span>
-</pre>
-		
-		<pre class="file" id="file8" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
-//   See LICENSE in the project root for license information.
-
-package check
-
-import (
-        "kic/boa"
-
-        "github.com/spf13/cobra"
-)
-
-// DaprCmd represents the dapr command
-var DaprCmd = &amp;cobra.Command{
-        Use:   "dapr",
-        Short: "Check dapr status on each cluster",
-        Args:  argsFleetCheck,
-
-        RunE: func(cmd *cobra.Command, args []string) error <span class="cov0" title="0">{
-                return boa.ExecClusters("./fleet-vm/scripts/check-dapr", grep)
-        }</span>,
-}
-</pre>
-		
-		<pre class="file" id="file9" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
-//   See LICENSE in the project root for license information.
-
-package check
-
-import (
-        "kic/boa"
-
-        "github.com/spf13/cobra"
-)
-
-// FluxCmd checks each cluster for flux-check namespace
-var FluxCmd = &amp;cobra.Command{
-        Use:   "flux",
-        Short: "Check flux status on each cluster",
-        Args:  argsFleetCheck,
-
-        RunE: func(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
-                return boa.ExecClusters("./fleet-vm/scripts/check-flux", grep)
-        }</span>,
-}
-</pre>
-		
-		<pre class="file" id="file10" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
-//   See LICENSE in the project root for license information.
-
-package check
-
-import (
-        "kic/boa"
-
-        "github.com/spf13/cobra"
-)
-
-// HeartbeatCmd checks each cluster for DNS and SSL setup
-// tinybench is our "heartbeat" application deployed as part of bootstrap
-var HeartbeatCmd = &amp;cobra.Command{
-        Use:   "heartbeat",
-        Short: "Check https heartbeat on each server",
-        Args:  argsFleetCheck,
-
-        RunE: func(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
-                return boa.ExecClusters("./fleet-vm/scripts/check-heartbeat", grep)
-        }</span>,
-}
-</pre>
-		
-		<pre class="file" id="file11" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
-//   See LICENSE in the project root for license information.
-
-package check
-
-import (
-        "kic/boa"
-
-        "github.com/spf13/cobra"
-)
-
-// LogsCmd represents the dapr command
-var LogsCmd = &amp;cobra.Command{
-        Use:   "logs",
-        Short: "Check the cloudinit logs on the VMs",
-        Args:  argsFleetCheck,
-
-        RunE: func(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
-                return boa.ExecClusters("./fleet-vm/scripts/check-logs", grep)
-        }</span>,
-}
-</pre>
-		
-		<pre class="file" id="file12" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
-//   See LICENSE in the project root for license information.
-
-package check
-
-import (
-        "kic/boa"
-
-        "github.com/spf13/cobra"
-)
-
-// RadiusCmd checks each cluster to verify radius is installed
-var RadiusCmd = &amp;cobra.Command{
-        Use:   "radius",
-        Short: "Check radius status on each cluster",
-        Args:  argsFleetCheck,
-
-        RunE: func(cmd *cobra.Command, args []string) error <span class="cov0" title="0">{
-                return boa.ExecClusters("./fleet-vm/scripts/check-radius", grep)
-        }</span>,
-}
-</pre>
-		
-		<pre class="file" id="file13" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
-//   See LICENSE in the project root for license information.
-
-package check
-
-import (
-        "kic/boa"
-
-        "github.com/spf13/cobra"
-)
-
-// RetriesCmd checks each server for the number of flux retries during installation
-var RetriesCmd = &amp;cobra.Command{
-        Use:   "retries",
-        Short: "Check number of retries on each cluster",
-        Args:  argsFleetCheck,
-
-        RunE: func(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
-                return boa.ExecClusters("./fleet-vm/scripts/check-retries", grep)
-        }</span>,
-}
-</pre>
-		
-		<pre class="file" id="file14" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
-//   See LICENSE in the project root for license information.
-
-package check
-
-import (
-        "kic/boa"
-
-        "github.com/spf13/cobra"
-)
-
-// SetupCmd checks each cluster for the setup status
-var SetupCmd = &amp;cobra.Command{
-        Use:   "setup",
-        Short: "Check setup status on each cluster",
-        Args:  argsFleetCheck,
-
-        RunE: func(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
-                // don't use a command on the VM as it's not available until late in setup
-                return boa.ExecClusters("tail -n1 status", grep)
-        }</span>,
-}
-</pre>
-		
-		<pre class="file" id="file15" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
-//   See LICENSE in the project root for license information.
-
-package check
-
-import (
-        "kic/boa"
-
-        "github.com/spf13/cobra"
-)
-
-// CheckAioaCmd checks each cluster to see if AI Order Accuracy is installed
-var TLogCmd = &amp;cobra.Command{
-        Use:   "tlog",
-        Short: "Check Virtual TLog status on each cluster",
-        Args:  argsFleetCheck,
-
-        RunE: func(cmd *cobra.Command, args []string) error <span class="cov0" title="0">{
-                return boa.ExecClusters("./fleet-vm/scripts/check-tlog", grep)
-        }</span>,
-}
-</pre>
-		
-		<pre class="file" id="file16" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
-//   See LICENSE in the project root for license information.
-
 package fleet
 
 import (
@@ -1372,6 +1143,7 @@ var (
         location          string
         repo              string
         branch            string
+        fleetBranch       string
         pem               string
         key               string
         quiet             bool
@@ -1405,6 +1177,7 @@ func init() <span class="cov8" title="1">{
         CreateCmd.Flags().StringVarP(&amp;location, "location", "l", "centralus", "Azure location")
         CreateCmd.Flags().StringVarP(&amp;repo, "repo", "r", "retaildevcrews/edge-gitops", "GitOps repo name")
         CreateCmd.Flags().StringVarP(&amp;branch, "branch", "b", "", "GitOps branch name")
+        CreateCmd.Flags().StringVarP(&amp;fleetBranch, "fleet-branch", "", "main", "Fleet VM branch name")
         CreateCmd.Flags().StringVarP(&amp;ssl, "ssl", "s", "", "SSL domain name")
         CreateCmd.Flags().StringVarP(&amp;pem, "pem", "p", "~/.ssh/certs.pem", "Path to SSL .pem file")
         CreateCmd.Flags().StringVarP(&amp;key, "key", "k", "~/.ssh/certs.key", "Path to SSL .key file")
@@ -1469,6 +1242,10 @@ func validateCreateCmd(cmd *cobra.Command, args []string) error <span class="cov
         // default resource group is cluster name
         <span class="cov8" title="1">if group == "" </span><span class="cov8" title="1">{
                 group = cluster
+        }</span>
+
+        <span class="cov8" title="1">if fleetBranch == "" </span><span class="cov0" title="0">{
+                fleetBranch = "main"
         }</span>
 
         <span class="cov8" title="1">return nil</span>
@@ -1600,6 +1377,7 @@ func doDryRun() error <span class="cov8" title="1">{
         fmt.Println("Managed Identity:    ", strings.Contains(managedIdentityID, "/Microsoft.ManagedIdentity/"))
         fmt.Println("Location:            ", location)
         fmt.Println("Repo:                ", repo)
+        fmt.Println("Fleet Branch:        ", fleetBranch)
         fmt.Println("Branch:              ", branch)
 
         if len(ssl) &gt; 0 </span><span class="cov8" title="1">{
@@ -1692,6 +1470,7 @@ func createVMSetupScript() <span class="cov8" title="1">{
         command = strings.Replace(command, "{{fqdn}}", cluster+"."+ssl, -1)
         command = strings.Replace(command, "{{repo}}", repo, -1)
         command = strings.Replace(command, "{{branch}}", branch, -1)
+        command = strings.Replace(command, "{{fleet_branch}}", fleetBranch, -1)
         command = strings.Replace(command, "{{group}}", group, -1)
         command = strings.Replace(command, "{{arcEnabled}}", strconv.FormatBool(arcEnabled), -1)
         command = strings.Replace(command, "{{do}}", strconv.FormatBool(digitalOcean), -1)
@@ -1966,8 +1745,10 @@ func setBranchE() error <span class="cov0" title="0">{
                 return err
         }</span>
 
+        <span class="cov0" title="0">br = strings.TrimSpace(br)
+
         // use current branch
-        <span class="cov0" title="0">if branch == "" </span><span class="cov0" title="0">{
+        if branch == "" </span><span class="cov0" title="0">{
                 branch = br
         }</span>
 
@@ -1987,7 +1768,7 @@ func setBranchE() error <span class="cov0" title="0">{
 }
 </pre>
 		
-		<pre class="file" id="file17" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file7" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2041,7 +1822,7 @@ func validArgsFleetDelete(cmd *cobra.Command, args []string, toComplete string) 
 }
 </pre>
 		
-		<pre class="file" id="file18" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file8" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2083,15 +1864,13 @@ func runFleetExecE(cmd *cobra.Command, args []string) error <span class="cov8" t
 }
 </pre>
 		
-		<pre class="file" id="file19" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file9" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
 package fleet
 
 import (
-        "kic/cmd/fleet/check"
-
         "github.com/spf13/cobra"
 )
 
@@ -2107,11 +1886,9 @@ var (
 )
 
 func init() <span class="cov8" title="1">{
-        FleetCmd.AddCommand(check.CheckCmd)
         FleetCmd.AddCommand(CreateCmd)
         FleetCmd.AddCommand(DeleteCmd)
         FleetCmd.AddCommand(ExecCmd)
-        FleetCmd.AddCommand(GroupsCmd)
         FleetCmd.AddCommand(ListCmd)
         FleetCmd.AddCommand(PatchCmd)
         FleetCmd.AddCommand(PullCmd)
@@ -2121,30 +1898,7 @@ func init() <span class="cov8" title="1">{
 }</span>
 </pre>
 		
-		<pre class="file" id="file20" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
-//   See LICENSE in the project root for license information.
-
-package fleet
-
-import (
-        "kic/boa"
-
-        "github.com/spf13/cobra"
-)
-
-// GroupsCmd gets the Azure Resource Groups from the subscription
-var GroupsCmd = &amp;cobra.Command{
-        Use:   "groups",
-        Short: "List Azure resource groups",
-
-        RunE: func(cmd *cobra.Command, args []string) error <span class="cov0" title="0">{
-                return (boa.ShellExecE("az group list -o table | sort | grep -e central- -e east- -e west- -e corp- -e retail-edge"))
-        }</span>,
-}
-</pre>
-		
-		<pre class="file" id="file21" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file10" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2192,7 +1946,7 @@ func runFleetList(cmd *cobra.Command, args []string) error <span class="cov8" ti
 }
 </pre>
 		
-		<pre class="file" id="file22" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file11" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2218,7 +1972,7 @@ func init() <span class="cov8" title="1">{
 }</span>
 </pre>
 		
-		<pre class="file" id="file23" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file12" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2244,7 +1998,7 @@ func init() <span class="cov8" title="1">{
 }</span>
 </pre>
 		
-		<pre class="file" id="file24" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file13" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2319,7 +2073,7 @@ func validArgsFleetSsh(cmd *cobra.Command, args []string, toComplete string) ([]
 }
 </pre>
 		
-		<pre class="file" id="file25" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file14" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2346,7 +2100,7 @@ func init() <span class="cov8" title="1">{
 }</span>
 </pre>
 		
-		<pre class="file" id="file26" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file15" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2355,7 +2109,6 @@ package cmd
 import (
         "kic/boa"
         "kic/cmd/fleet"
-        "kic/cmd/fleet/check"
         "kic/cmd/targets"
         "kic/cmd/test"
         "os"
@@ -2364,10 +2117,12 @@ import (
 )
 
 // rootCmd represents the base command and adds commands, options, and flags
-var rootCmd = &amp;cobra.Command{
-        Use:   "akdc",
-        Short: "Retail Edge CLI",
-}
+var (
+        rootCmd = &amp;cobra.Command{
+                Use:   "kic",
+                Short: "Retail Edge CLI",
+        }
+)
 
 // initialize the root command
 func init() <span class="cov8" title="1">{
@@ -2376,36 +2131,42 @@ func init() <span class="cov8" title="1">{
 
         // add commands to kic
         if rootCmd.Name() == "kic" </span><span class="cov0" title="0">{
-
-                if boa.GetCommandByUse(rootCmd, "test") == nil </span><span class="cov0" title="0">{
-                        rootCmd.AddCommand(test.TestCmd)
-                }</span>
-
-                <span class="cov0" title="0">if boa.GetCommandByUse(rootCmd, "targets") == nil </span><span class="cov0" title="0">{
-                        rootCmd.AddCommand(targets.TargetsCmd)
-                }</span>
-
-        }
+                addCommandIfNotExist("test", test.TestCmd)
+                addCommandIfNotExist("targets", targets.TargetsCmd)
+        }</span>
 
         // add fleet commands
         <span class="cov8" title="1">if rootCmd.Name() == "flt" </span><span class="cov8" title="1">{
-                rootCmd.AddCommand(check.CheckCmd)
-                rootCmd.AddCommand(fleet.CreateCmd)
-                rootCmd.AddCommand(fleet.DeleteCmd)
-                rootCmd.AddCommand(fleet.ExecCmd)
-                rootCmd.AddCommand(fleet.GroupsCmd)
-                rootCmd.AddCommand(fleet.ListCmd)
-                rootCmd.AddCommand(fleet.PatchCmd)
-                rootCmd.AddCommand(fleet.PullCmd)
-                rootCmd.AddCommand(fleet.SshCmd)
-                rootCmd.AddCommand(fleet.SyncCmd)
-                rootCmd.AddCommand(fleet.ArcTokenCmd)
-                rootCmd.AddCommand(targets.TargetsCmd)
-        }</span>
+                // add missing commands
+                addCommandIfNotExist("create", fleet.CreateCmd)
+                addCommandIfNotExist("delete", fleet.DeleteCmd)
+                addCommandIfNotExist("exec", fleet.ExecCmd)
+                addCommandIfNotExist("list", fleet.ListCmd)
+                addCommandIfNotExist("patch", fleet.PatchCmd)
+                addCommandIfNotExist("pull", fleet.PullCmd)
+                addCommandIfNotExist("ssh", fleet.SshCmd)
+                addCommandIfNotExist("sync", fleet.SyncCmd)
+                addCommandIfNotExist("arc-token", fleet.ArcTokenCmd)
+                addCommandIfNotExist("targets", targets.TargetsCmd)
+
+                if check := boa.GetCommandByUse(rootCmd, "check"); check != nil </span><span class="cov8" title="1">{
+                        if app := boa.GetCommandByUse(check, "app"); app != nil </span><span class="cov8" title="1">{
+                                app.ValidArgsFunction = validArgsFleetCheckApp
+                                app.Args = cobra.ExactValidArgs(1)
+                        }</span>
+                }
+        }
 
         // this will set a new root if specified
         // this will also remove any hidden commands so they don't exist
         <span class="cov8" title="1">boa.SetNewRoot()</span>
+}
+
+// add the command to root if it doesn't exist
+func addCommandIfNotExist(name string, cmd *cobra.Command) <span class="cov8" title="1">{
+        if boa.GetCommandByUse(rootCmd, name) == nil </span><span class="cov8" title="1">{
+                rootCmd.AddCommand(cmd)
+        }</span>
 }
 
 // execute the root command
@@ -2415,9 +2176,26 @@ func Execute() <span class="cov0" title="0">{
                 os.Exit(1)
         }</span>
 }
+
+// validate flt check app arg
+func validArgsFleetCheckApp(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) <span class="cov0" title="0">{
+        apps, err := boa.ReadCompletionFile("flt-check-app-completion")
+
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, cobra.ShellCompDirectiveNoFileComp
+        }</span>
+
+        // only one arg
+        <span class="cov0" title="0">if len(args) != 0 </span><span class="cov0" title="0">{
+                return nil, cobra.ShellCompDirectiveNoFileComp
+        }</span>
+
+        // sugest from the completion file
+        <span class="cov0" title="0">return apps, cobra.ShellCompDirectiveNoFileComp</span>
+}
 </pre>
 		
-		<pre class="file" id="file27" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file16" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2479,7 +2257,7 @@ func runTargetsAddE(cmd *cobra.Command, args []string) error <span class="cov8" 
 }
 </pre>
 		
-		<pre class="file" id="file28" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file17" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2519,7 +2297,7 @@ func runTargetsClearE(cmd *cobra.Command, args []string) error <span class="cov8
 }
 </pre>
 		
-		<pre class="file" id="file29" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file18" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2544,30 +2322,44 @@ var DeployCmd = &amp;cobra.Command{
 
 // run targets deploy cmd
 func runTargetsDeployE(cmd *cobra.Command, args []string) error <span class="cov0" title="0">{
-        // make sure the repo is up to date
-        if res, _ := boa.ShellExecOut("git status -s"); res == "" </span><span class="cov0" title="0">{
-                cfmt.Info("no changes found")
-        }</span> else<span class="cov0" title="0"> {
-                // build the commit message from app name
-                app, _ := os.Getwd()
-                app = filepath.Base(app)
-                commit := "git commit -am 'Secure Build: " + app + "'"
+        // build the commit message from app name
+        app, _ := os.Getwd()
+        app = filepath.Base(app)
 
-                // make sure repo is up-to-date
-                boa.ShellExecOut("git pull")
-
-                // commit and push
-                boa.ShellExecOut(commit)
-                boa.ShellExecOut("git push")
-
-                cfmt.Info("updated " + app)
+        // make sure repo is up-to-date
+        if err := boa.ShellExecE("git pull"); err != nil </span><span class="cov0" title="0">{
+                cfmt.ErrorE("git pull failed")
+                return nil
         }</span>
 
-        <span class="cov0" title="0">return nil</span>
+        // make sure the repo is up to date
+        <span class="cov0" title="0">res, err := boa.ShellExecOut("git status -s")
+
+        if err != nil </span><span class="cov0" title="0">{
+                return cfmt.ErrorE(err)
+        }</span>
+
+        <span class="cov0" title="0">if res != "" </span><span class="cov0" title="0">{
+                // commit and push
+                commit := "git commit -am 'Secure Build: " + app + "'"
+                if err := boa.ShellExecE(commit); err != nil </span><span class="cov0" title="0">{
+                        cfmt.ErrorE("git commit failed")
+                        return nil
+                }</span>
+        }
+
+        <span class="cov0" title="0">if err := boa.ShellExecE("git push"); err != nil </span><span class="cov0" title="0">{
+                cfmt.ErrorE("git push failed")
+                return nil
+        }</span>
+
+        <span class="cov0" title="0">cfmt.Info("updated " + app)
+
+        return nil</span>
 }
 </pre>
 		
-		<pre class="file" id="file30" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file19" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2593,7 +2385,7 @@ func runTargetsListE(cmd *cobra.Command, args []string) error <span class="cov8"
 
         if result != nil </span><span class="cov8" title="1">{
                 if result["targets"] == nil </span><span class="cov0" title="0">{
-                        cfmt.Info("targets", "is empty")
+                        cfmt.Info("targets is empty")
                 }</span> else<span class="cov8" title="1"> {
                         cfmt.Info("Targets")
                         fmt.Println(result["targets"])
@@ -2605,7 +2397,7 @@ func runTargetsListE(cmd *cobra.Command, args []string) error <span class="cov8"
 }
 </pre>
 		
-		<pre class="file" id="file31" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file20" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2662,7 +2454,7 @@ func runTargetsRemoveE(cmd *cobra.Command, args []string) error <span class="cov
 }
 </pre>
 		
-		<pre class="file" id="file32" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file21" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2750,7 +2542,7 @@ func saveAutoGitOpsConfig(result map[string]interface{}) <span class="cov8" titl
 }
 </pre>
 		
-		<pre class="file" id="file33" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file22" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2823,7 +2615,7 @@ func runTestIntegrationE(cmd *cobra.Command, args []string) error <span class="c
 }
 </pre>
 		
-		<pre class="file" id="file34" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file23" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2905,7 +2697,7 @@ func runTestLoadE(cmd *cobra.Command, args []string) error <span class="cov8" ti
 }
 </pre>
 		
-		<pre class="file" id="file35" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file24" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2979,7 +2771,7 @@ func getTestFlagValues() string <span class="cov8" title="1">{
 }
 </pre>
 		
-		<pre class="file" id="file36" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file25" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 

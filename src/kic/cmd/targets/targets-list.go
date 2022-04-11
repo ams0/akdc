@@ -24,7 +24,7 @@ func runTargetsListE(cmd *cobra.Command, args []string) error {
 
 	if result != nil {
 		if result["targets"] == nil {
-			cfmt.Info("targets", "is empty")
+			cfmt.Info("targets is empty")
 		} else {
 			cfmt.Info("Targets")
 			fmt.Println(result["targets"])

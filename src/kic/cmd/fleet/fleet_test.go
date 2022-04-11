@@ -116,14 +116,13 @@ func TestFleet(t *testing.T) {
 	}
 
 	rlen := len(FleetCmd.Commands())
-	if rlen != 11 {
-		t.Errorf("FleetTest failed, got %d, wanted: 11", rlen)
+	if rlen != 9 {
+		t.Errorf("FleetTest failed, got %d, wanted: 9", rlen)
 	}
 
 	boa.ExecCmdNoErrorE(t, FleetCmd)
 	boa.ExecCmdNoErrorE(t, FleetCmd, "delete", "test___command", "-h")
 
-	boa.ExecCmdNoErrorE(t, FleetCmd, "groups", "-h")
 	boa.ExecCmdNoErrorE(t, FleetCmd, "create", "--ssl", "testing.com", "--arc", "--do", "-c", "test-cluster")
 	boa.ExecCmdNoErrorE(t, FleetCmd, "create", "--dry-run", "--ssl", "testing.com", "--arc", "-c", "test-cluster")
 	boa.ExecCmdNoErrorE(t, FleetCmd, "list")

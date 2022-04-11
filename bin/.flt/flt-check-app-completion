@@ -1,0 +1,13 @@
+ai-order-accuracy	AI Order Accuracy app
+heartbeat	Heartbeat app
+imdb	IMDb reference app
+jumpbox	Jump Box (bastion host)
+traefik	Traefik ingress
+istio	Istio service mesh
+kustomize	Flux Kustomize operator
+coredns	K8s Core DNS
+metrics-server	Metrics Server
+svc-lbtraefik	Traefik Load Balancer
+testapp	Test App (sample app)
+myapp	My App (sample app)
+pilotapp	Pilot App  (sample app)

@@ -5,8 +5,6 @@
 package fleet
 
 import (
-	"kic/cmd/fleet/check"
-
 	"github.com/spf13/cobra"
 )
 
@@ -22,11 +20,9 @@ var (
 )
 
 func init() {
-	FleetCmd.AddCommand(check.CheckCmd)
 	FleetCmd.AddCommand(CreateCmd)
 	FleetCmd.AddCommand(DeleteCmd)
 	FleetCmd.AddCommand(ExecCmd)
-	FleetCmd.AddCommand(GroupsCmd)
 	FleetCmd.AddCommand(ListCmd)
 	FleetCmd.AddCommand(PatchCmd)
 	FleetCmd.AddCommand(PullCmd)

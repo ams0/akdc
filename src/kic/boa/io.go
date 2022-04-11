@@ -9,6 +9,7 @@ import (
 	"kic/boa/cfmt"
 	"log"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 )
@@ -86,6 +87,17 @@ func ReadHostIPs(grep string) ([]string, error) {
 	return ips, nil
 }
 
+// read a completion file
+func ReadCompletionFile(fileName string) ([]string, error) {
+	path := path.Join(GetBoaPath(), fileName)
+
+	if _, err := os.Stat(path); err != nil {
+		return nil, err
+	}
+
+	return ReadLinesFromFile(path), nil
+}
+
 // get the path to the executable's directory
 func GetBinDir() string {
 	// read from env var
@@ -134,6 +146,15 @@ func GetBoaPath() string {
 	boaPath := GetBinDir()
 	app := GetBinName()
 	appConfig := "." + app
+
+	// todo - testing
+	if local, err := os.Getwd(); err == nil {
+		local = filepath.Join(local, appConfig)
+
+		if _, err := os.Stat(local); err == nil {
+			return local
+		}
+	}
 
 	// running in debugger
 	if strings.HasPrefix(app, "__debug") {

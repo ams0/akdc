@@ -44,8 +44,6 @@ flt az-login
 
 - [Readme](../inner-loop/README.md)
 
-> Make sure to start in the inner-loop directory
-
 - We use the `Kubernetes in Codespaces` repo from <https://github.com/cse-labs/kubernetes-in-codespaces>
   - This was cloned to `/workspaces/inner-loop` as part of Codespaces setup
 
@@ -54,10 +52,6 @@ flt az-login
 cd ../inner-loop
 
 ```
-
-## Outer-loop Developer Experience
-
-- [Readme](./outer-loop/README.md)
 
 ## Digital Twin Developer Experience
 
@@ -73,7 +67,7 @@ cd ../inner-loop
 
 ## Fleet Developer Experience
 
-- [Readme](./azure-vms/README.md)
+- Follow the instructions here: <https://github.com/retaildevcrews/edge-gitops>
 
 ## Support
 

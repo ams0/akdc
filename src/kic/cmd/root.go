@@ -7,7 +7,6 @@ package cmd
 import (
 	"kic/boa"
 	"kic/cmd/fleet"
-	"kic/cmd/fleet/check"
 	"kic/cmd/targets"
 	"kic/cmd/test"
 	"os"
@@ -16,10 +15,12 @@ import (
 )
 
 // rootCmd represents the base command and adds commands, options, and flags
-var rootCmd = &cobra.Command{
-	Use:   "akdc",
-	Short: "Retail Edge CLI",
-}
+var (
+	rootCmd = &cobra.Command{
+		Use:   "kic",
+		Short: "Retail Edge CLI",
+	}
+)
 
 // initialize the root command
 func init() {
@@ -28,36 +29,42 @@ func init() {
 
 	// add commands to kic
 	if rootCmd.Name() == "kic" {
-
-		if boa.GetCommandByUse(rootCmd, "test") == nil {
-			rootCmd.AddCommand(test.TestCmd)
-		}
-
-		if boa.GetCommandByUse(rootCmd, "targets") == nil {
-			rootCmd.AddCommand(targets.TargetsCmd)
-		}
-
+		addCommandIfNotExist("test", test.TestCmd)
+		addCommandIfNotExist("targets", targets.TargetsCmd)
 	}
 
 	// add fleet commands
 	if rootCmd.Name() == "flt" {
-		rootCmd.AddCommand(check.CheckCmd)
-		rootCmd.AddCommand(fleet.CreateCmd)
-		rootCmd.AddCommand(fleet.DeleteCmd)
-		rootCmd.AddCommand(fleet.ExecCmd)
-		rootCmd.AddCommand(fleet.GroupsCmd)
-		rootCmd.AddCommand(fleet.ListCmd)
-		rootCmd.AddCommand(fleet.PatchCmd)
-		rootCmd.AddCommand(fleet.PullCmd)
-		rootCmd.AddCommand(fleet.SshCmd)
-		rootCmd.AddCommand(fleet.SyncCmd)
-		rootCmd.AddCommand(fleet.ArcTokenCmd)
-		rootCmd.AddCommand(targets.TargetsCmd)
+		// add missing commands
+		addCommandIfNotExist("create", fleet.CreateCmd)
+		addCommandIfNotExist("delete", fleet.DeleteCmd)
+		addCommandIfNotExist("exec", fleet.ExecCmd)
+		addCommandIfNotExist("list", fleet.ListCmd)
+		addCommandIfNotExist("patch", fleet.PatchCmd)
+		addCommandIfNotExist("pull", fleet.PullCmd)
+		addCommandIfNotExist("ssh", fleet.SshCmd)
+		addCommandIfNotExist("sync", fleet.SyncCmd)
+		addCommandIfNotExist("arc-token", fleet.ArcTokenCmd)
+		addCommandIfNotExist("targets", targets.TargetsCmd)
+
+		if check := boa.GetCommandByUse(rootCmd, "check"); check != nil {
+			if app := boa.GetCommandByUse(check, "app"); app != nil {
+				app.ValidArgsFunction = validArgsFleetCheckApp
+				app.Args = cobra.ExactValidArgs(1)
+			}
+		}
 	}
 
 	// this will set a new root if specified
 	// this will also remove any hidden commands so they don't exist
 	boa.SetNewRoot()
+}
+
+// add the command to root if it doesn't exist
+func addCommandIfNotExist(name string, cmd *cobra.Command) {
+	if boa.GetCommandByUse(rootCmd, name) == nil {
+		rootCmd.AddCommand(cmd)
+	}
 }
 
 // execute the root command
@@ -66,4 +73,21 @@ func Execute() {
 	if err != nil {
 		os.Exit(1)
 	}
+}
+
+// validate flt check app arg
+func validArgsFleetCheckApp(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	apps, err := boa.ReadCompletionFile("flt-check-app-completion")
+
+	if err != nil {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
+
+	// only one arg
+	if len(args) != 0 {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
+
+	// sugest from the completion file
+	return apps, cobra.ShellCompDirectiveNoFileComp
 }
