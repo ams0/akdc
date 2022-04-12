@@ -116,8 +116,8 @@ func TestFleet(t *testing.T) {
 	}
 
 	rlen := len(FleetCmd.Commands())
-	if rlen != 9 {
-		t.Errorf("FleetTest failed, got %d, wanted: 9", rlen)
+	if rlen != 5 {
+		t.Errorf("FleetTest failed, got %d, wanted: 5", rlen)
 	}
 
 	boa.ExecCmdNoErrorE(t, FleetCmd)
@@ -127,11 +127,7 @@ func TestFleet(t *testing.T) {
 	boa.ExecCmdNoErrorE(t, FleetCmd, "create", "--dry-run", "--ssl", "testing.com", "--arc", "-c", "test-cluster")
 	boa.ExecCmdNoErrorE(t, FleetCmd, "list")
 
-	boa.ExecCmdWithErrorE(t, "exit status 1", FleetCmd, "arc-token", "--grep", "bad-grep")
 	boa.ExecCmdWithErrorE(t, "exit status 1", FleetCmd, "exec", "pwd", "--grep", "bad-grep")
-	boa.ExecCmdWithErrorE(t, "exit status 1", FleetCmd, "patch", "--grep", "bad-grep")
-	boa.ExecCmdWithErrorE(t, "exit status 1", FleetCmd, "pull", "--grep", "bad-grep")
-	boa.ExecCmdWithErrorE(t, "exit status 1", FleetCmd, "sync", "--grep", "bad-grep")
 	boa.ExecCmdWithErrorE(t, "accepts 1 arg", FleetCmd, "ssh")
 	boa.ExecCmdWithErrorE(t, "flag needs an argument: --ssl", FleetCmd, "create", "--ssl")
 

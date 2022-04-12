@@ -24,9 +24,5 @@ func init() {
 	FleetCmd.AddCommand(DeleteCmd)
 	FleetCmd.AddCommand(ExecCmd)
 	FleetCmd.AddCommand(ListCmd)
-	FleetCmd.AddCommand(PatchCmd)
-	FleetCmd.AddCommand(PullCmd)
 	FleetCmd.AddCommand(SshCmd)
-	FleetCmd.AddCommand(SyncCmd)
-	FleetCmd.AddCommand(ArcTokenCmd)
 }

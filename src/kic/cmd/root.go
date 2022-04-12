@@ -40,11 +40,7 @@ func init() {
 		addCommandIfNotExist("delete", fleet.DeleteCmd)
 		addCommandIfNotExist("exec", fleet.ExecCmd)
 		addCommandIfNotExist("list", fleet.ListCmd)
-		addCommandIfNotExist("patch", fleet.PatchCmd)
-		addCommandIfNotExist("pull", fleet.PullCmd)
 		addCommandIfNotExist("ssh", fleet.SshCmd)
-		addCommandIfNotExist("sync", fleet.SyncCmd)
-		addCommandIfNotExist("arc-token", fleet.ArcTokenCmd)
 		addCommandIfNotExist("targets", targets.TargetsCmd)
 
 		if check := boa.GetCommandByUse(rootCmd, "check"); check != nil {

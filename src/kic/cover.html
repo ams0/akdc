@@ -65,47 +65,39 @@
 				
 				<option value="file4">kic/boa/shell.go (92.9%)</option>
 				
-				<option value="file5">kic/cmd/fleet/arcToken.go (100.0%)</option>
+				<option value="file5">kic/cmd/fleet/create.go (26.1%)</option>
 				
-				<option value="file6">kic/cmd/fleet/create.go (28.4%)</option>
+				<option value="file6">kic/cmd/fleet/delete.go (0.0%)</option>
 				
-				<option value="file7">kic/cmd/fleet/delete.go (0.0%)</option>
+				<option value="file7">kic/cmd/fleet/exec.go (83.3%)</option>
 				
-				<option value="file8">kic/cmd/fleet/exec.go (83.3%)</option>
+				<option value="file8">kic/cmd/fleet/fleet.go (100.0%)</option>
 				
-				<option value="file9">kic/cmd/fleet/fleet.go (100.0%)</option>
+				<option value="file9">kic/cmd/fleet/list.go (90.9%)</option>
 				
-				<option value="file10">kic/cmd/fleet/list.go (90.9%)</option>
+				<option value="file10">kic/cmd/fleet/ssh.go (0.0%)</option>
 				
-				<option value="file11">kic/cmd/fleet/patch.go (100.0%)</option>
+				<option value="file11">kic/cmd/root.go (59.3%)</option>
 				
-				<option value="file12">kic/cmd/fleet/pull.go (100.0%)</option>
+				<option value="file12">kic/cmd/targets/targets-add.go (88.9%)</option>
 				
-				<option value="file13">kic/cmd/fleet/ssh.go (0.0%)</option>
+				<option value="file13">kic/cmd/targets/targets-clear.go (87.5%)</option>
 				
-				<option value="file14">kic/cmd/fleet/sync.go (100.0%)</option>
+				<option value="file14">kic/cmd/targets/targets-deploy.go (0.0%)</option>
 				
-				<option value="file15">kic/cmd/root.go (64.5%)</option>
+				<option value="file15">kic/cmd/targets/targets-list.go (75.0%)</option>
 				
-				<option value="file16">kic/cmd/targets/targets-add.go (88.9%)</option>
+				<option value="file16">kic/cmd/targets/targets-remove.go (76.5%)</option>
 				
-				<option value="file17">kic/cmd/targets/targets-clear.go (87.5%)</option>
+				<option value="file17">kic/cmd/targets/targets.go (76.9%)</option>
 				
-				<option value="file18">kic/cmd/targets/targets-deploy.go (0.0%)</option>
+				<option value="file18">kic/cmd/test/test-integration.go (81.2%)</option>
 				
-				<option value="file19">kic/cmd/targets/targets-list.go (75.0%)</option>
+				<option value="file19">kic/cmd/test/test-load.go (90.5%)</option>
 				
-				<option value="file20">kic/cmd/targets/targets-remove.go (76.5%)</option>
+				<option value="file20">kic/cmd/test/test.go (100.0%)</option>
 				
-				<option value="file21">kic/cmd/targets/targets.go (76.9%)</option>
-				
-				<option value="file22">kic/cmd/test/test-integration.go (81.2%)</option>
-				
-				<option value="file23">kic/cmd/test/test-load.go (90.5%)</option>
-				
-				<option value="file24">kic/cmd/test/test.go (100.0%)</option>
-				
-				<option value="file25">kic/main.go (100.0%)</option>
+				<option value="file21">kic/main.go (100.0%)</option>
 				
 				</select>
 			</div>
@@ -1096,33 +1088,6 @@ func ShellExecE(cmd string) error <span class="cov8" title="1">{
 package fleet
 
 import (
-        "kic/boa"
-
-        "github.com/spf13/cobra"
-)
-
-// TokenCmd displays the admin-user token used to authenticate in the Arc portal
-var ArcTokenCmd = &amp;cobra.Command{
-        Use:   "arc-token",
-        Short: "Get Arc token from each cluster",
-
-        RunE: func(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
-                return (boa.ExecClusters("'echo -e \"\"$(hostname)\"\n$(./fleet-vm/scripts/get-service-account-token.sh)\n\"'", grep))
-        }</span>,
-}
-
-func init() <span class="cov8" title="1">{
-        ArcTokenCmd.Flags().StringVarP(&amp;grep, "grep", "g", "", "grep conditional to filter by host")
-}</span>
-</pre>
-		
-		<pre class="file" id="file6" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
-//   See LICENSE in the project root for license information.
-
-package fleet
-
-import (
         "fmt"
         "kic/boa"
         "kic/boa/cfmt"
@@ -1158,7 +1123,8 @@ var (
         cores             int
         gitCmd            string
         dirExists         bool = true
-        managedIdentityID      = os.Getenv("AKDC_MI")
+        sku               string
+        managedIdentityID = os.Getenv("AKDC_MI")
 
         // kic fleet create command
         CreateCmd = &amp;cobra.Command{
@@ -1190,6 +1156,7 @@ func init() <span class="cov8" title="1">{
         CreateCmd.Flags().BoolVarP(&amp;gitops, "gitops", "", false, "Generate GitOps targets in --repo")
         CreateCmd.Flags().BoolVarP(&amp;dryRun, "dry-run", "", false, "Show values that would be used")
         CreateCmd.Flags().IntVarP(&amp;cores, "cores", "", 4, "VM core count")
+        CreateCmd.Flags().StringVarP(&amp;sku, "sku", "", "", "Azure VM SKU")
 
         CreateCmd.RegisterFlagCompletionFunc("cluster", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) </span><span class="cov0" title="0">{
                 return getClusterComplete(), cobra.ShellCompDirectiveDefault
@@ -1323,9 +1290,79 @@ func validateClusterPrefix() bool <span class="cov0" title="0">{
         <span class="cov0" title="0">return true</span>
 }
 
+// validate logged in to Azure
+func validateAzureLogin() error <span class="cov0" title="0">{
+        _, err := boa.ShellExecOut("az account show --query tenantId -o tsv")
+        return err
+}</span>
+
+// validate Azure region
+func validateLocation(loc string) error <span class="cov0" title="0">{
+        res, err := boa.ShellExecOut("az account list-locations --query '[].name' -o table |  grep -x -i " + location)
+
+        if err != nil || res == "" </span><span class="cov0" title="0">{
+                return fmt.Errorf("%s", "invalid Azure Region")
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+// validate VM SKU
+func validateVmSku(loc string, vmSku string) error <span class="cov0" title="0">{
+        res, err := boa.ShellExecOut("az vm list-sizes -o table -l " + location + " | grep -w -i " + vmSku)
+
+        if err != nil || res == "" </span><span class="cov0" title="0">{
+                return fmt.Errorf("%s", "invalid VM SKU")
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+
 // run the command
 func runCreateCmd(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
-        if dryRun </span><span class="cov8" title="1">{
+        if !digitalOcean </span><span class="cov0" title="0">{
+                // validate azure login
+                if validateAzureLogin() != nil </span><span class="cov0" title="0">{
+                        cfmt.ErrorE("please run az login first")
+                        return nil
+                }</span>
+                // validate location
+                <span class="cov0" title="0">location = strings.ToLower(location)
+
+                if err := validateLocation(location); err != nil </span><span class="cov0" title="0">{
+                        cfmt.ErrorE("Invalid location")
+                        cfmt.Info("Valid Locations")
+                        boa.ShellExecE("az account list-locations --query '[].name' -o table | sort")
+                        fmt.Println()
+                        cfmt.ErrorE("Invalid location")
+                        return nil
+                }</span>
+
+                // SKU was not specified - try defaults
+                <span class="cov0" title="0">if sku == "" </span><span class="cov0" title="0">{
+                        // check the D4as_V5 SKU
+                        sku = "Standard_D" + strconv.Itoa(cores) + "as_v5"
+
+                        err := validateVmSku(location, sku)
+
+                        if err != nil </span><span class="cov0" title="0">{
+                                // check the D4s_v5 SKU
+                                sku = "Standard_D" + strconv.Itoa(cores) + "s_v5"
+                        }</span>
+                }
+
+                // validate VM SKU
+                <span class="cov0" title="0">if err := validateVmSku(location, sku); err != nil </span><span class="cov0" title="0">{
+                        cfmt.ErrorE("Invalid SKU")
+                        cfmt.Info("Valid SKUs for region: " + location)
+                        boa.ShellExecE("az vm list-sizes -l " + location + " -o table | grep _v5 | grep Standard_D" + " |awk '{print $3}' | sort")
+                        fmt.Println()
+                        cfmt.ErrorE("Invalid SKU")
+                        return nil
+                }</span>
+        }
+
+        <span class="cov8" title="1">if dryRun </span><span class="cov8" title="1">{
                 return doDryRun()
         }</span>
 
@@ -1374,7 +1411,11 @@ func doDryRun() error <span class="cov8" title="1">{
         fmt.Println("Cores:               ", cores)
         fmt.Println("Group:               ", group)
 
-        fmt.Println("Managed Identity:    ", strings.Contains(managedIdentityID, "/Microsoft.ManagedIdentity/"))
+        if !digitalOcean </span><span class="cov0" title="0">{
+                fmt.Println("VM SKU:              ", sku)
+        }</span>
+
+        <span class="cov8" title="1">fmt.Println("Managed Identity:    ", strings.Contains(managedIdentityID, "/Microsoft.ManagedIdentity/"))
         fmt.Println("Location:            ", location)
         fmt.Println("Repo:                ", repo)
         fmt.Println("Fleet Branch:        ", fleetBranch)
@@ -1489,7 +1530,7 @@ func createVM(managedIdentityID string) string <span class="cov0" title="0">{
         command += " -n " + cluster + " \\\n"
         command += " --admin-username akdc \\\n"
         command += " --assign-identity " + managedIdentityID + "\\\n"
-        command += " --size standard_D" + strconv.Itoa(cores) + "as_v5 \\\n"
+        command += " --size " + sku + " \\\n"
         command += " --image Canonical:0001-com-ubuntu-server-focal:20_04-lts-gen2:latest \\\n"
         command += " --os-disk-size-gb 128 \\\n"
         command += " --storage-sku Premium_LRS \\\n"
@@ -1768,7 +1809,7 @@ func setBranchE() error <span class="cov0" title="0">{
 }
 </pre>
 		
-		<pre class="file" id="file7" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file6" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -1822,7 +1863,7 @@ func validArgsFleetDelete(cmd *cobra.Command, args []string, toComplete string) 
 }
 </pre>
 		
-		<pre class="file" id="file8" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file7" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -1864,7 +1905,7 @@ func runFleetExecE(cmd *cobra.Command, args []string) error <span class="cov8" t
 }
 </pre>
 		
-		<pre class="file" id="file9" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file8" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -1890,15 +1931,11 @@ func init() <span class="cov8" title="1">{
         FleetCmd.AddCommand(DeleteCmd)
         FleetCmd.AddCommand(ExecCmd)
         FleetCmd.AddCommand(ListCmd)
-        FleetCmd.AddCommand(PatchCmd)
-        FleetCmd.AddCommand(PullCmd)
         FleetCmd.AddCommand(SshCmd)
-        FleetCmd.AddCommand(SyncCmd)
-        FleetCmd.AddCommand(ArcTokenCmd)
 }</span>
 </pre>
 		
-		<pre class="file" id="file10" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file9" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -1946,59 +1983,7 @@ func runFleetList(cmd *cobra.Command, args []string) error <span class="cov8" ti
 }
 </pre>
 		
-		<pre class="file" id="file11" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
-//   See LICENSE in the project root for license information.
-
-package fleet
-
-import (
-        "kic/boa"
-
-        "github.com/spf13/cobra"
-)
-
-// PatchCmd runs ~/fleet-vm/scripts/patch.sh on each cluster
-var PatchCmd = &amp;cobra.Command{
-        Use:   "patch",
-        Short: "Run a patch command on each cluster",
-        RunE: func(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
-                return (boa.ExecClusters("./fleet-vm/scripts/patch.sh", grep))
-        }</span>,
-}
-
-func init() <span class="cov8" title="1">{
-        PatchCmd.Flags().StringVarP(&amp;grep, "grep", "g", "", "grep conditional to filter by host")
-}</span>
-</pre>
-		
-		<pre class="file" id="file12" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
-//   See LICENSE in the project root for license information.
-
-package fleet
-
-import (
-        "kic/boa"
-
-        "github.com/spf13/cobra"
-)
-
-// PullCmd runs git pull on the akdc repo on each cluster
-var PullCmd = &amp;cobra.Command{
-        Use:   "pull",
-        Short: "Git pull the akdc repo",
-        RunE: func(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
-                return boa.ExecClusters("./fleet-vm/scripts/pull.sh", grep)
-        }</span>,
-}
-
-func init() <span class="cov8" title="1">{
-        PullCmd.Flags().StringVarP(&amp;grep, "grep", "g", "", "grep conditional to filter by host")
-}</span>
-</pre>
-		
-		<pre class="file" id="file13" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file10" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2073,34 +2058,7 @@ func validArgsFleetSsh(cmd *cobra.Command, args []string, toComplete string) ([]
 }
 </pre>
 		
-		<pre class="file" id="file14" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
-//   See LICENSE in the project root for license information.
-
-package fleet
-
-import (
-        "kic/boa"
-
-        "github.com/spf13/cobra"
-)
-
-// SyncCmd runs flux sync (reconcile) on each cluster
-var SyncCmd = &amp;cobra.Command{
-        Use:   "sync",
-        Short: "Sync (reconcile) flux on each cluster",
-
-        RunE: func(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
-                return boa.ExecClusters("flux reconcile source git gitops", grep)
-        }</span>,
-}
-
-func init() <span class="cov8" title="1">{
-        SyncCmd.Flags().StringVarP(&amp;grep, "grep", "g", "", "grep conditional to filter by host")
-}</span>
-</pre>
-		
-		<pre class="file" id="file15" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file11" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2142,11 +2100,7 @@ func init() <span class="cov8" title="1">{
                 addCommandIfNotExist("delete", fleet.DeleteCmd)
                 addCommandIfNotExist("exec", fleet.ExecCmd)
                 addCommandIfNotExist("list", fleet.ListCmd)
-                addCommandIfNotExist("patch", fleet.PatchCmd)
-                addCommandIfNotExist("pull", fleet.PullCmd)
                 addCommandIfNotExist("ssh", fleet.SshCmd)
-                addCommandIfNotExist("sync", fleet.SyncCmd)
-                addCommandIfNotExist("arc-token", fleet.ArcTokenCmd)
                 addCommandIfNotExist("targets", targets.TargetsCmd)
 
                 if check := boa.GetCommandByUse(rootCmd, "check"); check != nil </span><span class="cov8" title="1">{
@@ -2195,7 +2149,7 @@ func validArgsFleetCheckApp(cmd *cobra.Command, args []string, toComplete string
 }
 </pre>
 		
-		<pre class="file" id="file16" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file12" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2257,7 +2211,7 @@ func runTargetsAddE(cmd *cobra.Command, args []string) error <span class="cov8" 
 }
 </pre>
 		
-		<pre class="file" id="file17" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file13" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2297,7 +2251,7 @@ func runTargetsClearE(cmd *cobra.Command, args []string) error <span class="cov8
 }
 </pre>
 		
-		<pre class="file" id="file18" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file14" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2359,7 +2313,7 @@ func runTargetsDeployE(cmd *cobra.Command, args []string) error <span class="cov
 }
 </pre>
 		
-		<pre class="file" id="file19" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file15" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2397,7 +2351,7 @@ func runTargetsListE(cmd *cobra.Command, args []string) error <span class="cov8"
 }
 </pre>
 		
-		<pre class="file" id="file20" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file16" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2454,7 +2408,7 @@ func runTargetsRemoveE(cmd *cobra.Command, args []string) error <span class="cov
 }
 </pre>
 		
-		<pre class="file" id="file21" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file17" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2542,7 +2496,7 @@ func saveAutoGitOpsConfig(result map[string]interface{}) <span class="cov8" titl
 }
 </pre>
 		
-		<pre class="file" id="file22" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file18" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2615,7 +2569,7 @@ func runTestIntegrationE(cmd *cobra.Command, args []string) error <span class="c
 }
 </pre>
 		
-		<pre class="file" id="file23" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file19" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2697,7 +2651,7 @@ func runTestLoadE(cmd *cobra.Command, args []string) error <span class="cov8" ti
 }
 </pre>
 		
-		<pre class="file" id="file24" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file20" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
@@ -2771,7 +2725,7 @@ func getTestFlagValues() string <span class="cov8" title="1">{
 }
 </pre>
 		
-		<pre class="file" id="file25" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
+		<pre class="file" id="file21" style="display: none">// Copyright © Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 //   See LICENSE in the project root for license information.
 
