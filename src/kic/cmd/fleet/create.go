@@ -40,7 +40,8 @@ var (
 	cores             int
 	gitCmd            string
 	dirExists         bool = true
-	managedIdentityID      = os.Getenv("AKDC_MI")
+	sku               string
+	managedIdentityID = os.Getenv("AKDC_MI")
 
 	// kic fleet create command
 	CreateCmd = &cobra.Command{
@@ -72,6 +73,7 @@ func init() {
 	CreateCmd.Flags().BoolVarP(&gitops, "gitops", "", false, "Generate GitOps targets in --repo")
 	CreateCmd.Flags().BoolVarP(&dryRun, "dry-run", "", false, "Show values that would be used")
 	CreateCmd.Flags().IntVarP(&cores, "cores", "", 4, "VM core count")
+	CreateCmd.Flags().StringVarP(&sku, "sku", "", "", "Azure VM SKU")
 
 	CreateCmd.RegisterFlagCompletionFunc("cluster", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return getClusterComplete(), cobra.ShellCompDirectiveDefault
@@ -205,8 +207,78 @@ func validateClusterPrefix() bool {
 	return true
 }
 
+// validate logged in to Azure
+func validateAzureLogin() error {
+	_, err := boa.ShellExecOut("az account show --query tenantId -o tsv")
+	return err
+}
+
+// validate Azure region
+func validateLocation(loc string) error {
+	res, err := boa.ShellExecOut("az account list-locations --query '[].name' -o table |  grep -x -i " + location)
+
+	if err != nil || res == "" {
+		return fmt.Errorf("%s", "invalid Azure Region")
+	}
+
+	return nil
+}
+
+// validate VM SKU
+func validateVmSku(loc string, vmSku string) error {
+	res, err := boa.ShellExecOut("az vm list-sizes -o table -l " + location + " | grep -w -i " + vmSku)
+
+	if err != nil || res == "" {
+		return fmt.Errorf("%s", "invalid VM SKU")
+	}
+
+	return nil
+}
+
 // run the command
 func runCreateCmd(cmd *cobra.Command, args []string) error {
+	if !digitalOcean {
+		// validate azure login
+		if validateAzureLogin() != nil {
+			cfmt.ErrorE("please run az login first")
+			return nil
+		}
+		// validate location
+		location = strings.ToLower(location)
+
+		if err := validateLocation(location); err != nil {
+			cfmt.ErrorE("Invalid location")
+			cfmt.Info("Valid Locations")
+			boa.ShellExecE("az account list-locations --query '[].name' -o table | sort")
+			fmt.Println()
+			cfmt.ErrorE("Invalid location")
+			return nil
+		}
+
+		// SKU was not specified - try defaults
+		if sku == "" {
+			// check the D4as_V5 SKU
+			sku = "Standard_D" + strconv.Itoa(cores) + "as_v5"
+
+			err := validateVmSku(location, sku)
+
+			if err != nil {
+				// check the D4s_v5 SKU
+				sku = "Standard_D" + strconv.Itoa(cores) + "s_v5"
+			}
+		}
+
+		// validate VM SKU
+		if err := validateVmSku(location, sku); err != nil {
+			cfmt.ErrorE("Invalid SKU")
+			cfmt.Info("Valid SKUs for region: " + location)
+			boa.ShellExecE("az vm list-sizes -l " + location + " -o table | grep _v5 | grep Standard_D" + " |awk '{print $3}' | sort")
+			fmt.Println()
+			cfmt.ErrorE("Invalid SKU")
+			return nil
+		}
+	}
+
 	if dryRun {
 		return doDryRun()
 	}
@@ -255,6 +327,10 @@ func doDryRun() error {
 	fmt.Println("Cluster:             ", cluster)
 	fmt.Println("Cores:               ", cores)
 	fmt.Println("Group:               ", group)
+
+	if !digitalOcean {
+		fmt.Println("VM SKU:              ", sku)
+	}
 
 	fmt.Println("Managed Identity:    ", strings.Contains(managedIdentityID, "/Microsoft.ManagedIdentity/"))
 	fmt.Println("Location:            ", location)
@@ -371,7 +447,7 @@ func createVM(managedIdentityID string) string {
 	command += " -n " + cluster + " \\\n"
 	command += " --admin-username akdc \\\n"
 	command += " --assign-identity " + managedIdentityID + "\\\n"
-	command += " --size standard_D" + strconv.Itoa(cores) + "as_v5 \\\n"
+	command += " --size " + sku + " \\\n"
 	command += " --image Canonical:0001-com-ubuntu-server-focal:20_04-lts-gen2:latest \\\n"
 	command += " --os-disk-size-gb 128 \\\n"
 	command += " --storage-sku Premium_LRS \\\n"
