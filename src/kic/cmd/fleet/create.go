@@ -374,7 +374,7 @@ func vmExists() bool {
 
 // get the path to template file
 func getTemplatePath() string {
-	return boa.GetRepoBase() + "/assets/akdc.templ"
+	return boa.GetBoaPath() + "/fleet-vm.templ"
 }
 
 // create Azure Resource Group
