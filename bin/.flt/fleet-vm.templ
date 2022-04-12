@@ -287,6 +287,10 @@ apt-get install -y docker-ce docker-ce-cli
 echo "$(date +'%Y-%m-%d %H:%M:%S')  installing kubectl" >> status
 apt-get install -y kubectl
 
+# Install istio CLI
+echo "$(date +'%Y-%m-%d %H:%M:%S')  installing istioctl" >> status
+hash istioctl || (echo "Installing istioctl" ; curl -sL https://istio.io/downloadIstioctl | sh - > /dev/null 2>&1; sudo mv ~/.istioctl/bin/istioctl /usr/local/bin)
+
 # kubectl auto complete
 kubectl completion bash > /etc/bash_completion.d/kubectl
 
