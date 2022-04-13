@@ -8,7 +8,7 @@ echo "$(date +'%Y-%m-%d %H:%M:%S')    on-create start" >> "$HOME/status"
 export REPO_BASE=$PWD
 export AKDC_REPO=retaildevcrews/edge-gitops
 
-export PATH="$PATH:$REPO_BASE"
+export PATH="$PATH:$REPO_BASE/bin"
 export GOPATH="$HOME/go"
 
 mkdir -p "$HOME/.ssh"

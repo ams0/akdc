@@ -149,7 +149,7 @@ To view Kubernetes workloads in the portal:
 
 - Once the token is validated, namespaces and other kubernetes resources will be available in the portal for that specific cluster.
 
- ![Azure ARC k3d workloads](/assets/images/arc.png)
+ ![Azure ARC k3d workloads](./images/arc.png)
 
 ## Debugging akdc
 
@@ -170,7 +170,7 @@ Each argument should be on a separate line. For example the configuration corres
 
 At this point you can set a breakpoint at the desired location of the akdc go code and invoke the debugger using the F5 key.
 
- ![Debug adkc go code](/assets/images/debug-akdc.png)
+ ![Debug adkc go code](./images/debug-akdc.png)
 
 ## Digital Ocean VMs
 
