@@ -201,10 +201,10 @@ echo "$(date +'%Y-%m-%d %H:%M:%S')  $(az account show -o tsv --query 'user.name'
 
 # save secrets
 az keyvault secret show --vault-name kv-tld  --query 'value' -o tsv -n akdc-pat > /home/akdc/.ssh/akdc.pat
-az keyvault secret show --vault-name kv-tld  --query 'value' -o tsv -n cse-retail-crt > /home/akdc/.ssh/certs.pem
-az keyvault secret show --vault-name kv-tld  --query 'value' -o tsv -n cse-retail-key > /home/akdc/.ssh/certs.key
-az keyvault secret show --vault-name kv-tld  --query 'value' -o tsv -n red-fluent-bit-secret > /home/akdc/.ssh/fluent-bit.key
-az keyvault secret show --vault-name kv-tld  --query 'value' -o tsv -n red-prometheus-secret > /home/akdc/.ssh/prometheus.key
+az keyvault secret show --vault-name kv-tld  --query 'value' -o tsv -n ssl-crt > /home/akdc/.ssh/certs.pem
+az keyvault secret show --vault-name kv-tld  --query 'value' -o tsv -n ssl-key > /home/akdc/.ssh/certs.key
+az keyvault secret show --vault-name kv-tld  --query 'value' -o tsv -n fluent-bit-secret > /home/akdc/.ssh/fluent-bit.key
+az keyvault secret show --vault-name kv-tld  --query 'value' -o tsv -n prometheus-secret > /home/akdc/.ssh/prometheus.key
 
 echo "$(date +'%Y-%m-%d %H:%M:%S')  az login complete" >> /home/akdc/status
 

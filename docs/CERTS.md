@@ -19,8 +19,8 @@
 
   # set these values for your Key Vault
   export AKDC_VAULT_NAME=kv-tld
-  export AKDC_VAULT_KEY=cse-retail-key
-  export AKDC_VAULT_CERT=cse-retail-crt
+  export AKDC_VAULT_KEY=ssl-key
+  export AKDC_VAULT_CERT=ssl-crt
 
   # make sure the directory exists
   mkdir -p ~/.ssh
@@ -77,8 +77,8 @@
 
   # set these values for your Key Vault
   export AKDC_VAULT_NAME=kv-tld
-  export AKDC_VAULT_KEY=cse-retail-key
-  export AKDC_VAULT_CERT=cse-retail-crt
+  export AKDC_VAULT_KEY=ssl-key
+  export AKDC_VAULT_CERT=ssl-crt
 
   # upload the files from Key Vault
   az keyvault secret set --vault-name "$AKDC_VAULT_NAME" -n "$AKDC_VAULT_KEY" -f ~/.ssh/certs.key
