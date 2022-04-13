@@ -9,6 +9,7 @@ import (
 	"kic/boa"
 	"kic/boa/cfmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -24,8 +25,13 @@ var DeleteCmd = &cobra.Command{
 
 // run kic fleet delete command
 func runFleetDeleteE(cmd *cobra.Command, args []string) error {
-	cfmt.Info("Deleting Resource Group")
-	boa.ShellExecE(fmt.Sprintf("az group delete -n %s --yes --no-wait", args[0]))
+	// check if resource group exists
+	res, _ := boa.ShellExecOut(fmt.Sprintf("az group exists -n %s", args[0]))
+
+	if strings.TrimSpace(res) == "true" {
+		cfmt.Info("Deleting Resource Group")
+		boa.ShellExecE(fmt.Sprintf("az group delete -n %s --yes --no-wait", args[0]))
+	}
 
 	cfmt.Info("Deleting DNS Record")
 	return (boa.ShellExecE(fmt.Sprintf("az network dns record-set a delete -g tld -z cseretail.com --yes -n %s", args[0])))
