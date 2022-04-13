@@ -433,7 +433,7 @@ func addFltCommand(use string, short string, long string, command string) *cobra
 		Long:  long,
 
 		RunE: func(cmd *cobra.Command, args []string) error {
-			script := filepath.Join(".", "fleet-vm", "scripts", command)
+			script := filepath.Join(".", "cli", "vm", "scripts", command)
 
 			// add the paramaters
 			if len(args) > 0 {

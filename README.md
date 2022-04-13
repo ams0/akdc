@@ -1,4 +1,4 @@
-# AKDC
+# Retail Edge CLI
 
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](code_of_conduct.md)
@@ -24,50 +24,35 @@ Once Codespaces is running:
 
 > Make sure your terminal is running zsh - bash is not supported and will not work
 
-- Login to Azure using the project Service Principle
+## Build the CLI
 
 ```bash
 
-flt az-login
+# change to the src directory
+cd src/kic
+
+# run make
+make build
+
+# make test
+# make cover
 
 ```
 
-## Retail Edge Demo Dashboard
+## Boa Files
 
-- [dashboard](https://retailedge.grafana.net/d/pQOetffnz)
+- We use `boa` to provide extensibility and customization
+- The boa files are located at
+  - Fleet CLI (flt)
+    - bin/.flt
+  - Inner-loop CLI (kic)
+    - bin/.kic
+  - VM CLI (kic)
+    - vm/bin/.kic
 
-## CLI Code Coverage
+## Code Coverage
 
 - [code coverage](https://htmlpreview.github.io/?https://github.com/retaildevcrews/akdc/blob/main/src/kic/cover.html)
-
-## Inner-loop Developer Experience
-
-- [Readme](../inner-loop/README.md)
-
-- We use the `Kubernetes in Codespaces` repo from <https://github.com/cse-labs/kubernetes-in-codespaces>
-  - This was cloned to `/workspaces/inner-loop` as part of Codespaces setup
-
-```bash
-
-cd ../inner-loop
-
-```
-
-## Digital Twin Developer Experience
-
-- [Readme](./digital-twin/README.md)
-
-## Arc Developer Experience
-
-- work in progress
-
-## Azure Stack HCI Developer Experience
-
-- work in progress
-
-## Fleet Developer Experience
-
-- Follow the instructions here: <https://github.com/retaildevcrews/edge-gitops>
 
 ## Support
 

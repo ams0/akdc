@@ -41,7 +41,6 @@ git -C ../imdb-app pull
 git -C ../edge-gitops pull
 git -C ../red-gitops pull
 git -C ../inner-loop pull
-git -C ../fleet-vm pull
 git -C ../vtlog pull
 
 echo "post-create complete"

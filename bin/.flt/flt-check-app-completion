@@ -11,3 +11,4 @@ svc-lbtraefik	Traefik Load Balancer
 testapp	Test App (sample app)
 myapp	My App (sample app)
 pilotapp	Pilot App  (sample app)
+dapr	Dapr service

@@ -111,7 +111,7 @@ cp .oh-my-bash/templates/bashrc.osh-template .bashrc
   echo "alias kje='kubectl exec -it jumpbox -- '"
 
   echo ""
-  echo 'export PATH="$PATH:$HOME/bin:$HOME/fleet-vm/bin"'
+  echo 'export PATH="$PATH:$HOME/bin:$HOME/cli/vm/bin"'
   echo "export AKDC_CLUSTER=$AKDC_CLUSTER"
   echo "export AKDC_BRANCH=$AKDC_BRANCH"
   echo "export AKDC_REPO=$AKDC_REPO"
@@ -221,8 +221,8 @@ chown -R ${AKDC_ME}:${AKDC_ME} /home/${AKDC_ME}
 echo "$(date +'%Y-%m-%d %H:%M:%S')  cloning GitHub repos" >> status
 # run as akdc user
 sudo -HEu akdc git clone "https://$(cat .ssh/akdc.pat)@github.com/$AKDC_REPO" gitops
-sudo -HEu akdc git clone "https://$(cat .ssh/akdc.pat)@github.com/retaildevcrews/fleet-vm"
-sudo -HEu akdc git -C fleet-vm checkout $AKDC_FLEET_BRANCH
+sudo -HEu akdc git clone "https://$(cat .ssh/akdc.pat)@github.com/retaildevcrews/akdc" cli
+sudo -HEu akdc git -C gitops checkout $AKDC_FLEET_BRANCH
 
 # checkout the branch
 if [ "$AKDC_BRANCH" != "main" ]
@@ -233,7 +233,7 @@ fi
 # change ownership
 chown -R ${AKDC_ME}:${AKDC_ME} /home/${AKDC_ME}
 
-if [ ! -d fleet-vm/setup ]
+if [ ! -d cli/vm/setup ]
 then
   echo "$(date +'%Y-%m-%d %H:%M:%S')  git clone failed" >> status
   echo "git clone failed"
@@ -326,7 +326,7 @@ k3d registry create registry.localhost --port 5500
 docker network connect k3d k3d-registry.localhost
 
 # can't continue without k3d-setup.sh
-if [ ! -f ./fleet-vm/setup/k3d-setup.sh ]
+if [ ! -f ./cli/vm/setup/k3d-setup.sh ]
 then
   echo "$(date +'%Y-%m-%d %H:%M:%S')  k3d-setup.sh not found" >> status
   echo "k3d-setup.sh not found"
@@ -336,46 +336,46 @@ fi
 echo "$(date +'%Y-%m-%d %H:%M:%S')  running scripts" >> status
 
 # run akdc-pre-k3d.sh
-if [ -f ./fleet-vm/setup/akdc-pre-k3d.sh ]
+if [ -f ./cli/vm/setup/akdc-pre-k3d.sh ]
 then
   # run as AKDC_ME
-  sudo -HEu akdc ./fleet-vm/setup/akdc-pre-k3d.sh || exit 1
+  sudo -HEu akdc ./cli/vm/setup/akdc-pre-k3d.sh || exit 1
 fi
 
 # run k3d-setup
-if [ -f ./fleet-vm/setup/k3d-setup.sh ]
+if [ -f ./cli/vm/setup/k3d-setup.sh ]
 then
-  sudo -HEu akdc ./fleet-vm/setup/k3d-setup.sh || exit 1
+  sudo -HEu akdc ./cli/vm/setup/k3d-setup.sh || exit 1
 fi
 
 # run akdc-pre-flux.sh
-if [ -f ./fleet-vm/setup/akdc-pre-flux.sh ]
+if [ -f ./cli/vm/setup/akdc-pre-flux.sh ]
 then
-  sudo -HEu akdc ./fleet-vm/setup/akdc-pre-flux.sh || exit 1
+  sudo -HEu akdc ./cli/vm/setup/akdc-pre-flux.sh || exit 1
 fi
 
 # setup flux
-if [ -f ./fleet-vm/setup/flux-setup.sh ]
+if [ -f ./cli/vm/setup/flux-setup.sh ]
 then
-  sudo -HEu akdc ./fleet-vm/setup/flux-setup.sh || exit 1
+  sudo -HEu akdc ./cli/vm/setup/flux-setup.sh || exit 1
 fi
 
 # run akdc-pre-arc.sh
-if [ -f ./fleet-vm/setup/akdc-pre-arc.sh ]
+if [ -f ./cli/vm/setup/akdc-pre-arc.sh ]
 then
-  sudo -HEu akdc ./fleet-vm/setup/akdc-pre-arc.sh || exit 1
+  sudo -HEu akdc ./cli/vm/setup/akdc-pre-arc.sh || exit 1
 fi
 
 # configure azure arc
-if [ -f ./fleet-vm/setup/arc-setup.sh ]
+if [ -f ./cli/vm/setup/arc-setup.sh ]
 then
-  sudo -HEu akdc ./fleet-vm/setup/arc-setup.sh || exit 1
+  sudo -HEu akdc ./cli/vm/setup/arc-setup.sh || exit 1
 fi
 
 # run akdc-post.sh
-if [ -f ./fleet-vm/setup/akdc-post.sh ]
+if [ -f ./cli/vm/setup/akdc-post.sh ]
 then
-  sudo -HEu akdc ./fleet-vm/setup/akdc-post.sh || exit 1
+  sudo -HEu akdc ./cli/vm/setup/akdc-post.sh || exit 1
 fi
 
 echo "$(date +'%Y-%m-%d %H:%M:%S')  complete" >> status

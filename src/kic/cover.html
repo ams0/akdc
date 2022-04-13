@@ -546,7 +546,7 @@ func addFltCommand(use string, short string, long string, command string) *cobra
                 Long:  long,
 
                 RunE: func(cmd *cobra.Command, args []string) error </span><span class="cov0" title="0">{
-                        script := filepath.Join(".", "fleet-vm", "scripts", command)
+                        script := filepath.Join(".", "cli", "vm", "scripts", command)
 
                         // add the paramaters
                         if len(args) &gt; 0 </span><span class="cov0" title="0">{
@@ -934,7 +934,7 @@ func GetBoaPath() string <span class="cov8" title="1">{
         app := GetBinName()
         appConfig := "." + app
 
-        // todo - testing
+        // check current directory first
         if local, err := os.Getwd(); err == nil </span><span class="cov8" title="1">{
                 local = filepath.Join(local, appConfig)
 
@@ -1820,6 +1820,7 @@ import (
         "kic/boa"
         "kic/boa/cfmt"
         "os"
+        "strings"
 
         "github.com/spf13/cobra"
 )
@@ -1835,12 +1836,17 @@ var DeleteCmd = &amp;cobra.Command{
 
 // run kic fleet delete command
 func runFleetDeleteE(cmd *cobra.Command, args []string) error <span class="cov0" title="0">{
-        cfmt.Info("Deleting Resource Group")
-        boa.ShellExecE(fmt.Sprintf("az group delete -n %s --yes --no-wait", args[0]))
+        // check if resource group exists
+        res, _ := boa.ShellExecOut(fmt.Sprintf("az group exists -n %s", args[0]))
 
-        cfmt.Info("Deleting DNS Record")
-        return (boa.ShellExecE(fmt.Sprintf("az network dns record-set a delete -g tld -z cseretail.com --yes -n %s", args[0])))
-}</span>
+        if strings.TrimSpace(res) == "true" </span><span class="cov0" title="0">{
+                cfmt.Info("Deleting Resource Group")
+                boa.ShellExecE(fmt.Sprintf("az group delete -n %s --yes --no-wait", args[0]))
+        }</span>
+
+        <span class="cov0" title="0">cfmt.Info("Deleting DNS Record")
+        return (boa.ShellExecE(fmt.Sprintf("az network dns record-set a delete -g tld -z cseretail.com --yes -n %s", args[0])))</span>
+}
 
 // validate kic fleet delete args
 func validArgsFleetDelete(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) <span class="cov0" title="0">{

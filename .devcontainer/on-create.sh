@@ -49,16 +49,6 @@ docker network create k3d
 k3d registry create registry.localhost --port 5500
 docker network connect k3d k3d-registry.localhost
 
-# pull the base docker images
-docker pull mcr.microsoft.com/dotnet/sdk:5.0-alpine
-docker pull mcr.microsoft.com/dotnet/aspnet:5.0-alpine
-docker pull mcr.microsoft.com/dotnet/sdk:5.0
-docker pull mcr.microsoft.com/dotnet/aspnet:6.0-alpine
-docker pull mcr.microsoft.com/dotnet/sdk:6.0
-docker pull ghcr.io/cse-labs/webv-red:latest
-docker pull ghcr.io/cse-labs/webv-red:beta
-docker pull ghcr.io/retaildevcrews/autogitops:beta
-
 # install cobra
 go install -v github.com/spf13/cobra/cobra@latest
 
@@ -74,8 +64,6 @@ go install -v github.com/go-delve/delve/cmd/dlv@latest
 go install -v honnef.co/go/tools/cmd/staticcheck@latest
 go install -v golang.org/x/tools/gopls@latest
 
-cp -r .devcontainer/.vscode .
-
 # clone repos
 cd ..
 git clone https://github.com/microsoft/webvalidate
@@ -83,23 +71,12 @@ git clone https://github.com/cse-labs/imdb-app
 git clone https://github.com/cse-labs/kubernetes-in-codespaces inner-loop
 git clone https://github.com/retaildevcrews/edge-gitops
 git clone https://github.com/retaildevcrews/red-gitops
-git clone https://github.com/retaildevcrews/fleet-vm
 git clone https://github.com/retaildevcrews/vtlog
-cd "$REPO_BASE" || exit
-
-echo "building cli"
-cd src/kic || exit
-make build
 cd "$REPO_BASE" || exit
 
 echo "generating kic completion"
 kic completion zsh > "$HOME/.oh-my-zsh/completions/_kic"
 flt completion zsh > "$HOME/.oh-my-zsh/completions/_flt"
-
-echo "creating k3d cluster"
-cd ../inner-loop || exit
-kic cluster rebuild
-cd "$REPO_BASE" || exit
 
 echo "on-create complete"
 echo "$(date +'%Y-%m-%d %H:%M:%S')    on-create complete" >> "$HOME/status"

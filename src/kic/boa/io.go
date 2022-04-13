@@ -147,7 +147,7 @@ func GetBoaPath() string {
 	app := GetBinName()
 	appConfig := "." + app
 
-	// todo - testing
+	// check current directory first
 	if local, err := os.Getwd(); err == nil {
 		local = filepath.Join(local, appConfig)
 
