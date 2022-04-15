@@ -1,5 +1,7 @@
 #!/bin/bash
 
+### if running manually, you must start a new shell to get the docker permissions
+
 # change to this directory
 cd "$(dirname "${BASH_SOURCE[0]}")" || exit
 
@@ -19,6 +21,8 @@ k3d cluster delete
 k3d cluster create --registry-use k3d-registry.localhost:5500 --config k3d.yaml --k3s-server-arg '--no-deploy=traefik'
 
 # sleep to avoid timing issues
+sleep 5
+kubectl wait node --all  --for condition=ready --timeout 30s
 sleep 5
 kubectl wait pod -l k8s-app=kube-dns -n kube-system --for condition=ready --timeout 30s
 

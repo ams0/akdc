@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 ####### do not change these values #######
 export AKDC_ME=akdc
@@ -49,15 +49,16 @@ then
   cd ..
 fi
 
-cp /usr/share/zoneinfo/America/Chicago /etc/localtime
-
 cd /home/${AKDC_ME} || exit
 
 echo "$(date +'%Y-%m-%d %H:%M:%S')  starting" >> status
+echo "$(date +'%Y-%m-%d %H:%M:%S')  flux retries:" >> status
 
 echo "${AKDC_ME} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/akdc
 
 touch .sudo_as_admin_successful
+
+cp /usr/share/zoneinfo/America/Chicago /etc/localtime
 
 # upgrade sshd security
 {
@@ -70,103 +71,17 @@ touch .sudo_as_admin_successful
 # restart sshd
 systemctl restart sshd
 
-# make some directories we will need
-mkdir -p .ssh
-mkdir -p .kube
-mkdir -p bin
-mkdir -p .local/bin
-mkdir -p .k9s
-mkdir -p .oh-my-bash/completions
-mkdir -p /root/.kube
-
-# configure git CLI
-git config --system user.name autogitops
-git config --system user.email autogitops@outlook.com
-git config --system core.whitespace blank-at-eol,blank-at-eof,space-before-tab
-git config --system pull.rebase false
-git config --system init.defaultbranch main
-git config --system fetch.prune true
-git config --system core.pager more
-
-# oh my bash
-git clone --depth=1 https://github.com/ohmybash/oh-my-bash.git .oh-my-bash
-cp .oh-my-bash/templates/bashrc.osh-template .bashrc
-
-# add to /etc/bash.bashrc
-# shellcheck disable=2016
-{
-  echo ""
-  echo "shopt -s expand_aliases"
-  echo ""
-  echo "alias k='kubectl'"
-  echo "alias kga='kubectl get all'"
-  echo "alias kgaa='kubectl get all --all-namespaces'"
-  echo "alias kaf='kubectl apply -f'"
-  echo "alias kdelf='kubectl delete -f'"
-  echo "alias kl='kubectl logs'"
-  echo "alias kccc='kubectl config current-context'"
-  echo "alias kcgc='kubectl config get-contexts'"
-  echo "alias kj='kubectl exec -it jumpbox -- bash -l'"
-  echo "alias kje='kubectl exec -it jumpbox -- '"
-
-  echo ""
-  echo 'export PATH="$PATH:$HOME/bin:$HOME/cli/vm/bin"'
-  echo "export AKDC_CLUSTER=$AKDC_CLUSTER"
-  echo "export AKDC_BRANCH=$AKDC_BRANCH"
-  echo "export AKDC_REPO=$AKDC_REPO"
-  echo "export AKDC_FQDN=$AKDC_FQDN"
-  echo "export AKDC_DEBUG=$AKDC_DEBUG"
-  echo "export AKDC_ARC_ENABLED=$AKDC_ARC_ENABLED"
-  echo "export AKDC_RESOURCE_GROUP=$AKDC_RESOURCE_GROUP"
-  echo "export AKDC_ZONE=$AKDC_ZONE"
-  echo "export AKDC_DNS_RG=$AKDC_DNS_RG"
-
-  echo ""
-  echo "source <(kic completion bash)"
-  echo 'complete -F __start_kubectl k'
-} >> /etc/bash.bashrc
+# backup bashrc
+cp /etc/bash.bashrc /etc/bash.bashrc.bak
 
 # source .bashrc for non-interactive logins
 sed -i "s/\[ -z \"\$PS1\" ] && return//" /etc/bash.bashrc
 
-chown -R ${AKDC_ME}:${AKDC_ME} /home/${AKDC_ME}
-
-# make some system dirs
-mkdir -p /etc/docker
-mkdir -p /prometheus && chown -R 65534:65534 /prometheus
-mkdir -p /grafana
-# cp /workspaces/.cnp-labs/cluster-admin/deploy/grafanadata/grafana.db /grafana
-chown -R 472:0 /grafana
-
-# create / add to groups
-groupadd docker
-usermod -aG sudo ${AKDC_ME}
-usermod -aG admin ${AKDC_ME}
-usermod -aG docker ${AKDC_ME}
-gpasswd -a ${AKDC_ME} sudo
-
-echo "$(date +'%Y-%m-%d %H:%M:%S')  flux retries:" >> status
-
 echo "$(date +'%Y-%m-%d %H:%M:%S')  installing base" >> status
 apt-get update
-apt-get install -y apt-utils dialog apt-transport-https ca-certificates net-tools
+apt-get install -y apt-utils dialog apt-transport-https ca-certificates
 
-echo "$(date +'%Y-%m-%d %H:%M:%S')  installing libs" >> status
-apt-get install -y software-properties-common libssl-dev libffi-dev python-dev build-essential lsb-release gnupg-agent
-
-echo "$(date +'%Y-%m-%d %H:%M:%S')  installing utils" >> status
-apt-get install -y curl git wget nano jq zip unzip httpie
-apt-get install -y dnsutils coreutils gnupg2 make bash-completion gettext iputils-ping
-
-echo "$(date +'%Y-%m-%d %H:%M:%S')  adding package sources" >> status
-
-# add Docker repo
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key --keyring /etc/apt/trusted.gpg.d/docker.gpg add -
-add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-
-# add kubenetes repo
-curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list
+echo "$(date +'%Y-%m-%d %H:%M:%S')  installing az cli" >> /home/akdc/status
 
 # add az cli repo
 curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/microsoft.gpg
@@ -174,7 +89,6 @@ echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $(lsb_rel
 
 apt-get update
 
-echo "$(date +'%Y-%m-%d %H:%M:%S')  installing az cli" >> /home/akdc/status
 apt-get install -y azure-cli
 
 echo "$(date +'%Y-%m-%d %H:%M:%S')  az login start" >> /home/akdc/status
@@ -215,9 +129,6 @@ then
   exit 1
 fi
 
-# change ownership
-chown -R ${AKDC_ME}:${AKDC_ME} /home/${AKDC_ME}
-
 echo "$(date +'%Y-%m-%d %H:%M:%S')  cloning GitHub repos" >> status
 # run as akdc user
 sudo -HEu akdc git clone "https://$(cat .ssh/akdc.pat)@github.com/$AKDC_REPO" gitops
@@ -229,153 +140,65 @@ then
   git -C gitops checkout $AKDC_BRANCH
 fi
 
+# save the bashrc patch
+# shellcheck disable=2016
+{
+  echo ""
+  echo "shopt -s expand_aliases"
+  echo ""
+  echo "alias k='kubectl'"
+  echo "alias kga='kubectl get all'"
+  echo "alias kgaa='kubectl get all --all-namespaces'"
+  echo "alias kaf='kubectl apply -f'"
+  echo "alias kdelf='kubectl delete -f'"
+  echo "alias kl='kubectl logs'"
+  echo "alias kccc='kubectl config current-context'"
+  echo "alias kcgc='kubectl config get-contexts'"
+  echo "alias kj='kubectl exec -it jumpbox -- bash -l'"
+  echo "alias kje='kubectl exec -it jumpbox -- '"
+
+  echo ""
+  echo 'export PATH="$PATH:$HOME/cli/vm/bin"'
+  echo "export AKDC_ME=$AKDC_ME"
+  echo "export AKDC_CLUSTER=$AKDC_CLUSTER"
+  echo "export AKDC_BRANCH=$AKDC_BRANCH"
+  echo "export AKDC_REPO=$AKDC_REPO"
+  echo "export AKDC_FQDN=$AKDC_FQDN"
+  echo "export AKDC_DEBUG=$AKDC_DEBUG"
+  echo "export AKDC_ARC_ENABLED=$AKDC_ARC_ENABLED"
+  echo "export AKDC_RESOURCE_GROUP=$AKDC_RESOURCE_GROUP"
+  echo "export AKDC_ZONE=$AKDC_ZONE"
+  echo "export AKDC_DNS_RG=$AKDC_DNS_RG"
+
+  echo ""
+  echo "source <(kic completion bash)"
+  echo 'complete -F __start_kubectl k'
+} >> patch.bashrc
+
+# add patch to global bashrc
+cat patch.bashrc >> /etc/bash.bashrc
+
+# setup oh my bash
+git clone --depth=1 https://github.com/ohmybash/oh-my-bash.git .oh-my-bash
+cp .oh-my-bash/templates/bashrc.osh-template .bashrc
+
 # change ownership
 chown -R ${AKDC_ME}:${AKDC_ME} /home/${AKDC_ME}
 
-if [ ! -d cli/vm/setup ]
+# don't run setup in debug mode
+if [ "$AKDC_DEBUG" = "true" ]
 then
-  echo "$(date +'%Y-%m-%d %H:%M:%S')  git clone failed" >> status
-  echo "git clone failed"
+  echo "$(date +'%Y-%m-%d %H:%M:%S')  debug mode" >> status
+  echo "debug mode"
+  exit 0
+fi
+
+if [ ! -f cli/vm/setup/akdc-setup.sh ]
+then
+  echo "$(date +'%Y-%m-%d %H:%M:%S')  akdc-setup.sh not found" >> status
+  echo "akdc-setup.sh not found"
   exit 1
 fi
 
-echo "$(date +'%Y-%m-%d %H:%M:%S')  creating DNS entry" >> status
-
-if [ "$AKDC_DO" = "true" ]
-then
-  # get the public IP
-  pip="$(ip -4 a show eth0 | grep inet | sed "s/inet//g" | sed "s/ //g" | cut -d / -f 1 | grep -v '10\.')"
-else
-  # get the public IP
-  pip=$(az network public-ip show -g "$AKDC_RESOURCE_GROUP" -n "${AKDC_CLUSTER}publicip" --query ipAddress -o tsv)
-fi
-echo "$(date +'%Y-%m-%d %H:%M:%S')  Public IP: $pip" >> status
-echo "Public IP: $pip"
-
-# get the old IP
-old_ip=$(az network dns record-set a list \
---query "[?name=='$AKDC_CLUSTER'].{IP:aRecords}" \
---resource-group $AKDC_DNS_RG \
---zone-name "$AKDC_ZONE" \
--o json | jq -r '.[].IP[].ipv4Address' | tail -n1)
-
-# delete old DNS entry if exists
-if [ "$old_ip" != "" ] && [ "$old_ip" != "$pip" ]
-then
-  echo "$(date +'%Y-%m-%d %H:%M:%S')  deleting old DNS entry old: $old_ip pip: $pip" >> status
-
-  # delete the old DNS entry
-  az network dns record-set a remove-record \
-  -g $AKDC_DNS_RG \
-  -z "$AKDC_ZONE" \
-  -n $AKDC_CLUSTER \
-  -a "$old_ip" -o table
-fi
-
-# create DNS record
-az network dns record-set a add-record \
--g "$AKDC_DNS_RG" \
--z "$AKDC_ZONE" \
--n "$AKDC_CLUSTER" \
--a "$pip" \
---ttl 10 -o table
-
-echo "$(date +'%Y-%m-%d %H:%M:%S')  installing docker" >> status
-apt-get install -y docker-ce docker-ce-cli
-
-echo "$(date +'%Y-%m-%d %H:%M:%S')  installing kubectl" >> status
-apt-get install -y kubectl
-
-# Install istio CLI
-echo "$(date +'%Y-%m-%d %H:%M:%S')  installing istioctl" >> status
-hash istioctl || (echo "Installing istioctl" ; curl -sL https://istio.io/downloadIstioctl | sh - > /dev/null 2>&1; sudo mv ~/.istioctl/bin/istioctl /usr/local/bin)
-
-# kubectl auto complete
-kubectl completion bash > /etc/bash_completion.d/kubectl
-
-echo "$(date +'%Y-%m-%d %H:%M:%S')  installing k3d" >> status
-wget -q -O - https://raw.githubusercontent.com/rancher/k3d/main/install.sh | TAG=v4.4.8 bash
-
-echo "$(date +'%Y-%m-%d %H:%M:%S')  installing flux" >> status
-curl -s https://fluxcd.io/install.sh | bash
-flux completion bash > /etc/bash_completion.d/flux
-
-echo "$(date +'%Y-%m-%d %H:%M:%S')  installing k9s" >> status
-VERSION=$(curl -i https://github.com/derailed/k9s/releases/latest | grep "location: https://github.com/" | rev | cut -f 1 -d / | rev | sed 's/\r//')
-wget "https://github.com/derailed/k9s/releases/download/${VERSION}/k9s_Linux_x86_64.tar.gz"
-tar -zxvf k9s_Linux_x86_64.tar.gz -C /usr/local/bin
-rm -f k9s_Linux_x86_64.tar.gz
-
-# upgrade Ubuntu
-echo "$(date +'%Y-%m-%d %H:%M:%S')  upgrading" >> status
-apt-get update
-
-# skip the upgrade if debugging
-if [ "$AKDC_DEBUG" != "true" ]
-then
-  apt-get upgrade -y
-  apt-get autoremove -y
-fi
-
-echo "$(date +'%Y-%m-%d %H:%M:%S')  creating registry" >> status
-# create local registry
-chown -R ${AKDC_ME}:${AKDC_ME} /home/${AKDC_ME}
-docker network create k3d
-k3d registry create registry.localhost --port 5500
-docker network connect k3d k3d-registry.localhost
-
-# can't continue without k3d-setup.sh
-if [ ! -f ./cli/vm/setup/k3d-setup.sh ]
-then
-  echo "$(date +'%Y-%m-%d %H:%M:%S')  k3d-setup.sh not found" >> status
-  echo "k3d-setup.sh not found"
-  exit 1
-fi
-
-echo "$(date +'%Y-%m-%d %H:%M:%S')  running scripts" >> status
-
-# run akdc-pre-k3d.sh
-if [ -f ./cli/vm/setup/akdc-pre-k3d.sh ]
-then
-  # run as AKDC_ME
-  sudo -HEu akdc ./cli/vm/setup/akdc-pre-k3d.sh || exit 1
-fi
-
-# run k3d-setup
-if [ -f ./cli/vm/setup/k3d-setup.sh ]
-then
-  sudo -HEu akdc ./cli/vm/setup/k3d-setup.sh || exit 1
-fi
-
-# run akdc-pre-flux.sh
-if [ -f ./cli/vm/setup/akdc-pre-flux.sh ]
-then
-  sudo -HEu akdc ./cli/vm/setup/akdc-pre-flux.sh || exit 1
-fi
-
-# setup flux
-if [ -f ./cli/vm/setup/flux-setup.sh ]
-then
-  sudo -HEu akdc ./cli/vm/setup/flux-setup.sh || exit 1
-fi
-
-# run akdc-pre-arc.sh
-if [ -f ./cli/vm/setup/akdc-pre-arc.sh ]
-then
-  sudo -HEu akdc ./cli/vm/setup/akdc-pre-arc.sh || exit 1
-fi
-
-# configure azure arc
-if [ -f ./cli/vm/setup/arc-setup.sh ]
-then
-  sudo -HEu akdc ./cli/vm/setup/arc-setup.sh || exit 1
-fi
-
-# run akdc-post.sh
-if [ -f ./cli/vm/setup/akdc-post.sh ]
-then
-  sudo -HEu akdc ./cli/vm/setup/akdc-post.sh || exit 1
-fi
-
-echo "$(date +'%Y-%m-%d %H:%M:%S')  complete" >> status
-echo "complete" >> status
+# run the setup script
+cli/vm/setup/akdc-setup.sh
