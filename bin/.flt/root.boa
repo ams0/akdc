@@ -41,6 +41,18 @@ fltCommand
         short: Sync (reconcile) flux on each cluster
 
 command
+	name: registry
+	short: Manage private registry registrations
+
+runCommand
+	path: /registry/list
+
+runCommand
+	path: /registry/create
+
+popCommand
+
+command
 	name: new
 	short: Create a new application
 
@@ -53,3 +65,5 @@ runCommand
 
 runCommand
 	path: /new/dotnet-console
+
+popCommand

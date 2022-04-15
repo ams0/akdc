@@ -28,3 +28,17 @@ options:
   kubeconfig:
     updateDefaultKubeconfig: true
     switchCurrentContext: true
+
+registries:
+  create:
+    name: acrretailedge
+  config: |
+    mirrors:
+      "acrretailedge.azurecr.io":
+        endpoint:
+          - https://acrretailedge.azurecr.io
+    configs:
+      "acrretailedge.azurecr.io":
+        auth:
+          username: acrretailedge
+          password: xmw6zngF45aEiAs=fPjQBGgafHADB344

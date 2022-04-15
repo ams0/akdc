@@ -1,0 +1,10 @@
+#!/bin/bash
+
+#name: list
+#short: Lists the configured registry registrations
+
+# change to this directory
+#cd "$(dirname "${BASH_SOURCE[0]}")" || exit
+
+# validate directories
+echo "Hello"

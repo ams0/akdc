@@ -1,0 +1,10 @@
+#!/bin/bash
+
+#name: create
+#short: Registers a new private container registry
+
+# change to this directory
+#cd "$(dirname "${BASH_SOURCE[0]}")" || exit
+
+# validate directories
+echo "Hello"
