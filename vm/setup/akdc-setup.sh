@@ -129,4 +129,4 @@ else
 fi
 
 echo "$(date +'%Y-%m-%d %H:%M:%S')  akdc-setup complete" >> /home/akdc/status
-echo "complete" >> status
+echo "complete" >> /home/akdc/status

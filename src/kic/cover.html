@@ -2011,6 +2011,8 @@ var (
 )
 
 // initialize the root command
+// standard cobra function
+// highly customized for boa support
 func init() <span class="cov8" title="1">{
         // load the commands from the bin location ./.appName directory
         boa.LoadCommands(rootCmd)
@@ -2040,18 +2042,12 @@ func init() <span class="cov8" title="1">{
         }
 
         // this will set a new root if specified
-        // this will also remove any hidden commands so they don't exist
+        // this will also remove any hidden commands so they can't execute
         <span class="cov8" title="1">boa.SetNewRoot()</span>
 }
 
-// add the command to root if it doesn't exist
-func addCommandIfNotExist(name string, cmd *cobra.Command) <span class="cov8" title="1">{
-        if boa.GetCommandByUse(rootCmd, name) == nil </span><span class="cov8" title="1">{
-                rootCmd.AddCommand(cmd)
-        }</span>
-}
-
 // execute the root command
+// standard cobra function
 func Execute() <span class="cov0" title="0">{
         err := rootCmd.Execute()
         if err != nil </span><span class="cov0" title="0">{
@@ -2060,6 +2056,7 @@ func Execute() <span class="cov0" title="0">{
 }
 
 // validate flt check app arg
+// standard cobra function
 func validArgsFleetCheckApp(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) <span class="cov0" title="0">{
         apps, err := boa.ReadCompletionFile("flt-check-app-completion")
 
@@ -2074,6 +2071,13 @@ func validArgsFleetCheckApp(cmd *cobra.Command, args []string, toComplete string
 
         // sugest from the completion file
         <span class="cov0" title="0">return apps, cobra.ShellCompDirectiveNoFileComp</span>
+}
+
+// add the command to root if it doesn't exist
+func addCommandIfNotExist(name string, cmd *cobra.Command) <span class="cov8" title="1">{
+        if boa.GetCommandByUse(rootCmd, name) == nil </span><span class="cov8" title="1">{
+                rootCmd.AddCommand(cmd)
+        }</span>
 }
 </pre>
 		

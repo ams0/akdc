@@ -138,6 +138,11 @@ sudo -HEu akdc git clone "https://$(cat .ssh/akdc.pat)@github.com/retaildevcrews
 if [ "$AKDC_BRANCH" != "main" ]
 then
   git -C gitops checkout $AKDC_BRANCH
+
+  if [ "$(git -C cli branch -a | grep remotes | grep $AKDC_BRANCH)" != "" ]
+  then
+    git -C cli checkout $AKDC_BRANCH
+  fi
 fi
 
 # save the bashrc patch

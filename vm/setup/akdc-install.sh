@@ -6,14 +6,14 @@
 
 set -e
 
-echo "$(date +'%Y-%m-%d %H:%M:%S')  installing libs" >> status
+echo "$(date +'%Y-%m-%d %H:%M:%S')  installing libs" >> /home/akdc/status
 apt-get install -y net-tools software-properties-common libssl-dev libffi-dev python-dev build-essential lsb-release gnupg-agent
 
-echo "$(date +'%Y-%m-%d %H:%M:%S')  installing utils" >> status
+echo "$(date +'%Y-%m-%d %H:%M:%S')  installing utils" >> /home/akdc/status
 apt-get install -y curl git wget nano jq zip unzip httpie
 apt-get install -y dnsutils coreutils gnupg2 make bash-completion gettext iputils-ping
 
-echo "$(date +'%Y-%m-%d %H:%M:%S')  adding package sources" >> status
+echo "$(date +'%Y-%m-%d %H:%M:%S')  adding package sources" >> /home/akdc/status
 
 # add Docker repo
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key --keyring /etc/apt/trusted.gpg.d/docker.gpg add -
@@ -25,14 +25,14 @@ echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.
 
 apt-get update
 
-echo "$(date +'%Y-%m-%d %H:%M:%S')  installing docker" >> status
+echo "$(date +'%Y-%m-%d %H:%M:%S')  installing docker" >> /home/akdc/status
 apt-get install -y docker-ce docker-ce-cli
 
-echo "$(date +'%Y-%m-%d %H:%M:%S')  installing kubectl" >> status
+echo "$(date +'%Y-%m-%d %H:%M:%S')  installing kubectl" >> /home/akdc/status
 apt-get install -y kubectl
 
 # Install istio CLI
-echo "$(date +'%Y-%m-%d %H:%M:%S')  installing istioctl" >> status
+echo "$(date +'%Y-%m-%d %H:%M:%S')  installing istioctl" >> /home/akdc/status
 echo "Installing istioctl"
 curl -sL https://istio.io/downloadIstioctl | sh -
 mv ~/.istioctl/bin/istioctl /usr/local/bin
@@ -40,26 +40,26 @@ mv ~/.istioctl/bin/istioctl /usr/local/bin
 # kubectl auto complete
 #kubectl completion bash > /etc/bash_completion.d/kubectl
 
-echo "$(date +'%Y-%m-%d %H:%M:%S')  installing k3d" >> status
+echo "$(date +'%Y-%m-%d %H:%M:%S')  installing k3d" >> /home/akdc/status
 wget -q -O - https://raw.githubusercontent.com/rancher/k3d/main/install.sh | TAG=v4.4.8 bash
 
-echo "$(date +'%Y-%m-%d %H:%M:%S')  installing flux" >> status
+echo "$(date +'%Y-%m-%d %H:%M:%S')  installing flux" >> /home/akdc/status
 curl -s https://fluxcd.io/install.sh | bash
 #flux completion bash > "/home/${AKDC_ME}/.oh-my-bash/completions/flux.sh"
 
-echo "$(date +'%Y-%m-%d %H:%M:%S')  installing k9s" >> status
+echo "$(date +'%Y-%m-%d %H:%M:%S')  installing k9s" >> /home/akdc/status
 VERSION=$(curl -i https://github.com/derailed/k9s/releases/latest | grep "location: https://github.com/" | rev | cut -f 1 -d / | rev | sed 's/\r//')
 wget "https://github.com/derailed/k9s/releases/download/${VERSION}/k9s_Linux_x86_64.tar.gz"
 tar -zxvf k9s_Linux_x86_64.tar.gz -C /usr/local/bin
 rm -f k9s_Linux_x86_64.tar.gz
 
 # upgrade Ubuntu
-echo "$(date +'%Y-%m-%d %H:%M:%S')  upgrading" >> status
+echo "$(date +'%Y-%m-%d %H:%M:%S')  upgrading" >> /home/akdc/status
 apt-get update
 apt-get upgrade -y
 apt-get autoremove -y
 
-echo "$(date +'%Y-%m-%d %H:%M:%S')  creating registry" >> status
+echo "$(date +'%Y-%m-%d %H:%M:%S')  creating registry" >> /home/akdc/status
 # create local registry
 chown -R "${AKDC_ME}:${AKDC_ME}" "/home/${AKDC_ME}"
 docker network create k3d
