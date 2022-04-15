@@ -50,7 +50,7 @@ func checkForConfigFile() error {
 // read config file into map
 func getAutoGitOpsConfigMap() map[string]interface{} {
 	// make sure the repo is up to date
-	boa.ShellExecOut("git pull")
+	boa.ShellExecOut("git pull", false)
 
 	content, err := os.ReadFile(AutoGitOpsConfigFile)
 

@@ -36,10 +36,17 @@ func runFleetList(cmd *cobra.Command, args []string) error {
 	}
 
 	for _, line := range hostIPs {
-		if len(line) < 30 {
-			line = strings.Replace(line, "\t", "\t\t", -1)
+		cols := strings.Split(line, "\t")
+
+		if len(cols) > 1 {
+			fmt.Print(cols[0])
+			if len(cols[0]) < 30 {
+				fmt.Print(strings.Repeat(" ", 30-len(cols[0])))
+			}
+			fmt.Println(cols[1])
+		} else {
+			fmt.Println(line)
 		}
-		fmt.Println(line)
 	}
 
 	return nil

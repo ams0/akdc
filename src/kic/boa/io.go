@@ -66,7 +66,7 @@ func ReadHostIPs(grep string) ([]string, error) {
 		command += " | grep " + grep
 	}
 
-	res, err := ShellExecOut(command)
+	res, err := ShellExecOut(command, false)
 
 	if err != nil {
 		return nil, err

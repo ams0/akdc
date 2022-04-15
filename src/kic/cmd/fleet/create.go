@@ -13,7 +13,6 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -25,21 +24,20 @@ var (
 	location          string
 	repo              string
 	branch            string
-	fleetBranch       string
 	pem               string
 	key               string
 	quiet             bool
 	ssl               string
 	dnsRG             string
 	gitops            bool
+	gitopsOnly        bool
 	dapr              bool
 	arcEnabled        bool
 	digitalOcean      bool
 	dryRun            bool
 	debug             bool
 	cores             int
-	gitCmd            string
-	dirExists         bool = true
+	verbose           bool
 	sku               string
 	managedIdentityID = os.Getenv("AKDC_MI")
 
@@ -60,7 +58,6 @@ func init() {
 	CreateCmd.Flags().StringVarP(&location, "location", "l", "centralus", "Azure location")
 	CreateCmd.Flags().StringVarP(&repo, "repo", "r", "retaildevcrews/edge-gitops", "GitOps repo name")
 	CreateCmd.Flags().StringVarP(&branch, "branch", "b", "", "GitOps branch name")
-	CreateCmd.Flags().StringVarP(&fleetBranch, "fleet-branch", "", "main", "Fleet VM branch name")
 	CreateCmd.Flags().StringVarP(&ssl, "ssl", "s", "", "SSL domain name")
 	CreateCmd.Flags().StringVarP(&pem, "pem", "p", "~/.ssh/certs.pem", "Path to SSL .pem file")
 	CreateCmd.Flags().StringVarP(&key, "key", "k", "~/.ssh/certs.key", "Path to SSL .key file")
@@ -70,8 +67,10 @@ func init() {
 	CreateCmd.Flags().BoolVarP(&debug, "debug", "d", false, "Create VM in debug mode")
 	CreateCmd.Flags().BoolVarP(&arcEnabled, "arc", "a", false, "Connect kubernetes cluster to Azure via Azure ARC")
 	CreateCmd.Flags().BoolVarP(&digitalOcean, "do", "", false, "Generate setup script for Digital Ocean droplet")
-	CreateCmd.Flags().BoolVarP(&gitops, "gitops", "", false, "Generate GitOps targets in --repo")
+	CreateCmd.Flags().BoolVarP(&gitops, "gitops", "", false, "Generate GitOps targets in ./config")
+	CreateCmd.Flags().BoolVarP(&gitopsOnly, "gitops-only", "", false, "Only generate GitOps targets in ./config")
 	CreateCmd.Flags().BoolVarP(&dryRun, "dry-run", "", false, "Show values that would be used")
+	CreateCmd.Flags().BoolVarP(&verbose, "verbose", "", false, "Show verbose output")
 	CreateCmd.Flags().IntVarP(&cores, "cores", "", 4, "VM core count")
 	CreateCmd.Flags().StringVarP(&sku, "sku", "", "", "Azure VM SKU")
 
@@ -126,10 +125,6 @@ func validateCreateCmd(cmd *cobra.Command, args []string) error {
 	// default resource group is cluster name
 	if group == "" {
 		group = cluster
-	}
-
-	if fleetBranch == "" {
-		fleetBranch = "main"
 	}
 
 	return nil
@@ -209,13 +204,13 @@ func validateClusterPrefix() bool {
 
 // validate logged in to Azure
 func validateAzureLogin() error {
-	_, err := boa.ShellExecOut("az account show --query tenantId -o tsv")
+	_, err := boa.ShellExecOut("az account show --query tenantId -o tsv", false)
 	return err
 }
 
 // validate Azure region
 func validateLocation(loc string) error {
-	res, err := boa.ShellExecOut("az account list-locations --query '[].name' -o table |  grep -x -i " + location)
+	res, err := boa.ShellExecOut("az account list-locations --query '[].name' -o table |  grep -x -i "+location, false)
 
 	if err != nil || res == "" {
 		return fmt.Errorf("%s", "invalid Azure Region")
@@ -226,7 +221,7 @@ func validateLocation(loc string) error {
 
 // validate VM SKU
 func validateVmSku(loc string, vmSku string) error {
-	res, err := boa.ShellExecOut("az vm list-sizes -o table -l " + location + " | grep -w -i " + vmSku)
+	res, err := boa.ShellExecOut("az vm list-sizes -o table -l "+location+" | grep -w -i "+vmSku, false)
 
 	if err != nil || res == "" {
 		return fmt.Errorf("%s", "invalid VM SKU")
@@ -235,9 +230,37 @@ func validateVmSku(loc string, vmSku string) error {
 	return nil
 }
 
+// validate PWD is a git repo
+func validateRepo() bool {
+	// required for --gitops
+	if gitops || gitopsOnly {
+		res, err := boa.ShellExecOut("git branch --show-current", false)
+
+		if err != nil {
+			cfmt.ErrorE("Not a git repo")
+			cfmt.Info("Please re-run from a git repo")
+			return false
+		}
+
+		res = strings.TrimSpace(res)
+
+		// set branch to current branch
+		if branch == "" {
+			branch = res
+		}
+	}
+
+	return true
+}
+
 // run the command
 func runCreateCmd(cmd *cobra.Command, args []string) error {
 	if !digitalOcean {
+		// validate PWD is a git repo
+		if !validateRepo() {
+			return nil
+		}
+
 		// validate azure login
 		if validateAzureLogin() != nil {
 			cfmt.ErrorE("please run az login first")
@@ -284,11 +307,19 @@ func runCreateCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	// add the GitOps target
-	if err := addTargetE(cluster, ssl); err != nil {
-		cfmt.ErrorE("Error: ", err)
+	if gitops || gitopsOnly {
+		addTargetE(cluster)
+		cfmt.Info("Created GitOps config: ", cluster)
 
-		// todo - if you return the error, usage info is printed
-		//        is there a way to return the error and not display usage info?
+		// exit
+		if gitopsOnly {
+			return nil
+		}
+	}
+
+	// fail if the Azure VM exists
+	if vmExists() {
+		cfmt.ErrorE("Azure VM Exists: ", cluster)
 		return nil
 	}
 
@@ -303,8 +334,8 @@ func runCreateCmd(cmd *cobra.Command, args []string) error {
 
 	// create the azure resource group
 	if err := createGroup(); err != nil {
-		cfmt.ErrorE(err)
-		return err
+		cfmt.ErrorE("createGroup Failed: ", cluster)
+		return nil
 	}
 
 	// create the vm and get the IP
@@ -315,11 +346,12 @@ func runCreateCmd(cmd *cobra.Command, args []string) error {
 
 	// success
 	if ip != "" {
-		cfmt.Info("VM Configured")
-		return nil
+		cfmt.Info("VM Configured: ", cluster)
+	} else {
+		cfmt.ErrorE("VM Creation Failed: ", cluster)
 	}
 
-	return fmt.Errorf("VM Creation Failed")
+	return nil
 }
 
 // handle --dry-run
@@ -335,7 +367,6 @@ func doDryRun() error {
 	fmt.Println("Managed Identity:    ", strings.Contains(managedIdentityID, "/Microsoft.ManagedIdentity/"))
 	fmt.Println("Location:            ", location)
 	fmt.Println("Repo:                ", repo)
-	fmt.Println("Fleet Branch:        ", fleetBranch)
 	fmt.Println("Branch:              ", branch)
 
 	if len(ssl) > 0 {
@@ -361,14 +392,14 @@ func doDryRun() error {
 
 // check to see if the Azure Resource Group exists
 func groupExists() bool {
-	ex, _ := boa.ShellExecOut("az group exists -g " + group)
+	ex, _ := boa.ShellExecOut("az group exists -g "+group, false)
 	return strings.HasPrefix(ex, "true")
 }
 
 // check to see if the VM exists in the RG
 func vmExists() bool {
 	command := fmt.Sprintf("az vm show -g %s --name %s --query 'name' -o tsv", group, cluster)
-	res, _ := boa.ShellExecOut(command)
+	res, _ := boa.ShellExecOut(command, false)
 	return strings.EqualFold(cluster, strings.TrimSpace(res))
 }
 
@@ -379,12 +410,6 @@ func getTemplatePath() string {
 
 // create Azure Resource Group
 func createGroup() error {
-	// fail if the Azure VM exists
-	if vmExists() {
-		cfmt.ErrorE("Azure VM exists")
-		return fmt.Errorf("please use a different VM or delete the VM")
-	}
-
 	// don't create the group if it exists
 	if groupExists() {
 		return nil
@@ -428,7 +453,6 @@ func createVMSetupScript() {
 	command = strings.Replace(command, "{{fqdn}}", cluster+"."+ssl, -1)
 	command = strings.Replace(command, "{{repo}}", repo, -1)
 	command = strings.Replace(command, "{{branch}}", branch, -1)
-	command = strings.Replace(command, "{{fleet_branch}}", fleetBranch, -1)
 	command = strings.Replace(command, "{{group}}", group, -1)
 	command = strings.Replace(command, "{{arcEnabled}}", strconv.FormatBool(arcEnabled), -1)
 	command = strings.Replace(command, "{{do}}", strconv.FormatBool(digitalOcean), -1)
@@ -439,7 +463,7 @@ func createVMSetupScript() {
 
 // create Azure VM
 func createVM(managedIdentityID string) string {
-	cfmt.Info("Creating Azure VM")
+	cfmt.Info("Creating Azure VM: ", cluster)
 
 	command := "az vm create \\\n"
 	command += " -g " + group + " \\\n"
@@ -453,18 +477,18 @@ func createVM(managedIdentityID string) string {
 	command += " --storage-sku Premium_LRS \\\n"
 	command += " --generate-ssh-keys \\\n"
 	command += " --public-ip-sku Standard \\\n"
+	command += " --custom-data cluster-" + cluster + ".sh \\\n"
 	command += " --query publicIpAddress \\\n"
-	command += " -o tsv \\\n"
-	command += " --custom-data cluster-" + cluster + ".sh"
+	command += " -o tsv"
 
-	ip, _ := boa.ShellExecOut(command)
+	ip, err := boa.ShellExecOut(command, verbose)
 	ip = strings.TrimSpace(ip)
 
-	if ip == "" {
-		cfmt.ErrorE("Failed to create cluster")
+	if err != nil || ip == "" {
 		return ""
 	}
-	cfmt.Info("VM created")
+
+	cfmt.Info("VM Created: ", cluster)
 	fmt.Println(cluster, ip)
 
 	f, err := os.OpenFile("ips", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
@@ -478,11 +502,11 @@ func createVM(managedIdentityID string) string {
 
 	f.Close()
 
-	cfmt.Info("Deleting default nsg")
+	cfmt.Info("Deleting NSG: ", cluster)
 	command = "az network nsg rule delete -g " + group + " --nsg-name " + cluster + "NSG -o table --name default-allow-ssh"
-	boa.ShellExecOut(command)
+	boa.ShellExecOut(command, false)
 
-	cfmt.Info("Creating SSH rule on port 2222")
+	cfmt.Info("Creating SSH Rule: ", cluster)
 
 	command = "az network nsg rule create \\\n"
 	command += "-g " + group + " \\\n"
@@ -493,14 +517,15 @@ func createVM(managedIdentityID string) string {
 	command += "--protocol tcp \\\n"
 	command += "--access allow \\\n"
 	command += "--priority 1202 -o table"
-	boa.ShellExecOut(command)
+	boa.ShellExecOut(command, false)
 
 	return ip
 }
 
 // get GitOps template
-func getConfigJson(cluster string, zone string) []byte {
+func getConfigJson(cluster string) []byte {
 	region := cluster
+	zone := cluster
 	district := cluster
 
 	cols := strings.Split(cluster, "-")
@@ -508,8 +533,12 @@ func getConfigJson(cluster string, zone string) []byte {
 	if len(cols) > 0 {
 		region = cols[0]
 
+		if len(cols) > 1 {
+			zone = strings.Join(cols[0:2], "-")
+		}
+
 		if len(cols) > 2 {
-			district = strings.Join(cols[:3], "-")
+			district = strings.Join(cols[0:3], "-")
 		}
 	}
 
@@ -524,23 +553,24 @@ func getConfigJson(cluster string, zone string) []byte {
 	json = strings.Replace(json, "{{region}}", region, -1)
 	json = strings.Replace(json, "{{district}}", district, -1)
 	json = strings.Replace(json, "{{zone}}", zone, -1)
+	json = strings.Replace(json, "{{domain}}", ssl, -1)
 
 	return []byte(json)
 }
 
 // add a target to GitOps
-func addTargetE(cluster string, zone string) error {
+func addTargetE(cluster string) error {
 	// only run if --gitops specified
-	if !gitops {
+	if !(gitops || gitopsOnly) {
 		return nil
 	}
 
 	// read the config.json file
-	json := getConfigJson(cluster, ssl)
+	json := getConfigJson(cluster)
 
 	// make sure the json is valid
 	if json == nil || len(json) < 3 || strings.Contains(string(json), "{{") {
-		cfmt.ErrorE("unable to read gitops-config.templ")
+		return cfmt.ErrorE("unable to read gitops-config.templ")
 	}
 
 	return addTargetWorkerE(json)
@@ -548,80 +578,30 @@ func addTargetE(cluster string, zone string) error {
 
 // add a target to GitOps
 func addTargetWorkerE(json []byte) error {
-	// GitOps directories
-	repoName := repo
-
-	cols := strings.Split(repoName, "/")
-	repoName = cols[len(cols)-1]
-
-	gitopsDir := filepath.Join("/", "workspaces")
-
-	if _, err := os.Stat(gitopsDir); err == nil {
-		gitopsDir = filepath.Join(gitopsDir, repoName)
-	} else {
-		gitopsDir = filepath.Join(os.Getenv("HOME"), repoName)
-	}
-
-	gitCmd = "git -C " + gitopsDir + " "
-
-	if err := cloneGitOpsRepoE(gitopsDir); err != nil {
-		return nil
-	}
-
-	if err := setBranchE(); err != nil {
-		return err
-	}
-
-	targetsErr := addGitOpsTargetsE(gitopsDir, json)
-
-	// delete the repo if we created it
-	if !dirExists {
-		if err := boa.ShellExecE("rm -rf " + gitopsDir); err != nil {
-			return err
-		}
-	}
-
-	return targetsErr
-}
-
-// add the targets
-func addGitOpsTargetsE(gitopsDir string, json []byte) error {
-	bootstrapDir := filepath.Join(gitopsDir, "deploy", "bootstrap")
-	appsDir := filepath.Join(gitopsDir, "deploy", "apps")
+	configDir := filepath.Join(".", "config")
 
 	// add the targets
 	if len(json) > 0 && !strings.Contains(string(json), "{{") {
 		// make sure the dirs exist
-		if _, err := os.Stat(bootstrapDir); err == nil {
-			if _, err = os.Stat(appsDir); err == nil {
-				// add cluster to the dirs
-				bootstrapDir = filepath.Join(bootstrapDir, cluster)
-				appsDir = filepath.Join(appsDir, cluster)
+		if _, err := os.Stat(configDir); err == nil {
+			// add cluster to the dirs
+			configDir = filepath.Join(configDir, cluster)
 
-				// create the directories
-				if err := boa.ShellExecE("mkdir -p " + bootstrapDir + " && mkdir -p " + appsDir); err != nil {
+			// create the directory
+			if err := boa.ShellExecE("mkdir -p " + configDir); err != nil {
+				return err
+			}
+
+			// write config.json to each dir
+			configDir = filepath.Join(configDir, "config.json")
+
+			if _, err := os.Stat(configDir); err != nil {
+				if err := os.WriteFile(configDir, json, 0644); err != nil {
 					return err
 				}
-
-				// write config.json to each dir
-				bootstrapDir = filepath.Join(bootstrapDir, "config.json")
-				appsDir = filepath.Join(appsDir, "config.json")
-
-				// don't overwrite existing config.json
-				if _, err := os.Stat(bootstrapDir); err != nil {
-					if err := os.WriteFile(bootstrapDir, json, 0644); err != nil {
-						return err
-					}
-				}
-
-				if _, err := os.Stat(appsDir); err != nil {
-					if err := os.WriteFile(appsDir, json, 0644); err != nil {
-						return err
-					}
-				}
-
-				return updateGitOpsRepoE(gitopsDir)
 			}
+
+			return updateGitOpsRepoE()
 		}
 	}
 
@@ -629,97 +609,27 @@ func addGitOpsTargetsE(gitopsDir string, json []byte) error {
 }
 
 // update the GitOps repo with changes
-func updateGitOpsRepoE(gitopsDir string) error {
+func updateGitOpsRepoE() error {
 	// if there were repo changes
-	if res, _ := boa.ShellExecOut(gitCmd + "status -s"); res != "" {
-		agoDir := filepath.Join(gitopsDir, "autogitops")
-
-		// update create log
-		if _, err := os.Stat(agoDir); err == nil {
-			if file, err := os.OpenFile(filepath.Join(agoDir, "create.log"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644); err == nil {
-				dt := time.Now()
-				fmt.Fprintln(file, dt.Format("01-02-2006 15:04:05"), "added cluster:", cluster)
-				file.Close()
-			} else {
-				return err
-			}
-		} else {
-			return err
-		}
-
+	if res, _ := boa.ShellExecOut("git status -s", false); res != "" {
 		// pull to avoid conflicts
-		if err := boa.ShellExecE(gitCmd + "pull"); err != nil {
+		if _, err := boa.ShellExecOut("git pull", false); err != nil {
 			return err
 		}
 
 		// update the repo
-		if err := boa.ShellExecE(gitCmd + "add ."); err != nil {
+		if _, err := boa.ShellExecOut("git add .", false); err != nil {
 			return err
 		}
 
-		if err := boa.ShellExecE(gitCmd + "commit -am 'kic fleet create'"); err != nil {
+		if _, err := boa.ShellExecOut("git commit -am 'flt create'", false); err != nil {
 			return err
 		}
 
-		if err := boa.ShellExecE(gitCmd + "push"); err != nil {
+		// push the changes
+		if _, err := boa.ShellExecOut("git push", false); err != nil {
 			return err
 		}
-	}
-
-	return nil
-}
-
-// clone GitOps repo if necessary
-func cloneGitOpsRepoE(gitopsDir string) error {
-	// clone the repo if doesn't exist
-	if _, err := os.Stat(gitopsDir); err != nil {
-		// GitOps directories
-		repoFull := repo
-
-		if !strings.HasPrefix(repo, "https://") {
-			repoFull = "https://github.com/" + repo
-		}
-
-		if err := boa.ShellExecE("git clone " + repoFull + " " + gitopsDir); err != nil {
-			return err
-		}
-
-		dirExists = false
-	}
-
-	return nil
-}
-
-// set the GitOps branch
-func setBranchE() error {
-	// pull the repo
-	if err := boa.ShellExecE(gitCmd + "pull"); err != nil {
-		return err
-	}
-
-	// get current branch
-	br, err := boa.ShellExecOut(gitCmd + "branch --show-current")
-	if err != nil {
-		return err
-	}
-
-	br = strings.TrimSpace(br)
-
-	// use current branch
-	if branch == "" {
-		branch = br
-	}
-
-	// checkout the branch
-	if br != branch {
-		if err := boa.ShellExecE(gitCmd + "checkout " + branch); err != nil {
-			return err
-		}
-	}
-
-	// pull the branch
-	if err := boa.ShellExecE(gitCmd + "pull"); err != nil {
-		return err
 	}
 
 	return nil

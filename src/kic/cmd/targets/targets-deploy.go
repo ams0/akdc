@@ -34,7 +34,7 @@ func runTargetsDeployE(cmd *cobra.Command, args []string) error {
 	}
 
 	// make sure the repo is up to date
-	res, err := boa.ShellExecOut("git status -s")
+	res, err := boa.ShellExecOut("git status -s", false)
 
 	if err != nil {
 		return cfmt.ErrorE(err)

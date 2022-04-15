@@ -63,9 +63,9 @@
 				
 				<option value="file3">kic/boa/io.go (56.0%)</option>
 				
-				<option value="file4">kic/boa/shell.go (92.9%)</option>
+				<option value="file4">kic/boa/shell.go (87.5%)</option>
 				
-				<option value="file5">kic/cmd/fleet/create.go (26.1%)</option>
+				<option value="file5">kic/cmd/fleet/create.go (29.7%)</option>
 				
 				<option value="file6">kic/cmd/fleet/delete.go (0.0%)</option>
 				
@@ -73,7 +73,7 @@
 				
 				<option value="file8">kic/cmd/fleet/fleet.go (100.0%)</option>
 				
-				<option value="file9">kic/cmd/fleet/list.go (90.9%)</option>
+				<option value="file9">kic/cmd/fleet/list.go (86.7%)</option>
 				
 				<option value="file10">kic/cmd/fleet/ssh.go (0.0%)</option>
 				
@@ -853,7 +853,7 @@ func ReadHostIPs(grep string) ([]string, error) <span class="cov8" title="1">{
                 <span class="cov8" title="1">command += " | grep " + grep</span>
         }
 
-        <span class="cov8" title="1">res, err := ShellExecOut(command)
+        <span class="cov8" title="1">res, err := ShellExecOut(command, false)
 
         if err != nil </span><span class="cov8" title="1">{
                 return nil, err
@@ -1058,16 +1058,21 @@ func ShellExecArgsE(cmd string, args []string) error <span class="cov8" title="1
 }
 
 // execute a bash command and return stdout
-func ShellExecOut(cmd string) (string, error) <span class="cov8" title="1">{
+func ShellExecOut(cmd string, showErrors bool) (string, error) <span class="cov8" title="1">{
         shell := exec.Command("bash", "-c", cmd)
 
         var out bytes.Buffer
         shell.Stdout = &amp;out
 
-        err := shell.Run()
+        // show errors
+        if showErrors </span><span class="cov0" title="0">{
+                shell.Stderr = os.Stderr
+        }</span>
 
-        return out.String(), err
-}</span>
+        <span class="cov8" title="1">err := shell.Run()
+
+        return out.String(), err</span>
+}
 
 // execute a bash command
 func ShellExecE(cmd string) error <span class="cov8" title="1">{
@@ -1096,7 +1101,6 @@ import (
         "path/filepath"
         "strconv"
         "strings"
-        "time"
 
         "github.com/spf13/cobra"
 )
@@ -1108,21 +1112,20 @@ var (
         location          string
         repo              string
         branch            string
-        fleetBranch       string
         pem               string
         key               string
         quiet             bool
         ssl               string
         dnsRG             string
         gitops            bool
+        gitopsOnly        bool
         dapr              bool
         arcEnabled        bool
         digitalOcean      bool
         dryRun            bool
         debug             bool
         cores             int
-        gitCmd            string
-        dirExists         bool = true
+        verbose           bool
         sku               string
         managedIdentityID = os.Getenv("AKDC_MI")
 
@@ -1143,7 +1146,6 @@ func init() <span class="cov8" title="1">{
         CreateCmd.Flags().StringVarP(&amp;location, "location", "l", "centralus", "Azure location")
         CreateCmd.Flags().StringVarP(&amp;repo, "repo", "r", "retaildevcrews/edge-gitops", "GitOps repo name")
         CreateCmd.Flags().StringVarP(&amp;branch, "branch", "b", "", "GitOps branch name")
-        CreateCmd.Flags().StringVarP(&amp;fleetBranch, "fleet-branch", "", "main", "Fleet VM branch name")
         CreateCmd.Flags().StringVarP(&amp;ssl, "ssl", "s", "", "SSL domain name")
         CreateCmd.Flags().StringVarP(&amp;pem, "pem", "p", "~/.ssh/certs.pem", "Path to SSL .pem file")
         CreateCmd.Flags().StringVarP(&amp;key, "key", "k", "~/.ssh/certs.key", "Path to SSL .key file")
@@ -1153,8 +1155,10 @@ func init() <span class="cov8" title="1">{
         CreateCmd.Flags().BoolVarP(&amp;debug, "debug", "d", false, "Create VM in debug mode")
         CreateCmd.Flags().BoolVarP(&amp;arcEnabled, "arc", "a", false, "Connect kubernetes cluster to Azure via Azure ARC")
         CreateCmd.Flags().BoolVarP(&amp;digitalOcean, "do", "", false, "Generate setup script for Digital Ocean droplet")
-        CreateCmd.Flags().BoolVarP(&amp;gitops, "gitops", "", false, "Generate GitOps targets in --repo")
+        CreateCmd.Flags().BoolVarP(&amp;gitops, "gitops", "", false, "Generate GitOps targets in ./config")
+        CreateCmd.Flags().BoolVarP(&amp;gitopsOnly, "gitops-only", "", false, "Only generate GitOps targets in ./config")
         CreateCmd.Flags().BoolVarP(&amp;dryRun, "dry-run", "", false, "Show values that would be used")
+        CreateCmd.Flags().BoolVarP(&amp;verbose, "verbose", "", false, "Show verbose output")
         CreateCmd.Flags().IntVarP(&amp;cores, "cores", "", 4, "VM core count")
         CreateCmd.Flags().StringVarP(&amp;sku, "sku", "", "", "Azure VM SKU")
 
@@ -1209,10 +1213,6 @@ func validateCreateCmd(cmd *cobra.Command, args []string) error <span class="cov
         // default resource group is cluster name
         <span class="cov8" title="1">if group == "" </span><span class="cov8" title="1">{
                 group = cluster
-        }</span>
-
-        <span class="cov8" title="1">if fleetBranch == "" </span><span class="cov0" title="0">{
-                fleetBranch = "main"
         }</span>
 
         <span class="cov8" title="1">return nil</span>
@@ -1292,13 +1292,13 @@ func validateClusterPrefix() bool <span class="cov0" title="0">{
 
 // validate logged in to Azure
 func validateAzureLogin() error <span class="cov0" title="0">{
-        _, err := boa.ShellExecOut("az account show --query tenantId -o tsv")
+        _, err := boa.ShellExecOut("az account show --query tenantId -o tsv", false)
         return err
 }</span>
 
 // validate Azure region
 func validateLocation(loc string) error <span class="cov0" title="0">{
-        res, err := boa.ShellExecOut("az account list-locations --query '[].name' -o table |  grep -x -i " + location)
+        res, err := boa.ShellExecOut("az account list-locations --query '[].name' -o table |  grep -x -i "+location, false)
 
         if err != nil || res == "" </span><span class="cov0" title="0">{
                 return fmt.Errorf("%s", "invalid Azure Region")
@@ -1309,7 +1309,7 @@ func validateLocation(loc string) error <span class="cov0" title="0">{
 
 // validate VM SKU
 func validateVmSku(loc string, vmSku string) error <span class="cov0" title="0">{
-        res, err := boa.ShellExecOut("az vm list-sizes -o table -l " + location + " | grep -w -i " + vmSku)
+        res, err := boa.ShellExecOut("az vm list-sizes -o table -l "+location+" | grep -w -i "+vmSku, false)
 
         if err != nil || res == "" </span><span class="cov0" title="0">{
                 return fmt.Errorf("%s", "invalid VM SKU")
@@ -1318,11 +1318,39 @@ func validateVmSku(loc string, vmSku string) error <span class="cov0" title="0">
         <span class="cov0" title="0">return nil</span>
 }
 
+// validate PWD is a git repo
+func validateRepo() bool <span class="cov0" title="0">{
+        // required for --gitops
+        if gitops || gitopsOnly </span><span class="cov0" title="0">{
+                res, err := boa.ShellExecOut("git branch --show-current", false)
+
+                if err != nil </span><span class="cov0" title="0">{
+                        cfmt.ErrorE("Not a git repo")
+                        cfmt.Info("Please re-run from a git repo")
+                        return false
+                }</span>
+
+                <span class="cov0" title="0">res = strings.TrimSpace(res)
+
+                // set branch to current branch
+                if branch == "" </span><span class="cov0" title="0">{
+                        branch = res
+                }</span>
+        }
+
+        <span class="cov0" title="0">return true</span>
+}
+
 // run the command
 func runCreateCmd(cmd *cobra.Command, args []string) error <span class="cov8" title="1">{
         if !digitalOcean </span><span class="cov0" title="0">{
+                // validate PWD is a git repo
+                if !validateRepo() </span><span class="cov0" title="0">{
+                        return nil
+                }</span>
+
                 // validate azure login
-                if validateAzureLogin() != nil </span><span class="cov0" title="0">{
+                <span class="cov0" title="0">if validateAzureLogin() != nil </span><span class="cov0" title="0">{
                         cfmt.ErrorE("please run az login first")
                         return nil
                 }</span>
@@ -1367,11 +1395,19 @@ func runCreateCmd(cmd *cobra.Command, args []string) error <span class="cov8" ti
         }</span>
 
         // add the GitOps target
-        <span class="cov8" title="1">if err := addTargetE(cluster, ssl); err != nil </span><span class="cov0" title="0">{
-                cfmt.ErrorE("Error: ", err)
+        <span class="cov8" title="1">if gitops || gitopsOnly </span><span class="cov0" title="0">{
+                addTargetE(cluster)
+                cfmt.Info("Created GitOps config: ", cluster)
 
-                // todo - if you return the error, usage info is printed
-                //        is there a way to return the error and not display usage info?
+                // exit
+                if gitopsOnly </span><span class="cov0" title="0">{
+                        return nil
+                }</span>
+        }
+
+        // fail if the Azure VM exists
+        <span class="cov8" title="1">if vmExists() </span><span class="cov0" title="0">{
+                cfmt.ErrorE("Azure VM Exists: ", cluster)
                 return nil
         }</span>
 
@@ -1386,8 +1422,8 @@ func runCreateCmd(cmd *cobra.Command, args []string) error <span class="cov8" ti
 
         // create the azure resource group
         <span class="cov0" title="0">if err := createGroup(); err != nil </span><span class="cov0" title="0">{
-                cfmt.ErrorE(err)
-                return err
+                cfmt.ErrorE("createGroup Failed: ", cluster)
+                return nil
         }</span>
 
         // create the vm and get the IP
@@ -1398,11 +1434,12 @@ func runCreateCmd(cmd *cobra.Command, args []string) error <span class="cov8" ti
 
         // success
         if ip != "" </span><span class="cov0" title="0">{
-                cfmt.Info("VM Configured")
-                return nil
+                cfmt.Info("VM Configured: ", cluster)
+        }</span> else<span class="cov0" title="0"> {
+                cfmt.ErrorE("VM Creation Failed: ", cluster)
         }</span>
 
-        <span class="cov0" title="0">return fmt.Errorf("VM Creation Failed")</span>
+        <span class="cov0" title="0">return nil</span>
 }
 
 // handle --dry-run
@@ -1418,7 +1455,6 @@ func doDryRun() error <span class="cov8" title="1">{
         <span class="cov8" title="1">fmt.Println("Managed Identity:    ", strings.Contains(managedIdentityID, "/Microsoft.ManagedIdentity/"))
         fmt.Println("Location:            ", location)
         fmt.Println("Repo:                ", repo)
-        fmt.Println("Fleet Branch:        ", fleetBranch)
         fmt.Println("Branch:              ", branch)
 
         if len(ssl) &gt; 0 </span><span class="cov8" title="1">{
@@ -1444,14 +1480,14 @@ func doDryRun() error <span class="cov8" title="1">{
 
 // check to see if the Azure Resource Group exists
 func groupExists() bool <span class="cov0" title="0">{
-        ex, _ := boa.ShellExecOut("az group exists -g " + group)
+        ex, _ := boa.ShellExecOut("az group exists -g "+group, false)
         return strings.HasPrefix(ex, "true")
 }</span>
 
 // check to see if the VM exists in the RG
-func vmExists() bool <span class="cov0" title="0">{
+func vmExists() bool <span class="cov8" title="1">{
         command := fmt.Sprintf("az vm show -g %s --name %s --query 'name' -o tsv", group, cluster)
-        res, _ := boa.ShellExecOut(command)
+        res, _ := boa.ShellExecOut(command, false)
         return strings.EqualFold(cluster, strings.TrimSpace(res))
 }</span>
 
@@ -1462,14 +1498,8 @@ func getTemplatePath() string <span class="cov8" title="1">{
 
 // create Azure Resource Group
 func createGroup() error <span class="cov0" title="0">{
-        // fail if the Azure VM exists
-        if vmExists() </span><span class="cov0" title="0">{
-                cfmt.ErrorE("Azure VM exists")
-                return fmt.Errorf("please use a different VM or delete the VM")
-        }</span>
-
         // don't create the group if it exists
-        <span class="cov0" title="0">if groupExists() </span><span class="cov0" title="0">{
+        if groupExists() </span><span class="cov0" title="0">{
                 return nil
         }</span>
 
@@ -1511,7 +1541,6 @@ func createVMSetupScript() <span class="cov8" title="1">{
         command = strings.Replace(command, "{{fqdn}}", cluster+"."+ssl, -1)
         command = strings.Replace(command, "{{repo}}", repo, -1)
         command = strings.Replace(command, "{{branch}}", branch, -1)
-        command = strings.Replace(command, "{{fleet_branch}}", fleetBranch, -1)
         command = strings.Replace(command, "{{group}}", group, -1)
         command = strings.Replace(command, "{{arcEnabled}}", strconv.FormatBool(arcEnabled), -1)
         command = strings.Replace(command, "{{do}}", strconv.FormatBool(digitalOcean), -1)
@@ -1522,7 +1551,7 @@ func createVMSetupScript() <span class="cov8" title="1">{
 
 // create Azure VM
 func createVM(managedIdentityID string) string <span class="cov0" title="0">{
-        cfmt.Info("Creating Azure VM")
+        cfmt.Info("Creating Azure VM: ", cluster)
 
         command := "az vm create \\\n"
         command += " -g " + group + " \\\n"
@@ -1536,18 +1565,18 @@ func createVM(managedIdentityID string) string <span class="cov0" title="0">{
         command += " --storage-sku Premium_LRS \\\n"
         command += " --generate-ssh-keys \\\n"
         command += " --public-ip-sku Standard \\\n"
+        command += " --custom-data cluster-" + cluster + ".sh \\\n"
         command += " --query publicIpAddress \\\n"
-        command += " -o tsv \\\n"
-        command += " --custom-data cluster-" + cluster + ".sh"
+        command += " -o tsv"
 
-        ip, _ := boa.ShellExecOut(command)
+        ip, err := boa.ShellExecOut(command, verbose)
         ip = strings.TrimSpace(ip)
 
-        if ip == "" </span><span class="cov0" title="0">{
-                cfmt.ErrorE("Failed to create cluster")
+        if err != nil || ip == "" </span><span class="cov0" title="0">{
                 return ""
         }</span>
-        <span class="cov0" title="0">cfmt.Info("VM created")
+
+        <span class="cov0" title="0">cfmt.Info("VM Created: ", cluster)
         fmt.Println(cluster, ip)
 
         f, err := os.OpenFile("ips", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
@@ -1561,11 +1590,11 @@ func createVM(managedIdentityID string) string <span class="cov0" title="0">{
 
         <span class="cov0" title="0">f.Close()
 
-        cfmt.Info("Deleting default nsg")
+        cfmt.Info("Deleting NSG: ", cluster)
         command = "az network nsg rule delete -g " + group + " --nsg-name " + cluster + "NSG -o table --name default-allow-ssh"
-        boa.ShellExecOut(command)
+        boa.ShellExecOut(command, false)
 
-        cfmt.Info("Creating SSH rule on port 2222")
+        cfmt.Info("Creating SSH Rule: ", cluster)
 
         command = "az network nsg rule create \\\n"
         command += "-g " + group + " \\\n"
@@ -1576,14 +1605,15 @@ func createVM(managedIdentityID string) string <span class="cov0" title="0">{
         command += "--protocol tcp \\\n"
         command += "--access allow \\\n"
         command += "--priority 1202 -o table"
-        boa.ShellExecOut(command)
+        boa.ShellExecOut(command, false)
 
         return ip</span>
 }
 
 // get GitOps template
-func getConfigJson(cluster string, zone string) []byte <span class="cov0" title="0">{
+func getConfigJson(cluster string) []byte <span class="cov0" title="0">{
         region := cluster
+        zone := cluster
         district := cluster
 
         cols := strings.Split(cluster, "-")
@@ -1591,8 +1621,12 @@ func getConfigJson(cluster string, zone string) []byte <span class="cov0" title=
         if len(cols) &gt; 0 </span><span class="cov0" title="0">{
                 region = cols[0]
 
-                if len(cols) &gt; 2 </span><span class="cov0" title="0">{
-                        district = strings.Join(cols[:3], "-")
+                if len(cols) &gt; 1 </span><span class="cov0" title="0">{
+                        zone = strings.Join(cols[0:2], "-")
+                }</span>
+
+                <span class="cov0" title="0">if len(cols) &gt; 2 </span><span class="cov0" title="0">{
+                        district = strings.Join(cols[0:3], "-")
                 }</span>
         }
 
@@ -1607,23 +1641,24 @@ func getConfigJson(cluster string, zone string) []byte <span class="cov0" title=
         json = strings.Replace(json, "{{region}}", region, -1)
         json = strings.Replace(json, "{{district}}", district, -1)
         json = strings.Replace(json, "{{zone}}", zone, -1)
+        json = strings.Replace(json, "{{domain}}", ssl, -1)
 
         return []byte(json)</span>
 }
 
 // add a target to GitOps
-func addTargetE(cluster string, zone string) error <span class="cov8" title="1">{
+func addTargetE(cluster string) error <span class="cov0" title="0">{
         // only run if --gitops specified
-        if !gitops </span><span class="cov8" title="1">{
+        if !(gitops || gitopsOnly) </span><span class="cov0" title="0">{
                 return nil
         }</span>
 
         // read the config.json file
-        <span class="cov0" title="0">json := getConfigJson(cluster, ssl)
+        <span class="cov0" title="0">json := getConfigJson(cluster)
 
         // make sure the json is valid
         if json == nil || len(json) &lt; 3 || strings.Contains(string(json), "{{") </span><span class="cov0" title="0">{
-                cfmt.ErrorE("unable to read gitops-config.templ")
+                return cfmt.ErrorE("unable to read gitops-config.templ")
         }</span>
 
         <span class="cov0" title="0">return addTargetWorkerE(json)</span>
@@ -1631,80 +1666,30 @@ func addTargetE(cluster string, zone string) error <span class="cov8" title="1">
 
 // add a target to GitOps
 func addTargetWorkerE(json []byte) error <span class="cov0" title="0">{
-        // GitOps directories
-        repoName := repo
-
-        cols := strings.Split(repoName, "/")
-        repoName = cols[len(cols)-1]
-
-        gitopsDir := filepath.Join("/", "workspaces")
-
-        if _, err := os.Stat(gitopsDir); err == nil </span><span class="cov0" title="0">{
-                gitopsDir = filepath.Join(gitopsDir, repoName)
-        }</span> else<span class="cov0" title="0"> {
-                gitopsDir = filepath.Join(os.Getenv("HOME"), repoName)
-        }</span>
-
-        <span class="cov0" title="0">gitCmd = "git -C " + gitopsDir + " "
-
-        if err := cloneGitOpsRepoE(gitopsDir); err != nil </span><span class="cov0" title="0">{
-                return nil
-        }</span>
-
-        <span class="cov0" title="0">if err := setBranchE(); err != nil </span><span class="cov0" title="0">{
-                return err
-        }</span>
-
-        <span class="cov0" title="0">targetsErr := addGitOpsTargetsE(gitopsDir, json)
-
-        // delete the repo if we created it
-        if !dirExists </span><span class="cov0" title="0">{
-                if err := boa.ShellExecE("rm -rf " + gitopsDir); err != nil </span><span class="cov0" title="0">{
-                        return err
-                }</span>
-        }
-
-        <span class="cov0" title="0">return targetsErr</span>
-}
-
-// add the targets
-func addGitOpsTargetsE(gitopsDir string, json []byte) error <span class="cov0" title="0">{
-        bootstrapDir := filepath.Join(gitopsDir, "deploy", "bootstrap")
-        appsDir := filepath.Join(gitopsDir, "deploy", "apps")
+        configDir := filepath.Join(".", "config")
 
         // add the targets
         if len(json) &gt; 0 &amp;&amp; !strings.Contains(string(json), "{{") </span><span class="cov0" title="0">{
                 // make sure the dirs exist
-                if _, err := os.Stat(bootstrapDir); err == nil </span><span class="cov0" title="0">{
-                        if _, err = os.Stat(appsDir); err == nil </span><span class="cov0" title="0">{
-                                // add cluster to the dirs
-                                bootstrapDir = filepath.Join(bootstrapDir, cluster)
-                                appsDir = filepath.Join(appsDir, cluster)
+                if _, err := os.Stat(configDir); err == nil </span><span class="cov0" title="0">{
+                        // add cluster to the dirs
+                        configDir = filepath.Join(configDir, cluster)
 
-                                // create the directories
-                                if err := boa.ShellExecE("mkdir -p " + bootstrapDir + " &amp;&amp; mkdir -p " + appsDir); err != nil </span><span class="cov0" title="0">{
+                        // create the directory
+                        if err := boa.ShellExecE("mkdir -p " + configDir); err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        // write config.json to each dir
+                        <span class="cov0" title="0">configDir = filepath.Join(configDir, "config.json")
+
+                        if _, err := os.Stat(configDir); err != nil </span><span class="cov0" title="0">{
+                                if err := os.WriteFile(configDir, json, 0644); err != nil </span><span class="cov0" title="0">{
                                         return err
                                 }</span>
-
-                                // write config.json to each dir
-                                <span class="cov0" title="0">bootstrapDir = filepath.Join(bootstrapDir, "config.json")
-                                appsDir = filepath.Join(appsDir, "config.json")
-
-                                // don't overwrite existing config.json
-                                if _, err := os.Stat(bootstrapDir); err != nil </span><span class="cov0" title="0">{
-                                        if err := os.WriteFile(bootstrapDir, json, 0644); err != nil </span><span class="cov0" title="0">{
-                                                return err
-                                        }</span>
-                                }
-
-                                <span class="cov0" title="0">if _, err := os.Stat(appsDir); err != nil </span><span class="cov0" title="0">{
-                                        if err := os.WriteFile(appsDir, json, 0644); err != nil </span><span class="cov0" title="0">{
-                                                return err
-                                        }</span>
-                                }
-
-                                <span class="cov0" title="0">return updateGitOpsRepoE(gitopsDir)</span>
                         }
+
+                        <span class="cov0" title="0">return updateGitOpsRepoE()</span>
                 }
         }
 
@@ -1712,98 +1697,28 @@ func addGitOpsTargetsE(gitopsDir string, json []byte) error <span class="cov0" t
 }
 
 // update the GitOps repo with changes
-func updateGitOpsRepoE(gitopsDir string) error <span class="cov0" title="0">{
+func updateGitOpsRepoE() error <span class="cov0" title="0">{
         // if there were repo changes
-        if res, _ := boa.ShellExecOut(gitCmd + "status -s"); res != "" </span><span class="cov0" title="0">{
-                agoDir := filepath.Join(gitopsDir, "autogitops")
-
-                // update create log
-                if _, err := os.Stat(agoDir); err == nil </span><span class="cov0" title="0">{
-                        if file, err := os.OpenFile(filepath.Join(agoDir, "create.log"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644); err == nil </span><span class="cov0" title="0">{
-                                dt := time.Now()
-                                fmt.Fprintln(file, dt.Format("01-02-2006 15:04:05"), "added cluster:", cluster)
-                                file.Close()
-                        }</span> else<span class="cov0" title="0"> {
-                                return err
-                        }</span>
-                } else<span class="cov0" title="0"> {
-                        return err
-                }</span>
-
+        if res, _ := boa.ShellExecOut("git status -s", false); res != "" </span><span class="cov0" title="0">{
                 // pull to avoid conflicts
-                <span class="cov0" title="0">if err := boa.ShellExecE(gitCmd + "pull"); err != nil </span><span class="cov0" title="0">{
+                if _, err := boa.ShellExecOut("git pull", false); err != nil </span><span class="cov0" title="0">{
                         return err
                 }</span>
 
                 // update the repo
-                <span class="cov0" title="0">if err := boa.ShellExecE(gitCmd + "add ."); err != nil </span><span class="cov0" title="0">{
+                <span class="cov0" title="0">if _, err := boa.ShellExecOut("git add .", false); err != nil </span><span class="cov0" title="0">{
                         return err
                 }</span>
 
-                <span class="cov0" title="0">if err := boa.ShellExecE(gitCmd + "commit -am 'kic fleet create'"); err != nil </span><span class="cov0" title="0">{
+                <span class="cov0" title="0">if _, err := boa.ShellExecOut("git commit -am 'flt create'", false); err != nil </span><span class="cov0" title="0">{
                         return err
                 }</span>
 
-                <span class="cov0" title="0">if err := boa.ShellExecE(gitCmd + "push"); err != nil </span><span class="cov0" title="0">{
-                        return err
-                }</span>
-        }
-
-        <span class="cov0" title="0">return nil</span>
-}
-
-// clone GitOps repo if necessary
-func cloneGitOpsRepoE(gitopsDir string) error <span class="cov0" title="0">{
-        // clone the repo if doesn't exist
-        if _, err := os.Stat(gitopsDir); err != nil </span><span class="cov0" title="0">{
-                // GitOps directories
-                repoFull := repo
-
-                if !strings.HasPrefix(repo, "https://") </span><span class="cov0" title="0">{
-                        repoFull = "https://github.com/" + repo
-                }</span>
-
-                <span class="cov0" title="0">if err := boa.ShellExecE("git clone " + repoFull + " " + gitopsDir); err != nil </span><span class="cov0" title="0">{
-                        return err
-                }</span>
-
-                <span class="cov0" title="0">dirExists = false</span>
-        }
-
-        <span class="cov0" title="0">return nil</span>
-}
-
-// set the GitOps branch
-func setBranchE() error <span class="cov0" title="0">{
-        // pull the repo
-        if err := boa.ShellExecE(gitCmd + "pull"); err != nil </span><span class="cov0" title="0">{
-                return err
-        }</span>
-
-        // get current branch
-        <span class="cov0" title="0">br, err := boa.ShellExecOut(gitCmd + "branch --show-current")
-        if err != nil </span><span class="cov0" title="0">{
-                return err
-        }</span>
-
-        <span class="cov0" title="0">br = strings.TrimSpace(br)
-
-        // use current branch
-        if branch == "" </span><span class="cov0" title="0">{
-                branch = br
-        }</span>
-
-        // checkout the branch
-        <span class="cov0" title="0">if br != branch </span><span class="cov0" title="0">{
-                if err := boa.ShellExecE(gitCmd + "checkout " + branch); err != nil </span><span class="cov0" title="0">{
+                // push the changes
+                <span class="cov0" title="0">if _, err := boa.ShellExecOut("git push", false); err != nil </span><span class="cov0" title="0">{
                         return err
                 }</span>
         }
-
-        // pull the branch
-        <span class="cov0" title="0">if err := boa.ShellExecE(gitCmd + "pull"); err != nil </span><span class="cov0" title="0">{
-                return err
-        }</span>
 
         <span class="cov0" title="0">return nil</span>
 }
@@ -1837,7 +1752,7 @@ var DeleteCmd = &amp;cobra.Command{
 // run kic fleet delete command
 func runFleetDeleteE(cmd *cobra.Command, args []string) error <span class="cov0" title="0">{
         // check if resource group exists
-        res, _ := boa.ShellExecOut(fmt.Sprintf("az group exists -n %s", args[0]))
+        res, _ := boa.ShellExecOut(fmt.Sprintf("az group exists -n %s", args[0]), false)
 
         if strings.TrimSpace(res) == "true" </span><span class="cov0" title="0">{
                 cfmt.Info("Deleting Resource Group")
@@ -1979,10 +1894,17 @@ func runFleetList(cmd *cobra.Command, args []string) error <span class="cov8" ti
         }</span>
 
         <span class="cov8" title="1">for _, line := range hostIPs </span><span class="cov8" title="1">{
-                if len(line) &lt; 30 </span><span class="cov8" title="1">{
-                        line = strings.Replace(line, "\t", "\t\t", -1)
+                cols := strings.Split(line, "\t")
+
+                if len(cols) &gt; 1 </span><span class="cov8" title="1">{
+                        fmt.Print(cols[0])
+                        if len(cols[0]) &lt; 30 </span><span class="cov8" title="1">{
+                                fmt.Print(strings.Repeat(" ", 30-len(cols[0])))
+                        }</span>
+                        <span class="cov8" title="1">fmt.Println(cols[1])</span>
+                } else<span class="cov0" title="0"> {
+                        fmt.Println(line)
                 }</span>
-                <span class="cov8" title="1">fmt.Println(line)</span>
         }
 
         <span class="cov8" title="1">return nil</span>
@@ -2293,7 +2215,7 @@ func runTargetsDeployE(cmd *cobra.Command, args []string) error <span class="cov
         }</span>
 
         // make sure the repo is up to date
-        <span class="cov0" title="0">res, err := boa.ShellExecOut("git status -s")
+        <span class="cov0" title="0">res, err := boa.ShellExecOut("git status -s", false)
 
         if err != nil </span><span class="cov0" title="0">{
                 return cfmt.ErrorE(err)
@@ -2466,7 +2388,7 @@ func checkForConfigFile() error <span class="cov8" title="1">{
 // read config file into map
 func getAutoGitOpsConfigMap() map[string]interface{} <span class="cov8" title="1">{
         // make sure the repo is up to date
-        boa.ShellExecOut("git pull")
+        boa.ShellExecOut("git pull", false)
 
         content, err := os.ReadFile(AutoGitOpsConfigFile)
 

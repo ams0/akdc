@@ -40,7 +40,7 @@ else
 
     if [ $retry_count -gt 0 ]
     then
-      sleep 20
+      sleep $((RANDOM % 30+15))
     fi
 
     retry_count=$((retry_count + 1))

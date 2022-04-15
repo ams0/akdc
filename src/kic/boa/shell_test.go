@@ -21,7 +21,7 @@ func TestShellExecE(t *testing.T) {
 }
 
 func TestShellExecOut(t *testing.T) {
-	_, err := ShellExecOut("pwd")
+	_, err := ShellExecOut("pwd", false)
 
 	if err != nil {
 		t.Errorf("TestShellExecOut() failed, error %v", err)

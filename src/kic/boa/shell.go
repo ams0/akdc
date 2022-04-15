@@ -20,11 +20,16 @@ func ShellExecArgsE(cmd string, args []string) error {
 }
 
 // execute a bash command and return stdout
-func ShellExecOut(cmd string) (string, error) {
+func ShellExecOut(cmd string, showErrors bool) (string, error) {
 	shell := exec.Command("bash", "-c", cmd)
 
 	var out bytes.Buffer
 	shell.Stdout = &out
+
+	// show errors
+	if showErrors {
+		shell.Stderr = os.Stderr
+	}
 
 	err := shell.Run()
 

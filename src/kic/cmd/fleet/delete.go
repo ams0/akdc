@@ -26,7 +26,7 @@ var DeleteCmd = &cobra.Command{
 // run kic fleet delete command
 func runFleetDeleteE(cmd *cobra.Command, args []string) error {
 	// check if resource group exists
-	res, _ := boa.ShellExecOut(fmt.Sprintf("az group exists -n %s", args[0]))
+	res, _ := boa.ShellExecOut(fmt.Sprintf("az group exists -n %s", args[0]), false)
 
 	if strings.TrimSpace(res) == "true" {
 		cfmt.Info("Deleting Resource Group")
