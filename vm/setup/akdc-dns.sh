@@ -2,10 +2,11 @@
 
 ### run as su - will not work with sudo
 
+echo "$(date +'%Y-%m-%d %H:%M:%S')  akdc-dns start" >> "/home/${AKDC_ME}/status"
+
 set -e
 
-echo "$(date +'%Y-%m-%d %H:%M:%S')  akdc-dns start" >> /home/akdc/status
-echo "$(date +'%Y-%m-%d %H:%M:%S')  creating DNS entry" >> /home/akdc/status
+echo "$(date +'%Y-%m-%d %H:%M:%S')  creating DNS entry" >> "/home/${AKDC_ME}/status"
 
 if [ "$AKDC_DO" = "true" ]
 then
@@ -15,7 +16,8 @@ else
   # get the public IP
   pip=$(az network public-ip show -g "$AKDC_RESOURCE_GROUP" -n "${AKDC_CLUSTER}publicip" --query ipAddress -o tsv)
 fi
-echo "$(date +'%Y-%m-%d %H:%M:%S')  Public IP: $pip" >> /home/akdc/status
+
+echo "$(date +'%Y-%m-%d %H:%M:%S')  Public IP: $pip" >> "/home/${AKDC_ME}/status"
 echo "Public IP: $pip"
 
 # get the old IP
@@ -28,7 +30,7 @@ old_ip=$(az network dns record-set a list \
 # delete old DNS entry if exists
 if [ "$old_ip" != "" ] && [ "$old_ip" != "$pip" ]
 then
-  echo "$(date +'%Y-%m-%d %H:%M:%S')  deleting old DNS entry old: $old_ip pip: $pip" >> /home/akdc/status
+  echo "$(date +'%Y-%m-%d %H:%M:%S')  deleting old DNS entry old: $old_ip pip: $pip" >> "/home/${AKDC_ME}/status"
 
   # delete the old DNS entry
   az network dns record-set a remove-record \
@@ -46,4 +48,4 @@ az network dns record-set a add-record \
 -a "$pip" \
 --ttl 10 -o table
 
-echo "$(date +'%Y-%m-%d %H:%M:%S')  akdc-dns complete" >> /home/akdc/status
+echo "$(date +'%Y-%m-%d %H:%M:%S')  akdc-dns complete" >> "/home/${AKDC_ME}/status"

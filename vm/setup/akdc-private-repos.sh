@@ -4,10 +4,8 @@
 
 # this runs after arc-setup.sh
 
-set -e
-
-echo "$(date +'%Y-%m-%d %H:%M:%S')  akdc-private-repos start" >> /home/akdc/status
+echo "$(date +'%Y-%m-%d %H:%M:%S')  akdc-private-repos start" >> "/home/${AKDC_ME}/status"
 
 # add commands here
 
-echo "$(date +'%Y-%m-%d %H:%M:%S')  akdc-private-repos complete" >> /home/akdc/status
+echo "$(date +'%Y-%m-%d %H:%M:%S')  akdc-private-repos complete" >> "/home/${AKDC_ME}/status"
