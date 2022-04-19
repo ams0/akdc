@@ -95,7 +95,7 @@ ${AKDC_FQDN}/webv/* {
 EOF
 
 echo "installing dotnet" >> "/home/${AKDC_ME}/status"
-apt-get install -y dotnet-sdk-6.0
+sudo apt-get install -y dotnet-sdk-6.0
 
 dotnet tool install -g webvalidate
 
