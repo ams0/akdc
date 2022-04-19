@@ -55,3 +55,6 @@ fi
 
 echo "$(date +'%Y-%m-%d %H:%M:%S')  akdc-setup complete" >> "/home/${AKDC_ME}/status"
 echo "complete" >> "/home/${AKDC_ME}/status"
+
+# reboot the server
+sudo shutdown -r now
