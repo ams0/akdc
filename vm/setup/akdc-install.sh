@@ -39,12 +39,16 @@ sudo apt-get install -y docker-ce docker-ce-cli
 echo "installing dotnet" >> "/home/${AKDC_ME}/status"
 sudo apt-get install -y dotnet-sdk-6.0
 
+# install caddy
+sudo apt-get install -y caddy
+
 # upgrade Ubuntu
 echo "$(date +'%Y-%m-%d %H:%M:%S')  upgrading" >> "/home/${AKDC_ME}/status"
 sudo apt-get update
 sudo apt-get upgrade -y
 sudo apt-get autoremove -y
 
+sudo systemctl stop caddy
 sudo mkdir -p /etc/caddy
 sudo rm -f /etc/caddy/Caddyfile
 
@@ -75,6 +79,9 @@ ${AKDC_FQDN}/webv/* {
         reverse_proxy 127.0.0.1:30088
 }
 EOF
+
+sudo systemctl enable caddy
+sudo systemctl start caddy
 
 dotnet tool install -g webvalidate
 
