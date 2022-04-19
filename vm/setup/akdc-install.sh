@@ -36,7 +36,7 @@ sudo apt-get update
 echo "$(date +'%Y-%m-%d %H:%M:%S')  installing docker" >> "/home/${AKDC_ME}/status"
 sudo apt-get install -y docker-ce docker-ce-cli
 
-echo "installing dotnet" >> "/home/${AKDC_ME}/status"
+echo "$(date +'%Y-%m-%d %H:%M:%S')  installing dotnet" >> "/home/${AKDC_ME}/status"
 sudo apt-get install -y dotnet-sdk-6.0
 
 # install caddy
