@@ -4,4 +4,4 @@
 #cd "$(dirname "${BASH_SOURCE[0]}")" || exit
 
 echo "$@"
-docker run --rm ghcr.io/cse-labs/webv-red:latest --server https://${AKDC_FQDN} --files imdb-baseline.json "$@"
+docker run --rm ghcr.io/cse-labs/webv-red:latest --server localhost:30080 --files imdb-baseline.json "$@"
