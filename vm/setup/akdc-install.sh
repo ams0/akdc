@@ -49,11 +49,60 @@ wget "https://github.com/derailed/k9s/releases/download/${VERSION}/k9s_Linux_x86
 sudo tar -zxvf k9s_Linux_x86_64.tar.gz -C /usr/local/bin
 rm -f k9s_Linux_x86_64.tar.gz
 
+### new code
+sudo mkdir -p /etc/caddy
+
+# add caddy sources
+sudo apt-get install -y debian-keyring debian-archive-keyring apt-transport-https
+curl -1sLf https://dl.cloudsmith.io/public/caddy/stable/gpg.key | sudo tee /etc/apt/trusted.gpg.d/caddy-stable.asc
+curl -1sLf https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt | sudo tee /etc/apt/sources.list.d/caddy-stable.list
+
+# add dotnet repo
+echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-$(lsb_release -cs)-prod $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/dotnetdev.list
+
 # upgrade Ubuntu
 echo "$(date +'%Y-%m-%d %H:%M:%S')  upgrading" >> "/home/${AKDC_ME}/status"
 sudo apt-get update
 sudo apt-get upgrade -y
 sudo apt-get autoremove -y
+
+cat << EOF | sudo tee /etc/caddy/Caddyfile
+${AKDC_FQDN} {
+  redir /heartbeat /heartbeat/
+  redir /webv /webv/
+  redir /grafana /grafana/
+  redir /prometheus /prometheus/
+  reverse_proxy 127.0.0.1:30080
+}
+
+${AKDC_FQDN}/heartbeat/* {
+	reverse_proxy 127.0.0.1:30082
+}
+
+${AKDC_FQDN}/grafana/* {
+        uri strip_prefix /grafana
+        reverse_proxy 127.0.0.1:32000
+}
+
+${AKDC_FQDN}/prometheus/* {
+        reverse_proxy 127.0.0.1:30000
+}
+
+${AKDC_FQDN}/webv/* {
+        uri strip_prefix /webv
+        reverse_proxy 127.0.0.1:30088
+}
+EOF
+
+echo "installing dotnet" >> "/home/${AKDC_ME}/status"
+apt-get install -y dotnet-sdk-6.0
+
+dotnet tool install -g webvalidate
+
+# install caddy
+sudo apt-get install -y caddy
+
+### end new code
 
 sudo chown -R "${AKDC_ME}:${AKDC_ME}" "/home/${AKDC_ME}"
 

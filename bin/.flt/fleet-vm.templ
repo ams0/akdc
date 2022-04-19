@@ -96,7 +96,7 @@ sed -i "s/\[ -z \"\$PS1\" ] && return//" /etc/bash.bashrc
   echo "alias kje='kubectl exec -it jumpbox -- '"
 
   echo ""
-  echo 'export PATH="$PATH:$HOME/cli/vm/bin"'
+  echo 'export PATH="$PATH:$HOME/cli/vm/bin:$HOME/.dotnet/tools"'
   echo "export AKDC_ME=$AKDC_ME"
   echo "export AKDC_CLUSTER=$AKDC_CLUSTER"
   echo "export AKDC_BRANCH=$AKDC_BRANCH"
