@@ -99,9 +99,6 @@ sudo apt-get install -y dotnet-sdk-6.0
 
 dotnet tool install -g webvalidate
 
-# install caddy
-sudo apt-get install -y caddy
-
 ### end new code
 
 sudo chown -R "${AKDC_ME}:${AKDC_ME}" "/home/${AKDC_ME}"
