@@ -66,6 +66,8 @@ sudo apt-get update
 sudo apt-get upgrade -y
 sudo apt-get autoremove -y
 
+sudo rm -f /etc/caddy/Caddyfile
+
 cat << EOF | sudo tee /etc/caddy/Caddyfile
 ${AKDC_FQDN} {
   redir /heartbeat /heartbeat/
