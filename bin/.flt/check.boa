@@ -12,11 +12,6 @@ fltCommand
 	short: Check app status on each cluster
 
 fltCommand
-	path: check-flux
-	name: flux
-	short: Check flux status on each cluster
-
-fltCommand
 	path: check-heartbeat
 	name: heartbeat
 	short: Check https heartbeat on each cluster
@@ -27,16 +22,6 @@ fltCommand
 	short: Check the cloudinit logs on each cluster
 
 fltCommand
-	path: check-retries
-	name: retries
-	short: Check flux retries on each cluster
-
-fltCommand
 	path: check-setup
 	name: setup
 	short: Check setup status on each cluster
-
-fltCommand
-	path: check-tlog
-	name: tlog
-	short: Check Virtual TLog status on each cluster
