@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ $(kubectl get po -A) == *"$1"* ]]
+if [[ "$(docker ps | grep $1)" != "" ]]
 then
    echo "$(hostname) found"
 else
