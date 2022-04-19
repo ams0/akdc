@@ -4,9 +4,6 @@ command
 	short: Check status on the local cluster
 
 runCommand
-	path: check/flux
-
-runCommand
 	path: check/heartbeat
 
 runCommand

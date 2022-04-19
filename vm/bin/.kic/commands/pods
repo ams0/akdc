@@ -6,4 +6,4 @@
 # change to this directory
 #cd "$(dirname "${BASH_SOURCE[0]}")" || exit
 
-kubectl get pods -A
+docker ps
