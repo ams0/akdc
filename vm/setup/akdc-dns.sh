@@ -1,7 +1,5 @@
 #!/bin/bash
 
-### run as su - will not work with sudo
-
 echo "$(date +'%Y-%m-%d %H:%M:%S')  akdc-dns start" >> "/home/${AKDC_ME}/status"
 
 set -e

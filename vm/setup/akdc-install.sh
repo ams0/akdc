@@ -23,35 +23,6 @@ sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubun
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
 echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
-sudo apt-get update
-
-echo "$(date +'%Y-%m-%d %H:%M:%S')  installing docker" >> "/home/${AKDC_ME}/status"
-sudo apt-get install -y docker-ce docker-ce-cli
-
-echo "$(date +'%Y-%m-%d %H:%M:%S')  installing kubectl" >> "/home/${AKDC_ME}/status"
-sudo apt-get install -y kubectl
-
-# Install istio CLI
-echo "$(date +'%Y-%m-%d %H:%M:%S')  installing istioctl" >> "/home/${AKDC_ME}/status"
-echo "Installing istioctl"
-curl -sL https://istio.io/downloadIstioctl | bash -
-sudo mv "/home/${AKDC_ME}/.istioctl/bin/istioctl" /usr/local/bin
-
-echo "$(date +'%Y-%m-%d %H:%M:%S')  installing k3d" >> "/home/${AKDC_ME}/status"
-wget -q -O - https://raw.githubusercontent.com/rancher/k3d/main/install.sh | sudo TAG=v4.4.8 bash
-
-echo "$(date +'%Y-%m-%d %H:%M:%S')  installing flux" >> "/home/${AKDC_ME}/status"
-curl -s https://fluxcd.io/install.sh | sudo bash
-
-echo "$(date +'%Y-%m-%d %H:%M:%S')  installing k9s" >> "/home/${AKDC_ME}/status"
-VERSION=$(curl -i https://github.com/derailed/k9s/releases/latest | grep "location: https://github.com/" | rev | cut -f 1 -d / | rev | sed 's/\r//')
-wget "https://github.com/derailed/k9s/releases/download/${VERSION}/k9s_Linux_x86_64.tar.gz"
-sudo tar -zxvf k9s_Linux_x86_64.tar.gz -C /usr/local/bin
-rm -f k9s_Linux_x86_64.tar.gz
-
-### new code
-sudo mkdir -p /etc/caddy
-
 # add caddy sources
 sudo apt-get install -y debian-keyring debian-archive-keyring apt-transport-https
 curl -1sLf https://dl.cloudsmith.io/public/caddy/stable/gpg.key | sudo tee /etc/apt/trusted.gpg.d/caddy-stable.asc
@@ -60,12 +31,21 @@ curl -1sLf https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt | sudo te
 # add dotnet repo
 echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-$(lsb_release -cs)-prod $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/dotnetdev.list
 
+sudo apt-get update
+
+echo "$(date +'%Y-%m-%d %H:%M:%S')  installing docker" >> "/home/${AKDC_ME}/status"
+sudo apt-get install -y docker-ce docker-ce-cli
+
+echo "installing dotnet" >> "/home/${AKDC_ME}/status"
+sudo apt-get install -y dotnet-sdk-6.0
+
 # upgrade Ubuntu
 echo "$(date +'%Y-%m-%d %H:%M:%S')  upgrading" >> "/home/${AKDC_ME}/status"
 sudo apt-get update
 sudo apt-get upgrade -y
 sudo apt-get autoremove -y
 
+sudo mkdir -p /etc/caddy
 sudo rm -f /etc/caddy/Caddyfile
 
 cat << EOF | sudo tee /etc/caddy/Caddyfile
@@ -96,12 +76,7 @@ ${AKDC_FQDN}/webv/* {
 }
 EOF
 
-echo "installing dotnet" >> "/home/${AKDC_ME}/status"
-sudo apt-get install -y dotnet-sdk-6.0
-
 dotnet tool install -g webvalidate
-
-### end new code
 
 sudo chown -R "${AKDC_ME}:${AKDC_ME}" "/home/${AKDC_ME}"
 
