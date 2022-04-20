@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"kic/boa"
 	"kic/boa/cfmt"
-	"log"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -485,22 +484,13 @@ func createVM(managedIdentityID string) string {
 	ip = strings.TrimSpace(ip)
 
 	if err != nil || ip == "" {
+		cfmt.FAppendToFile("failed.log", cluster+"\n")
 		return ""
 	}
 
 	cfmt.Info("VM Created: ", cluster)
 	fmt.Println(cluster, ip)
-
-	f, err := os.OpenFile("ips", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		cfmt.ErrorE(err)
-	}
-
-	if _, err := f.WriteString(fmt.Sprintf("%s\t%s\n", cluster, ip)); err != nil {
-		log.Println(err)
-	}
-
-	f.Close()
+	cfmt.FAppendToFile("ips", fmt.Sprintf("%s\t%s\n", cluster, ip))
 
 	cfmt.Info("Deleting NSG: ", cluster)
 	command = "az network nsg rule delete -g " + group + " --nsg-name " + cluster + "NSG -o table --name default-allow-ssh"

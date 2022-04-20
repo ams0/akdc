@@ -200,6 +200,8 @@ then
     exit 1
 fi
 
+set -e
+
 echo "$(date +'%Y-%m-%d %H:%M:%S')  $(az account show -o tsv --query 'user.name')" >> /home/akdc/status
 
 # save secrets

@@ -59,13 +59,13 @@
 				
 				<option value="file1">kic/boa/boaExecCmd.go (0.0%)</option>
 				
-				<option value="file2">kic/boa/cfmt/cfmt.go (100.0%)</option>
+				<option value="file2">kic/boa/cfmt/cfmt.go (70.8%)</option>
 				
 				<option value="file3">kic/boa/io.go (56.0%)</option>
 				
 				<option value="file4">kic/boa/shell.go (87.5%)</option>
 				
-				<option value="file5">kic/cmd/fleet/create.go (29.7%)</option>
+				<option value="file5">kic/cmd/fleet/create.go (30.1%)</option>
 				
 				<option value="file6">kic/cmd/fleet/delete.go (0.0%)</option>
 				
@@ -89,7 +89,7 @@
 				
 				<option value="file16">kic/cmd/targets/targets-remove.go (76.5%)</option>
 				
-				<option value="file17">kic/cmd/targets/targets.go (76.9%)</option>
+				<option value="file17">kic/cmd/targets/targets.go (75.8%)</option>
 				
 				<option value="file18">kic/cmd/test/test-integration.go (81.2%)</option>
 				
@@ -739,6 +739,7 @@ func ExecCmdWithResultsE(t *testing.T, resultMatch string, errMatch string, c *c
 
 import (
         "fmt"
+        "os"
         "runtime"
 )
 
@@ -782,6 +783,23 @@ func init() <span class="cov8" title="1">{
                 White = "\033[97m"
                 Yellow = "\033[33m"
         }</span>
+}
+
+// append text to path
+func FAppendToFile(path string, text string) error <span class="cov0" title="0">{
+        f, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+
+        if err != nil </span><span class="cov0" title="0">{
+                return ErrorE(err)
+        }</span>
+
+        <span class="cov0" title="0">defer f.Close()
+
+        if _, err := f.WriteString(text); err != nil </span><span class="cov0" title="0">{
+                return ErrorE(err)
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
 }
 </pre>
 		
@@ -1096,7 +1114,6 @@ import (
         "fmt"
         "kic/boa"
         "kic/boa/cfmt"
-        "log"
         "os"
         "path/filepath"
         "strconv"
@@ -1573,22 +1590,13 @@ func createVM(managedIdentityID string) string <span class="cov0" title="0">{
         ip = strings.TrimSpace(ip)
 
         if err != nil || ip == "" </span><span class="cov0" title="0">{
+                cfmt.FAppendToFile("failed.log", cluster+"\n")
                 return ""
         }</span>
 
         <span class="cov0" title="0">cfmt.Info("VM Created: ", cluster)
         fmt.Println(cluster, ip)
-
-        f, err := os.OpenFile("ips", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-        if err != nil </span><span class="cov0" title="0">{
-                cfmt.ErrorE(err)
-        }</span>
-
-        <span class="cov0" title="0">if _, err := f.WriteString(fmt.Sprintf("%s\t%s\n", cluster, ip)); err != nil </span><span class="cov0" title="0">{
-                log.Println(err)
-        }</span>
-
-        <span class="cov0" title="0">f.Close()
+        cfmt.FAppendToFile("ips", fmt.Sprintf("%s\t%s\n", cluster, ip))
 
         cfmt.Info("Deleting NSG: ", cluster)
         command = "az network nsg rule delete -g " + group + " --nsg-name " + cluster + "NSG -o table --name default-allow-ssh"
@@ -2358,7 +2366,7 @@ import (
 )
 
 var (
-        AutoGitOpsConfigFile = filepath.Join(".", "autogitops", "autogitops.json")
+        AutoGitOpsConfigFile = filepath.Join(".", "autogitops", "config.json")
 
         // TargetsCmd contains the GitOps targets commands
         TargetsCmd = &amp;cobra.Command{
@@ -2382,17 +2390,36 @@ func argsTargets(cmd *cobra.Command, args []string) error <span class="cov8" tit
 
 // check for the config file
 func checkForConfigFile() error <span class="cov8" title="1">{
+        // todo - AGO changed the name of the config file and deprecated autogitops.json in favor of config.json
+        //        both still work but config.json is the preferred and future only name
+        //        change this back once all the fleets are converted
+
+        // try config.json
+        AutoGitOpsConfigFile = filepath.Join(".", "autogitops", "config.json")
+
         if _, err := os.Stat(AutoGitOpsConfigFile); err != nil </span><span class="cov8" title="1">{
-                return fmt.Errorf("GitOps file not found - please cd to an app with GitOps setup")
-        }</span>
+                // try autogitops.json (deprecated)
+                AutoGitOpsConfigFile = filepath.Join(".", "autogitops", "autogitops.json")
+
+                if _, err := os.Stat(AutoGitOpsConfigFile); err != nil </span><span class="cov8" title="1">{
+                        // set back to preferred
+                        AutoGitOpsConfigFile = filepath.Join(".", "autogitops", "config.json")
+                        return fmt.Errorf("GitOps file not found - please cd to an app with GitOps setup")
+                }</span>
+        }
 
         <span class="cov8" title="1">return nil</span>
 }
 
 // read config file into map
 func getAutoGitOpsConfigMap() map[string]interface{} <span class="cov8" title="1">{
+        // check for the config file
+        if err := checkForConfigFile(); err != nil </span><span class="cov0" title="0">{
+                return nil
+        }</span>
+
         // make sure the repo is up to date
-        boa.ShellExecOut("git pull", false)
+        <span class="cov8" title="1">boa.ShellExecOut("git pull", false)
 
         content, err := os.ReadFile(AutoGitOpsConfigFile)
 
@@ -2418,9 +2445,12 @@ func getAutoGitOpsConfigMap() map[string]interface{} <span class="cov8" title="1
 
 // save config file from map
 func saveAutoGitOpsConfig(result map[string]interface{}) <span class="cov8" title="1">{
-        val, err := json.MarshalIndent(result, "", "    ")
+        // check for the config file
+        if err := checkForConfigFile(); err != nil </span><span class="cov0" title="0">{
+                return
+        }</span>
 
-        if err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if val, err := json.MarshalIndent(result, "", "    "); err != nil </span><span class="cov0" title="0">{
                 fmt.Println("Error saving:", err)
         }</span> else<span class="cov8" title="1"> {
                 os.WriteFile(AutoGitOpsConfigFile, val, 0644)

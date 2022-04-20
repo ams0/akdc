@@ -6,6 +6,7 @@ echo "$(date +'%Y-%m-%d %H:%M:%S')  akdc-dns start" >> "/home/${AKDC_ME}/status"
 
 set -e
 
+echo "$(date +'%Y-%m-%d %H:%M:%S')  akdc-dns start" >> "/home/${AKDC_ME}/status"
 echo "$(date +'%Y-%m-%d %H:%M:%S')  creating DNS entry" >> "/home/${AKDC_ME}/status"
 
 if [ "$AKDC_DO" = "true" ]

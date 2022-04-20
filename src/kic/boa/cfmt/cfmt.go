@@ -2,6 +2,7 @@ package cfmt
 
 import (
 	"fmt"
+	"os"
 	"runtime"
 )
 
@@ -45,4 +46,21 @@ func init() {
 		White = "\033[97m"
 		Yellow = "\033[33m"
 	}
+}
+
+// append text to path
+func FAppendToFile(path string, text string) error {
+	f, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+
+	if err != nil {
+		return ErrorE(err)
+	}
+
+	defer f.Close()
+
+	if _, err := f.WriteString(text); err != nil {
+		return ErrorE(err)
+	}
+
+	return nil
 }
