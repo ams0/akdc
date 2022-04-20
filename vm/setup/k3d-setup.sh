@@ -1,7 +1,5 @@
 #!/bin/bash
 
-### if running manually, you must start a new shell to get the docker permissions
-
 # change to this directory
 cd "$(dirname "${BASH_SOURCE[0]}")" || exit
 

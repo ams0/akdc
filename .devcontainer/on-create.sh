@@ -34,6 +34,7 @@ mkdir -p "$HOME/.oh-my-zsh/completions"
     echo "export AKDC_REPO=retaildevcrews/edge-gitops"
     echo "export AKDC_SSL=cseretail.com"
     echo "export AKDC_GITOPS=true"
+    echo "export AKDC_DNS_RG=tld"
     echo "compinit"
 
     echo "if [ \"\$PAT\" != \"\" ]"

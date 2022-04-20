@@ -13,17 +13,31 @@ echo "$(date +'%Y-%m-%d %H:%M:%S')  installing utils" >> "/home/${AKDC_ME}/statu
 sudo apt-get install -y curl git wget nano jq zip unzip httpie
 sudo apt-get install -y dnsutils coreutils gnupg2 make bash-completion gettext iputils-ping
 
-echo "$(date +'%Y-%m-%d %H:%M:%S')  adding package sources" >> "/home/${AKDC_ME}/status"
-
-# add Docker repo
+# add Docker source
+echo "$(date +'%Y-%m-%d %H:%M:%S')  adding docker source" >> "/home/${AKDC_ME}/status"
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key --keyring /etc/apt/trusted.gpg.d/docker.gpg add -
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 
-# add kubenetes repo
-curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+# add kubenetes source
+echo "$(date +'%Y-%m-%d %H:%M:%S')  adding kubernetes source" >> "/home/${AKDC_ME}/status"
+curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
 echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
-sudo apt-get update
+echo "$(date +'%Y-%m-%d %H:%M:%S')  updating sources" >> "/home/${AKDC_ME}/status"
+
+# this is failing on large fleets - add one retry
+
+set +e
+
+if ! sudo apt-get update
+then
+    echo "$(date +'%Y-%m-%d %H:%M:%S')  updating sources (retry)" >> "/home/${AKDC_ME}/status"
+    sleep 30
+    set -e
+    sudo apt-get update
+fi
+
+set -e
 
 echo "$(date +'%Y-%m-%d %H:%M:%S')  installing docker" >> "/home/${AKDC_ME}/status"
 sudo apt-get install -y docker-ce docker-ce-cli

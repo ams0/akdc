@@ -1,7 +1,5 @@
 #!/bin/bash
 
-### runs as akdc user
-
 # this runs before arc-setup.sh
 
 # change to this directory

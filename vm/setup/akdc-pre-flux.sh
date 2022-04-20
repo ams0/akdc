@@ -1,7 +1,5 @@
 #!/bin/bash
 
-### must run as akdc user
-
 # this runs before flux-setup.sh
 
 echo "$(date +'%Y-%m-%d %H:%M:%S')  akdc-pre-flux start" >> "/home/${AKDC_ME}/status"

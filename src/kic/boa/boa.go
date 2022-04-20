@@ -413,7 +413,7 @@ func addRunCommand(use string, short string, long string, command string) *cobra
 
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) > 0 {
-				ShellExecArgsE(boaCommandPath+command, args)
+				ShellExecArgsE(filepath.Join(boaCommandPath, command), args)
 			} else {
 				ShellExecE(filepath.Join(boaCommandPath, command))
 			}
