@@ -17,8 +17,17 @@ fi
 # this will fail harmlessly if a cluster doesn't exist
 k3d cluster delete
 
+echo "$(date +'%Y-%m-%d %H:%M:%S')  transforming registries.yaml" >> status
+AKDC_PAT=$(cat /home/akdc/.ssh/akdc.pat)
+cp ./registries.templ /home/akdc/registries.yaml
+sed -i -e "s/{{akdc-pat}}/$AKDC_PAT/g" /home/akdc/registries.yaml
+
 # create the cluster (run as akdc)
-k3d cluster create --registry-use k3d-registry.localhost:5500 --config k3d.yaml --k3s-server-arg '--no-deploy=traefik'
+k3d cluster create \
+  --registry-use k3d-registry.localhost:5500 \
+  --registry-config /home/akdc/registries.yaml \
+  --config ./k3d.yaml \
+  --k3s-server-arg '--no-deploy=traefik'
 
 # sleep to avoid timing issues
 sleep 5
