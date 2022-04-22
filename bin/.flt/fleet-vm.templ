@@ -14,6 +14,12 @@ export AKDC_DO="{{do}}"
 export AKDC_ZONE="{{zone}}"
 export AKDC_DNS_RG="{{dnsRG}}"
 
+// todo - add to template
+export AKDC_RG=factory-fleet
+export AKDC_LOCATION=centralus
+export AKDC_SHARE_NAME=uploadvolume
+export AKDC_STORAGE_NAME=factoryfleetstorage
+
 ###################################
 
 export DEBIAN_FRONTEND=noninteractive
@@ -107,6 +113,12 @@ sed -i "s/\[ -z \"\$PS1\" ] && return//" /etc/bash.bashrc
   echo "export AKDC_RESOURCE_GROUP=$AKDC_RESOURCE_GROUP"
   echo "export AKDC_ZONE=$AKDC_ZONE"
   echo "export AKDC_DNS_RG=$AKDC_DNS_RG"
+
+  # new keys for factory app
+  echo "export AKDC_RG=$AKDC_RG"
+  echo "export AKDC_LOCATION=$AKDC_LOCATION"
+  echo "export AKDC_SHARE_NAME=$AKDC_SHARE_NAME"
+  echo "export AKDC_STORAGE_NAME=$AKDC_STORAGE_NAME"
 
   echo ""
   echo "source <(kic completion bash)"
