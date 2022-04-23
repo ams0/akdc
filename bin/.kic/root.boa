@@ -13,6 +13,9 @@ runCommand
 runCommand
 	path: svc
 
+runCommand
+	path: events
+
 command
 	name: build
 	short: Build local apps
