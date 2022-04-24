@@ -37,7 +37,6 @@ sudo mount -a
 export AKDC_RESOURCE_GROUP=factory-fleet
 export AKDC_STORAGE_NAME=factoryfleetstorage
 export AKDC_VOLUME=uploadvolume
-export AKDC_CLUSTER=central-tx-dfw-f01
 
 if [ "$(grep AKDC_STORAGE_KEY /etc/bash.bashrc)" = "" ]
 then
@@ -46,7 +45,6 @@ then
             echo "export REPO_BASE=/workspaces/edge-gitops"
             echo "export AKDC_RESOURCE_GROUP=$AKDC_RESOURCE_GROUP"
             echo "export AKDC_STORAGE_NAME=$AKDC_STORAGE_NAME"
-            echo "export AKDC_CLUSTER=$AKDC_CLUSTER"
             echo "export AKDC_SUBSCRIPTION=$(az account show --query id -o tsv)"
             echo "export AKDC_VOLUME=$AKDC_VOLUME"
             echo "export AKDC_STORAGE_KEY=$(az storage account keys list --resource-group "$AKDC_RESOURCE_GROUP" --account-name "$AKDC_STORAGE_NAME" --query "[0].value" -o tsv)"
