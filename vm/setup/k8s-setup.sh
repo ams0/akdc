@@ -22,6 +22,6 @@ kubectl wait pod -l k8s-app=calico-node -n kube-system --for condition=ready --t
 
 # Install istio resources on cluster
 echo "$(date +'%Y-%m-%d %H:%M:%S')  installing istio resources" >> "/home/${AKDC_ME}/status"
-microk8s.enable istio
+#microk8s.enable istio
 
 echo "$(date +'%Y-%m-%d %H:%M:%S')  k8s-setup complete" >> "/home/${AKDC_ME}/status"
