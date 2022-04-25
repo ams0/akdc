@@ -30,6 +30,13 @@ then
     kubectl create secret -n prometheus generic prom-secrets --from-file "/home/${AKDC_ME}/.ssh/prometheus.key"
 fi
 
+# deploy the azure cli driver
+if [ -d ./azurefile-csi ]
+then
+    kubectl apply -f ./azurefile-csi
+fi
+
+# deploy anything in bootstrap
 if [ -d ./bootstrap ]
 then
     kubectl apply -f ./bootstrap
