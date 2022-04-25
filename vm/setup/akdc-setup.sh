@@ -61,6 +61,14 @@ set -e
 ./cli/vm/setup/akdc-install.sh
 ./cli/vm/setup/akdc-dns.sh
 
+# don't run the rest of setup in debug mode
+if [ "$AKDC_DEBUG" = "true" ]
+then
+  echo "$(date +'%Y-%m-%d %H:%M:%S')  debug mode" >> status
+  echo "debug mode"
+  exit 0
+fi
+
 # run akdc-pre-k8s.sh
 if [ -f ./cli/vm/setup/akdc-pre-k8s.sh ]
 then

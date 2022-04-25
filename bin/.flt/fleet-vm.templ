@@ -244,14 +244,6 @@ fi
 # change ownership
 chown -R ${AKDC_ME}:${AKDC_ME} /home/${AKDC_ME}
 
-# don't run setup in debug mode
-if [ "$AKDC_DEBUG" = "true" ]
-then
-  echo "$(date +'%Y-%m-%d %H:%M:%S')  debug mode" >> status
-  echo "debug mode"
-  exit 0
-fi
-
 if [ ! -f cli/vm/setup/akdc-setup.sh ]
 then
   echo "$(date +'%Y-%m-%d %H:%M:%S')  akdc-setup.sh not found" >> status
