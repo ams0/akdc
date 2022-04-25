@@ -45,12 +45,6 @@ sudo apt-get install -y docker-ce docker-ce-cli
 echo "$(date +'%Y-%m-%d %H:%M:%S')  installing kubectl" >> "/home/${AKDC_ME}/status"
 sudo apt-get install -y kubectl
 
-# Install istio CLI
-echo "$(date +'%Y-%m-%d %H:%M:%S')  installing istioctl" >> "/home/${AKDC_ME}/status"
-echo "Installing istioctl"
-curl -sL https://istio.io/downloadIstioctl | bash -
-sudo mv "/home/${AKDC_ME}/.istioctl/bin/istioctl" /usr/local/bin
-
 echo "$(date +'%Y-%m-%d %H:%M:%S')  installing flux" >> "/home/${AKDC_ME}/status"
 curl -s https://fluxcd.io/install.sh | sudo bash
 
