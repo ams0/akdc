@@ -42,6 +42,9 @@ if [ "$(grep AKDC_STORAGE_KEY /etc/bash.bashrc)" = "" ]
 then
       {
             echo ""
+            echo "export AKDC_SP_ID=$(az keyvault secret show --vault-name kv-tld  --query 'value' -o tsv -n akdc-sp-id)"
+            echo "export AKDC_SP_KEY=$(az keyvault secret show --vault-name kv-tld  --query 'value' -o tsv -n akdc-sp-key)"
+            echo "export AKDC_TENANT=$(az account show --query id -o tsv)"
             echo "export REPO_BASE=/workspaces/edge-gitops"
             echo "export AKDC_RESOURCE_GROUP=$AKDC_RESOURCE_GROUP"
             echo "export AKDC_STORAGE_NAME=$AKDC_STORAGE_NAME"
