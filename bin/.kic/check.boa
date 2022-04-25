@@ -4,7 +4,7 @@
 
 command
 	name: check
-	short: Check status on the local k3d cluster
+	short: Check status on the local k8s cluster
 
 runCommand
 	path: check/all

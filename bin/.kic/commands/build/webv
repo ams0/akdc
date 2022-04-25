@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#name: webv
+#name: webv-broken
 #short: Build and deploy WebValidate to the local cluster
 
 # change to this directory

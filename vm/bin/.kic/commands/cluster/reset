@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# name: reset
+# name: reset-broken
 # short: Reset the local cluster (current cluster is deleted)
 
 # change to this directory

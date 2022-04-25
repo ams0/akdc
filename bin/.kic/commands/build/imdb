@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#name: imdb
+#name: imdb-broken
 #short: Build and deploy the IMDb reference app to the local cluster
 
 # change to this directory

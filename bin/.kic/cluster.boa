@@ -2,24 +2,24 @@
 # cluster commands
 ###
 
-command
-	name: cluster
-	short: k3d cluster commands
+#command
+#	name: cluster
+#	short: k8s cluster commands
 
-runCommand
-	path: cluster/rebuild
+#runCommand
+#	path: cluster/rebuild
 
-runCommand
-	path: cluster/create
+#runCommand
+#	path: cluster/create
 
-runCommand
-	path: cluster/delete
+#runCommand
+#	path: cluster/delete
 
-runCommand
-	path: cluster/jumpbox
+#runCommand
+#	path: cluster/jumpbox
 
-runCommand
-	path: cluster/clean
+#runCommand
+#	path: cluster/clean
 
-runCommand
-	path: cluster/deploy
+#runCommand
+#	path: cluster/deploy

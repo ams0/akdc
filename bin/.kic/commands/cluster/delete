@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# name: delete
+# name: delete-broken
 # short: Delete the k3d cluster
 
 # change to this directory

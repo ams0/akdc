@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# name: create
+# name: create-broken
 # short: Create a new local k3d cluster
 
 # change to this directory

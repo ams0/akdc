@@ -12,8 +12,8 @@ if [ "$AKDC_ARC_ENABLED" = "true" ]; then
   az provider register --namespace Microsoft.KubernetesConfiguration
   az provider register --namespace Microsoft.ExtendedLocation
 
-  # connect k3d to azure arc
-  echo "$(date +'%Y-%m-%d %H:%M:%S')   connect k3d cluster to azure via azure arc" >> "/home/${AKDC_ME}/status"
+  # connect k8s to azure arc
+  echo "$(date +'%Y-%m-%d %H:%M:%S')   connect k8s cluster to azure via azure arc" >> "/home/${AKDC_ME}/status"
   az connectedk8s connect --name "$AKDC_CLUSTER" --resource-group "$AKDC_RESOURCE_GROUP"
 fi
 

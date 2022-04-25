@@ -51,9 +51,6 @@ echo "Installing istioctl"
 curl -sL https://istio.io/downloadIstioctl | bash -
 sudo mv "/home/${AKDC_ME}/.istioctl/bin/istioctl" /usr/local/bin
 
-echo "$(date +'%Y-%m-%d %H:%M:%S')  installing k3d" >> "/home/${AKDC_ME}/status"
-wget -q -O - https://raw.githubusercontent.com/rancher/k3d/main/install.sh | sudo TAG=v4.4.8 bash
-
 echo "$(date +'%Y-%m-%d %H:%M:%S')  installing flux" >> "/home/${AKDC_ME}/status"
 curl -s https://fluxcd.io/install.sh | sudo bash
 

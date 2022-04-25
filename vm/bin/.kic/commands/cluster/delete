@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# name: delete
+# name: delete-broken
 # short: Delete local cluster
 
 # change to this directory
