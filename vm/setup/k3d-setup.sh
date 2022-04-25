@@ -25,6 +25,8 @@ k3d cluster create \
   --registry-use k3d-registry.localhost:5500 \
   --registry-config /home/akdc/registries.yaml \
   --config ./k3d.yaml \
+  -v /k3d/var/lib/kubelet:/var/lib/kubelet:shared \
+  -v /k3d/etc/kubernetes:/etc/kubernetes \
   --k3s-server-arg '--no-deploy=traefik'
 
 # sleep to avoid timing issues
