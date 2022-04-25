@@ -3,7 +3,7 @@
 # change to this directory
 cd "$(dirname "${BASH_SOURCE[0]}")" || exit
 
-echo "$(date +'%Y-%m-%d %H:%M:%S')  k3d-setup start" >> "/home/${AKDC_ME}/status"
+echo "$(date +'%Y-%m-%d %H:%M:%S')  microk8s-setup start" >> "/home/${AKDC_ME}/status"
 
 # fail if k3d.yaml isn't present
 if [ ! -f ./k3d.yaml ]
@@ -45,4 +45,4 @@ then
   sudo dapr init -k --enable-mtls=false --wait
 fi
 
-echo "$(date +'%Y-%m-%d %H:%M:%S')  k3d-setup complete" >> "/home/${AKDC_ME}/status"
+echo "$(date +'%Y-%m-%d %H:%M:%S')  microk8s-setup complete" >> "/home/${AKDC_ME}/status"

@@ -39,11 +39,11 @@ then
   exit 1
 fi
 
-# can't continue without k3d-setup.sh
-if [ ! -f ./cli/vm/setup/k3d-setup.sh ]
+# can't continue without microk8s-setup.sh
+if [ ! -f ./cli/vm/setup/microk8s-setup.sh ]
 then
-  echo "$(date +'%Y-%m-%d %H:%M:%S')  k3d-setup.sh not found" >> "/home/${AKDC_ME}/status"
-  echo "k3d-setup.sh not found"
+  echo "$(date +'%Y-%m-%d %H:%M:%S')  microk8s-setup.sh not found" >> "/home/${AKDC_ME}/status"
+  echo "microk8s-setup.sh not found"
   exit 1
 fi
 
@@ -70,8 +70,8 @@ else
   echo "$(date +'%Y-%m-%d %H:%M:%S')  akdc-pre-k3d.sh not found" >> "/home/${AKDC_ME}/status"
 fi
 
-# run k3d-setup
-./cli/vm/setup/k3d-setup.sh
+# run microk8s-setup
+./cli/vm/setup/microk8s-setup.sh
 
 # run akdc-pre-flux.sh
 if [ -f ./cli/vm/setup/akdc-pre-flux.sh ]
