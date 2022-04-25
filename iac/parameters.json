@@ -13,6 +13,24 @@
         },
         "location": {
             "value": "westus"
+        },
+        "domain": {
+            "value": {
+                "name": "cseretail.com",
+                "resourceGroup": "tld"
+            }
+        },
+        "ssl": {
+            "value": {
+                "name": "cseretail.com",
+                "resourceGroup": "tld"
+            }
+        },
+        "dns": {
+            "value": {
+                "name": "cseretail.com",
+                "resourceGroup": "tld"
+            }
         }
     }
 }

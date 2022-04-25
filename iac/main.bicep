@@ -1,9 +1,38 @@
 targetScope = 'subscription'
 
+@description('The organization business unit prefix')
 param businessUnit string
+
+@description('The application name')
 param appName string
+
+@description('The environment name')
 param environment string
+
+@description('The azure region or location')
 param location string
+
+@description('The app service domain info')
+@metadata({
+  name: 'The app service domain name'
+  resourceGroup: 'The resource group of the app service domain'
+})
+param domain object
+
+@description('The app service certificate info')
+@metadata({
+  name: 'The app service certificate name'
+  resourceGroup: 'The resource group of the app service certificate'
+})
+param ssl object
+
+@description('The DNS zone info')
+@metadata({
+  name: 'The DNS zone name'
+  resourceGroup: 'The resource group of the DNS zone'
+})
+param dns object
+
 param baseTime string = utcNow()
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2020-06-01' = {
@@ -21,8 +50,9 @@ module networking './networking/main.bicep' = {
   scope: resourceGroup
   params: {
     location: 'global'
-    registerDomain: false
-    naming: naming
+    domain: domain
+    ssl: ssl
+    dns: dns
     tags: tags
   }
 }
