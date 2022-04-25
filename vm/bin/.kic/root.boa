@@ -19,6 +19,8 @@ runCommand
 runCommand
 	path: svc
 
+runCommand
+	path: events
 
 # root commands with no sub-commands
 runCommand
