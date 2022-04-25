@@ -61,13 +61,13 @@ set -e
 ./cli/vm/setup/akdc-install.sh
 ./cli/vm/setup/akdc-dns.sh
 
-# run akdc-pre-k3d.sh
-if [ -f ./cli/vm/setup/akdc-pre-k3d.sh ]
+# run akdc-pre-k8s.sh
+if [ -f ./cli/vm/setup/akdc-pre-k8s.sh ]
 then
   # run as AKDC_ME
-  ./cli/vm/setup/akdc-pre-k3d.sh
+  ./cli/vm/setup/akdc-pre-k8s.sh
 else
-  echo "$(date +'%Y-%m-%d %H:%M:%S')  akdc-pre-k3d.sh not found" >> "/home/${AKDC_ME}/status"
+  echo "$(date +'%Y-%m-%d %H:%M:%S')  akdc-pre-k8s.sh not found" >> "/home/${AKDC_ME}/status"
 fi
 
 # run microk8s-setup
