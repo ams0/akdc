@@ -33,10 +33,6 @@ fi
 # deploy the azure cli driver
 if [ -d ./azurefile-csi ]
 then
-    # todo - debug
-    echo "storage name: $AKDC_STORAGE_NAME" >> "/home/${AKDC_ME}/status"
-    echo "storage key:  $AKDC_STORAGE_KEY" >> "/home/${AKDC_ME}/status"
-
     kubectl create secret generic azure-secret \
         --from-literal=azurestorageaccountname="$AKDC_STORAGE_NAME" \
         --from-literal=azurestorageaccountkey="$AKDC_STORAGE_KEY"
