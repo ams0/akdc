@@ -33,22 +33,6 @@ fi
 
 sudo mount -a
 
-# set storage info
-export AKDC_RESOURCE_GROUP=factory-fleet
-export AKDC_STORAGE_NAME=factoryfleetstorage
-export AKDC_VOLUME=uploadvolume
-
-export AKDC_SP_ID=$(az keyvault secret show --vault-name kv-tld  --query 'value' -o tsv -n akdc-sp-id)
-export AKDC_SP_KEY=$(az keyvault secret show --vault-name kv-tld  --query 'value' -o tsv -n akdc-sp-key)
-export AKDC_TENANT=$(az account show --query id -o tsv)
-export REPO_BASE=/workspaces/edge-gitops
-export AKDC_RESOURCE_GROUP=$AKDC_RESOURCE_GROUP
-export AKDC_STORAGE_NAME=$AKDC_STORAGE_NAME
-export AKDC_SUBSCRIPTION=$(az account show --query id -o tsv)
-export AKDC_VOLUME=$AKDC_VOLUME
-export AKDC_STORAGE_KEY=$(az storage account keys list --resource-group "$AKDC_RESOURCE_GROUP" --account-name "$AKDC_STORAGE_NAME" --query "[0].value" -o tsv)
-export AKDC_STORAGE_CONNECTION=$(az storage account show-connection-string -n "$AKDC_STORAGE_NAME" -g "$AKDC_RESOURCE_GROUP" -o tsv)
-
 if [ "$(grep AKDC_STORAGE_KEY /etc/bash.bashrc)" = "" ]
 then
       {
