@@ -37,7 +37,7 @@ then
         --from-literal=azurestorageaccountname="$AKDC_STORAGE_NAME" \
         --from-literal=azurestorageaccountkey="$AKDC_STORAGE_KEY"
 
-    kubectl create secret generic azure-env --from-env-file "/home/${AKDC_ME}/.ssh/iot-env"
+    kubectl create secret generic azure-env --from-env-file "$HOME/.ssh/iot.env"
 
     kubectl apply -f ./azurefile-csi
 fi
