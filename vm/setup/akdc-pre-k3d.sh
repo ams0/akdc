@@ -63,6 +63,8 @@ then
             echo "export AKDC_VOLUME=$AKDC_VOLUME"
             echo "export AKDC_STORAGE_KEY=$AKDC_STORAGE_KEY"
             echo "export AKDC_STORAGE_CONNECTION=$AKDC_STORAGE_CONNECTION"
+            echo "source <(kubectl completion bash)"
+            echo "source <(flux completion bash)"
       } | sudo tee -a "/etc/bash.bashrc"
 fi
 

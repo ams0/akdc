@@ -33,13 +33,17 @@ fi
 # deploy the azure cli driver
 if [ -d ./azurefile-csi ]
 then
+    # todo - debug
+    echo "storage name: $AKDC_STORAGE_NAME" >> "/home/${AKDC_ME}/status"
+    echo "storage key:  $AKDC_STORAGE_KEY" >> "/home/${AKDC_ME}/status"
+
+    kubectl create secret generic azure-secret \
+        --from-literal=azurestorageaccountname="$AKDC_STORAGE_NAME" \
+        --from-literal=azurestorageaccountkey="$AKDC_STORAGE_KEY"
+
+    kubectl create secret generic azure-env --from-env-file "/home/${AKDC_ME}/.ssh/iot-env"
+
     kubectl apply -f ./azurefile-csi
-
-  kubectl create secret generic azure-secret \
-    --from-literal=azurestorageaccountname="$AKDC_STORAGE_NAME" \
-    --from-literal=azurestorageaccountkey="$AKDC_STORAGE_KEY"
-
-  kubectl create secret generic azure-env --from-env-file ~/.ssh/iot.env
 fi
 
 # deploy anything in bootstrap
