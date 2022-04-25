@@ -11,7 +11,7 @@ cd "$(dirname "${BASH_SOURCE[0]}")" || exit
 # this has to be installed before flux
 if [ -f "/home/${AKDC_ME}/.ssh/certs.pem" ]
 then
-    kubectl create secret generic ssl-cert -n istio-system --from-file="key=/home/${AKDC_ME}/.ssh/certs.key" --from-file="cert=/home/${AKDC_ME}/.ssh/certs.pem"
+    kubectl create secret generic ssl-cert -n kube-system --from-file="key=/home/${AKDC_ME}/.ssh/certs.key" --from-file="cert=/home/${AKDC_ME}/.ssh/certs.pem"
 fi
 
 # create admin service account
