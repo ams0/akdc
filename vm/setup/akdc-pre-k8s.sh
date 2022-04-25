@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# this runs before microk8s-setup.sh
+# this runs before k8s-setup.sh
 
 # change to this directory
 #cd "$(dirname "${BASH_SOURCE[0]}")" || exit
