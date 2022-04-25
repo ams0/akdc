@@ -143,9 +143,13 @@ chown -R 472:0 /grafana
 
 # create / add to groups
 groupadd docker
+usermod -aG docker "${AKDC_ME}"
+
+groupadd microk8s
+usermod -aG microk8s "${AKDC_ME}"
+
 usermod -aG sudo "${AKDC_ME}"
 usermod -aG admin "${AKDC_ME}"
-usermod -aG docker "${AKDC_ME}"
 gpasswd -a "${AKDC_ME}" sudo
 
 # setup oh my bash
