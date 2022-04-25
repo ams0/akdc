@@ -49,7 +49,7 @@ then
             echo "export AKDC_VOLUME=$AKDC_VOLUME"
             echo "export AKDC_STORAGE_KEY=$(az storage account keys list --resource-group "$AKDC_RESOURCE_GROUP" --account-name "$AKDC_STORAGE_NAME" --query "[0].value" -o tsv)"
             echo "export AKDC_STORAGE_CONNECTION=$(az storage account show-connection-string -n "$AKDC_STORAGE_NAME" -g "$AKDC_RESOURCE_GROUP" -o tsv)"
-      } | sudo tee "/etc/bash.bashrc"
+      } | sudo tee -a "/etc/bash.bashrc"
 fi
 
 # save the iot hub info
