@@ -34,6 +34,12 @@ fi
 if [ -d ./azurefile-csi ]
 then
     kubectl apply -f ./azurefile-csi
+
+  kubectl create secret generic azure-secret \
+    --from-literal=azurestorageaccountname="$AKDC_STORAGE_NAME" \
+    --from-literal=azurestorageaccountkey="$AKDC_STORAGE_KEY"
+
+  kubectl create secret generic azure-env --from-env-file ~/.ssh/iot.env
 fi
 
 # deploy anything in bootstrap
