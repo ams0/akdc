@@ -46,10 +46,10 @@ func ReadHostIPs(grep string) ([]string, error) {
 	if _, err := os.Stat("./ips"); err != nil {
 		file := ReadConfigValue("defaultIPs:")
 		if file != "" {
-			command = "cat " + file + " | sort"
+			command = "cat " + file + " | grep -v '^#' | sort"
 		}
 	} else {
-		command = "cat ips | sort"
+		command = "cat ips | grep -v '^#' | sort"
 	}
 
 	if command == "" {
