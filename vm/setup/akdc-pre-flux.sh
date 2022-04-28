@@ -8,11 +8,7 @@ echo "$(date +'%Y-%m-%d %H:%M:%S')  akdc-pre-flux start" >> "/home/${AKDC_ME}/st
 cd "$(dirname "${BASH_SOURCE[0]}")" || exit
 
 # create the tls secret
-# this has to be installed before flux
-if [ -f "/home/${AKDC_ME}/.ssh/certs.pem" ]
-then
-    kubectl create secret generic ssl-cert -n kube-system --from-file="key=/home/${AKDC_ME}/.ssh/certs.key" --from-file="cert=/home/${AKDC_ME}/.ssh/certs.pem"
-fi
+kubectl create secret tls ssl-cert -n ingress --key="$HOME/.ssh/certs.key" --cert="$HOME/.ssh/certs.pem"
 
 # create admin service account
 kubectl create serviceaccount admin-user
