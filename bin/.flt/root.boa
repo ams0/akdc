@@ -15,6 +15,12 @@ runCommand
 runCommand
 	path: groups
 
+runCommand
+	path: env
+
+runCommand
+	path: set-fleet
+
 fltCommand
         path: curl
         name: curl
