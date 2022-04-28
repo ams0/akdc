@@ -15,10 +15,21 @@ runCommand
 runCommand
 	path: groups
 
+runCommand
+	path: env
+
+runCommand
+	path: set-fleet
+
 fltCommand
         path: curl
         name: curl
         short: curl the specified endpoint on each cluster
+
+fltCommand
+        path: arc-token
+        name: arc-token
+        short: Get Arc token from each cluster
 
 fltCommand
         path: patch
@@ -30,6 +41,21 @@ fltCommand
         name: pull
         short: Git pull the akdc repo
 
+fltCommand
+        path: sync
+        name: sync
+        short: Sync (reconcile) flux on each cluster
+
 command
-        name: targets
-        hidden: true
+	name: new
+	short: Create a new application
+
+command
+	name: dotnet
+	short: Create a new dotnet 6 application
+
+runCommand
+	path: /new/dotnet-webapi
+
+runCommand
+	path: /new/dotnet-console
