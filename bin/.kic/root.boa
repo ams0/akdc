@@ -16,6 +16,9 @@ runCommand
 runCommand
 	path: events
 
+runCommand
+	path: env
+
 command
 	name: build
 	short: Build local apps
