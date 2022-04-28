@@ -20,12 +20,13 @@ sleep 5
 kubectl wait pod -l k8s-app=calico-node -n kube-system --for condition=ready --timeout 30s
 
 echo "$(date +'%Y-%m-%d %H:%M:%S')  installing DNS" >> "/home/${AKDC_ME}/status"
-sudo microk8s enable dns
-sleep 5
-kubectl wait pod -l k8s-app=kube-dns -n kube-system --for condition=ready --timeout 30s
+sudo microk8s enable dns ingress
 
-# Install istio resources on cluster
-echo "$(date +'%Y-%m-%d %H:%M:%S')  installing istio resources" >> "/home/${AKDC_ME}/status"
-#microk8s.enable istio
+pip=$(ip -4 a show eth0 | grep inet | sed "s/inet//g" | sed "s/ //g" | cut -d / -f 1 | grep 10.0)
+
+echo "$(date +'%Y-%m-%d %H:%M:%S')  installing load balancer" >> "/home/${AKDC_ME}/status"
+echo "$(date +'%Y-%m-%d %H:%M:%S')  IP: $pip" >> "/home/${AKDC_ME}/status"
+
+microk8s enable metallb:"$pip-$pip"
 
 echo "$(date +'%Y-%m-%d %H:%M:%S')  k8s-setup complete" >> "/home/${AKDC_ME}/status"
