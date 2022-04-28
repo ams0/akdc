@@ -5,5 +5,5 @@ kustomize	Flux Kustomize operator
 coredns	K8s Core DNS
 metrics-server	Metrics Server
 calico-node	Networking service
-calico-kube-controllers	Networking service
+calico-kube-controllers	Networking controllers
 nginx-ingress-microk8s-controller	nginx ingress
