@@ -51,13 +51,24 @@ var (
 
 // add kic fleet create specific flags
 func init() {
+	// get defaults from env var
+	// todo - convert to Viper
+	tRepo := os.Getenv("AKDC_REPO")
+	if tRepo == "" {
+		tRepo = "retaildevcrews/edge-gitops"
+	}
+
+	tSsl := os.Getenv("AKDC_SSL")
+
+	tGitOps := os.Getenv("AKDC_GITOPS") == "true"
+
 	CreateCmd.Flags().StringVarP(&cluster, "cluster", "c", "", "Kubernetes cluster name (required)")
 	CreateCmd.MarkFlagRequired("cluster")
 	CreateCmd.Flags().StringVarP(&group, "group", "g", "", "Azure resource group name")
 	CreateCmd.Flags().StringVarP(&location, "location", "l", "centralus", "Azure location")
-	CreateCmd.Flags().StringVarP(&repo, "repo", "r", "retaildevcrews/edge-gitops", "GitOps repo name")
+	CreateCmd.Flags().StringVarP(&repo, "repo", "r", tRepo, "GitOps repo name")
 	CreateCmd.Flags().StringVarP(&branch, "branch", "b", "", "GitOps branch name")
-	CreateCmd.Flags().StringVarP(&ssl, "ssl", "s", "", "SSL domain name")
+	CreateCmd.Flags().StringVarP(&ssl, "ssl", "s", tSsl, "SSL domain name")
 	CreateCmd.Flags().StringVarP(&pem, "pem", "p", "~/.ssh/certs.pem", "Path to SSL .pem file")
 	CreateCmd.Flags().StringVarP(&key, "key", "k", "~/.ssh/certs.key", "Path to SSL .key file")
 	CreateCmd.Flags().StringVarP(&dnsRG, "dns-resource-group", "", "tld", "DNS Resource Group")
@@ -66,7 +77,7 @@ func init() {
 	CreateCmd.Flags().BoolVarP(&debug, "debug", "d", false, "Create VM in debug mode")
 	CreateCmd.Flags().BoolVarP(&arcEnabled, "arc", "a", false, "Connect kubernetes cluster to Azure via Azure ARC")
 	CreateCmd.Flags().BoolVarP(&digitalOcean, "do", "", false, "Generate setup script for Digital Ocean droplet")
-	CreateCmd.Flags().BoolVarP(&gitops, "gitops", "", false, "Generate GitOps targets in ./config")
+	CreateCmd.Flags().BoolVarP(&gitops, "gitops", "", tGitOps, "Generate GitOps targets in ./config")
 	CreateCmd.Flags().BoolVarP(&gitopsOnly, "gitops-only", "", false, "Only generate GitOps targets in ./config")
 	CreateCmd.Flags().BoolVarP(&dryRun, "dry-run", "", false, "Show values that would be used")
 	CreateCmd.Flags().BoolVarP(&verbose, "verbose", "", false, "Show verbose output")
@@ -446,17 +457,37 @@ func createVMSetupScript() {
 
 	// create the vm setup script from the template
 	command := string(content)
-	command = strings.Replace(command, "{{cluster}}", cluster, -1)
-	command = strings.Replace(command, "{{dapr}}", strconv.FormatBool(dapr), -1)
-	command = strings.Replace(command, "{{debug}}", strconv.FormatBool(debug), -1)
-	command = strings.Replace(command, "{{fqdn}}", cluster+"."+ssl, -1)
-	command = strings.Replace(command, "{{repo}}", repo, -1)
-	command = strings.Replace(command, "{{branch}}", branch, -1)
-	command = strings.Replace(command, "{{group}}", group, -1)
-	command = strings.Replace(command, "{{arcEnabled}}", strconv.FormatBool(arcEnabled), -1)
-	command = strings.Replace(command, "{{do}}", strconv.FormatBool(digitalOcean), -1)
-	command = strings.Replace(command, "{{zone}}", ssl, -1)
-	command = strings.Replace(command, "{{dnsRG}}", dnsRG, -1)
+	command = strings.ReplaceAll(command, "{{cluster}}", cluster)
+	command = strings.ReplaceAll(command, "{{dapr}}", strconv.FormatBool(dapr))
+	command = strings.ReplaceAll(command, "{{debug}}", strconv.FormatBool(debug))
+	command = strings.ReplaceAll(command, "{{fqdn}}", cluster+"."+ssl)
+	command = strings.ReplaceAll(command, "{{repo}}", repo)
+	command = strings.ReplaceAll(command, "{{branch}}", branch)
+	command = strings.ReplaceAll(command, "{{group}}", group)
+	command = strings.ReplaceAll(command, "{{arcEnabled}}", strconv.FormatBool(arcEnabled))
+	command = strings.ReplaceAll(command, "{{do}}", strconv.FormatBool(digitalOcean))
+	command = strings.ReplaceAll(command, "{{zone}}", ssl)
+	command = strings.ReplaceAll(command, "{{dnsRG}}", dnsRG)
+
+	// todo - testing
+	env := ""
+
+	for _, val := range os.Environ() {
+		if strings.HasPrefix(val, "AKDC_") {
+			split := strings.SplitN(val, "=", 2)
+			if len(split) == 2 {
+				val = strings.ReplaceAll(split[1], "\n", "")
+				val = strings.ReplaceAll(val, "\"", "\\\"")
+				line := fmt.Sprintf("  echo 'export %s=\"", split[0])
+				line += val
+				line += "\"'\n"
+
+				env += line
+			}
+		}
+	}
+	command = strings.ReplaceAll(command, "{{environment}}", env)
+
 	os.WriteFile("cluster-"+cluster+".sh", []byte(command), 0644)
 }
 

@@ -29,20 +29,20 @@ mkdir -p "$HOME/.oh-my-zsh/completions"
 
     # create aliases
     echo "alias mk='cd $REPO_BASE/src/kic && make build; cd \$OLDPWD'"
-
     echo "export REPO_BASE=$PWD"
     echo "export AKDC_REPO=retaildevcrews/edge-gitops"
     echo "export AKDC_SSL=cseretail.com"
+    echo "export AKDC_VM_REPO=cli"
     echo "export AKDC_GITOPS=true"
     echo "export AKDC_DNS_RG=tld"
-    echo "compinit"
-
     echo "if [ \"\$PAT\" != \"\" ]"
     echo "then"
+    echo ""
     echo "    export GITHUB_TOKEN=\$PAT"
     echo "    export AKDC_PAT=\$PAT"
     echo "fi"
-
+    echo ""
+    echo "compinit"
 } >> "$HOME/.zshrc"
 
 # create local registry
@@ -78,6 +78,14 @@ cd "$REPO_BASE" || exit
 echo "generating kic completion"
 kic completion zsh > "$HOME/.oh-my-zsh/completions/_kic"
 flt completion zsh > "$HOME/.oh-my-zsh/completions/_flt"
+
+# only run apt upgrade on pre-build
+if [ "$CODESPACE_NAME" = "null" ]
+then
+    echo "$(date +'%Y-%m-%d %H:%M:%S')    upgrading" >> "$HOME/status"
+    sudo apt-get update
+    sudo apt-get upgrade -y
+fi
 
 echo "on-create complete"
 echo "$(date +'%Y-%m-%d %H:%M:%S')    on-create complete" >> "$HOME/status"

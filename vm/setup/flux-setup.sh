@@ -1,34 +1,34 @@
 #!/bin/bash
 
-echo "$(date +'%Y-%m-%d %H:%M:%S')  flux bootstrap start" >> "/home/${AKDC_ME}/status"
+echo "$(date +'%Y-%m-%d %H:%M:%S')  flux bootstrap start" >> "$HOME/status"
 
 if [ ! "$(flux --version)" ]
 then
-  echo "$(date +'%Y-%m-%d %H:%M:%S')  flux not found" >> "/home/${AKDC_ME}/status"
-  echo "$(date +'%Y-%m-%d %H:%M:%S')  flux bootstrap failed" >> "/home/${AKDC_ME}/status"
+  echo "$(date +'%Y-%m-%d %H:%M:%S')  flux not found" >> "$HOME/status"
+  echo "$(date +'%Y-%m-%d %H:%M:%S')  flux bootstrap failed" >> "$HOME/status"
   exit 1
 fi
 
 if [ -z "$AKDC_BRANCH" ]
 then
-  echo "$(date +'%Y-%m-%d %H:%M:%S')  AKDC_BRANCH not set" >> "/home/${AKDC_ME}/status"
-  echo "$(date +'%Y-%m-%d %H:%M:%S')  flux bootstrap failed" >> "/home/${AKDC_ME}/status"
+  echo "$(date +'%Y-%m-%d %H:%M:%S')  AKDC_BRANCH not set" >> "$HOME/status"
+  echo "$(date +'%Y-%m-%d %H:%M:%S')  flux bootstrap failed" >> "$HOME/status"
   echo "AKDC_BRANCH not set"
   exit 1
 fi
 
 if [ -z "$AKDC_CLUSTER" ]
 then
-  echo "$(date +'%Y-%m-%d %H:%M:%S')  AKDC_CLUSTER not set" >> "/home/${AKDC_ME}/status"
-  echo "$(date +'%Y-%m-%d %H:%M:%S')  flux bootstrap failed" >> "/home/${AKDC_ME}/status"
+  echo "$(date +'%Y-%m-%d %H:%M:%S')  AKDC_CLUSTER not set" >> "$HOME/status"
+  echo "$(date +'%Y-%m-%d %H:%M:%S')  flux bootstrap failed" >> "$HOME/status"
   echo "AKDC_CLUSTER not set"
   exit 1
 fi
 
 if [ ! -f /home/akdc/.ssh/akdc.pat ]
 then
-  echo "$(date +'%Y-%m-%d %H:%M:%S')  akdc.pat not found" >> "/home/${AKDC_ME}/status"
-  echo "$(date +'%Y-%m-%d %H:%M:%S')  flux bootstrap failed" >> "/home/${AKDC_ME}/status"
+  echo "$(date +'%Y-%m-%d %H:%M:%S')  akdc.pat not found" >> "$HOME/status"
+  echo "$(date +'%Y-%m-%d %H:%M:%S')  flux bootstrap failed" >> "$HOME/status"
   echo "akdc.pat not found"
   exit 1
 fi
@@ -39,7 +39,7 @@ retry_count=0
 until [ $status_code == 0 ]; do
 
   echo "flux retries: $retry_count"
-  echo "$(date +'%Y-%m-%d %H:%M:%S')  flux retries: $retry_count" >> "/home/${AKDC_ME}/status"
+  echo "$(date +'%Y-%m-%d %H:%M:%S')  flux retries: $retry_count" >> "$HOME/status"
 
   if [ $retry_count -gt 0 ]
   then
@@ -59,12 +59,17 @@ until [ $status_code == 0 ]; do
 done
 
 echo "adding flux sources"
-echo "$(date +'%Y-%m-%d %H:%M:%S')  adding flux sources" >> "/home/${AKDC_ME}/status"
+echo "$(date +'%Y-%m-%d %H:%M:%S')  adding flux sources" >> "$HOME/status"
+
+flux create secret git gitops \
+  --url "https://github.com/$AKDC_REPO" \
+  --password "$(cat /home/akdc/.ssh/akdc.pat)" \
+  --username gitops
 
 flux create source git gitops \
 --url "https://github.com/$AKDC_REPO" \
 --branch "$AKDC_BRANCH" \
---password "$(cat /home/akdc/.ssh/akdc.pat)" \
+--secret-ref gitops
 
 flux create kustomization bootstrap \
 --source GitRepository/gitops \
@@ -82,4 +87,6 @@ flux reconcile source git gitops
 
 kubectl get pods -A
 
-echo "$(date +'%Y-%m-%d %H:%M:%S')  flux bootstrap complete" >> "/home/${AKDC_ME}/status"
+flux get kustomizations
+
+echo "$(date +'%Y-%m-%d %H:%M:%S')  flux bootstrap complete" >> "$HOME/status"

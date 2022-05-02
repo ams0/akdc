@@ -1,20 +1,31 @@
 #!/bin/bash
 
-####### do not change these values #######
+# temporarily set $HOME
 export AKDC_ME=akdc
-export AKDC_FQDN="{{fqdn}}"
-export AKDC_DEBUG="{{debug}}"
-export AKDC_DAPR="{{dapr}}"
-export AKDC_REPO="{{repo}}"
-export AKDC_BRANCH="{{branch}}"
-export AKDC_CLUSTER="{{cluster}}"
-export AKDC_ARC_ENABLED="{{arcEnabled}}"
-export AKDC_RESOURCE_GROUP="{{group}}"
-export AKDC_DO="{{do}}"
-export AKDC_ZONE="{{zone}}"
-export AKDC_DNS_RG="{{dnsRG}}"
+export HOME="/home/$AKDC_ME"
 
-###################################
+{
+####### do not change these values #######
+{{environment}}
+
+  # add command line params last so they don't get overwritten
+  echo 'export AKDC_ME=akdc'
+  echo 'export AKDC_FQDN="{{fqdn}}"'
+  echo 'export AKDC_DEBUG="{{debug}}"'
+  echo 'export AKDC_DAPR="{{dapr}}"'
+  echo 'export AKDC_REPO="{{repo}}"'
+  echo 'export AKDC_BRANCH="{{branch}}"'
+  echo 'export AKDC_CLUSTER="{{cluster}}"'
+  echo 'export AKDC_ARC_ENABLED="{{arcEnabled}}"'
+  echo 'export AKDC_RESOURCE_GROUP="{{group}}"'
+  echo 'export AKDC_DO="{{do}}"'
+  echo 'export AKDC_ZONE="{{zone}}"'
+  echo 'export AKDC_DNS_RG="{{dnsRG}}"'
+  echo ""
+} >> "/home/$AKDC_ME/akdc.bashrc"
+
+# source the env vars
+source "/home/$AKDC_ME/akdc.bashrc"
 
 export DEBIAN_FRONTEND=noninteractive
 export HOME=/root
@@ -78,9 +89,17 @@ cp /etc/bash.bashrc /etc/bash.bashrc.bak
 # source .bashrc for non-interactive logins
 sed -i "s/\[ -z \"\$PS1\" ] && return//" /etc/bash.bashrc
 
+# add patch to global bashrc
+{
+  echo ""
+  echo "source /home/$AKDC_ME/akdc.bashrc"
+} >> /etc/bash.bashrc
+
+
 # save the bashrc patch
 # shellcheck disable=2016
 {
+  echo "export PATH=\$PATH:\$HOME/cli/vm/bin:\$HOME/gitops/vm/bin"
   echo ""
   echo "shopt -s expand_aliases"
   echo ""
@@ -94,27 +113,8 @@ sed -i "s/\[ -z \"\$PS1\" ] && return//" /etc/bash.bashrc
   echo "alias kcgc='kubectl config get-contexts'"
   echo "alias kj='kubectl exec -it jumpbox -- bash -l'"
   echo "alias kje='kubectl exec -it jumpbox -- '"
-
   echo ""
-  echo 'export PATH="$PATH:$HOME/cli/vm/bin"'
-  echo "export AKDC_ME=$AKDC_ME"
-  echo "export AKDC_CLUSTER=$AKDC_CLUSTER"
-  echo "export AKDC_BRANCH=$AKDC_BRANCH"
-  echo "export AKDC_REPO=$AKDC_REPO"
-  echo "export AKDC_FQDN=$AKDC_FQDN"
-  echo "export AKDC_DEBUG=$AKDC_DEBUG"
-  echo "export AKDC_ARC_ENABLED=$AKDC_ARC_ENABLED"
-  echo "export AKDC_RESOURCE_GROUP=$AKDC_RESOURCE_GROUP"
-  echo "export AKDC_ZONE=$AKDC_ZONE"
-  echo "export AKDC_DNS_RG=$AKDC_DNS_RG"
-
-  echo ""
-  echo "source <(kic completion bash)"
-  echo 'complete -F __start_kubectl k'
-} >> patch.bashrc
-
-# add patch to global bashrc
-cat patch.bashrc >> /etc/bash.bashrc
+} >> akdc.bashrc
 
 # configure git CLI
 git config --system user.name autogitops
@@ -131,7 +131,6 @@ mkdir -p "/home/${AKDC_ME}/.kube"
 mkdir -p "/home/${AKDC_ME}/bin"
 mkdir -p "/home/${AKDC_ME}/.local/bin"
 mkdir -p "/home/${AKDC_ME}/.k9s"
-mkdir -p "/home/${AKDC_ME}/.oh-my-bash/completions"
 mkdir -p /root/.kube
 
 # make some system dirs

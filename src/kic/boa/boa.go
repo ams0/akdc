@@ -433,11 +433,23 @@ func addFltCommand(use string, short string, long string, command string) *cobra
 		Long:  long,
 
 		RunE: func(cmd *cobra.Command, args []string) error {
-			script := filepath.Join(".", "cli", "vm", "scripts", command)
+			// VM cli could be in ./cli (defalut) or ./gitops
+			script := os.Getenv("AKDC_VM_REPO")
+
+			if script == "" {
+				script = "cli"
+			}
+
+			script = filepath.Join(".", script, "vm", "scripts", command)
 
 			// add the paramaters
 			if len(args) > 0 {
 				script += " " + strings.Join(args, " ")
+			}
+
+			// check-setup can run before the cli is fully setup
+			if command == "check-setup" {
+				script = "tail -n1 status"
 			}
 
 			return ExecClusters(script, grep)

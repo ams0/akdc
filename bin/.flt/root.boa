@@ -7,14 +7,6 @@ root
 	short: Retail Edge CLI
 	long: Retail Edge CLI\n\n  A CLI for automating many Kubernetes fleet tasks
 
-# add az login with service principal
-runCommand
-	path: az-login
-
-# add az groups list command
-runCommand
-	path: groups
-
 runCommand
 	path: env
 
@@ -59,3 +51,19 @@ runCommand
 
 runCommand
 	path: /new/dotnet-console
+
+popCommand
+popCommand
+
+command
+	name: az
+	short: Azure CLI commands (customized)
+
+runCommand
+	path: az/groups
+
+runCommand
+	path: az/login
+
+runCommand
+	path: az/logout

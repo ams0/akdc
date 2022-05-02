@@ -55,7 +55,7 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">kic/boa/boa.go (62.6%)</option>
+				<option value="file0">kic/boa/boa.go (63.8%)</option>
 				
 				<option value="file1">kic/boa/boaExecCmd.go (0.0%)</option>
 				
@@ -65,7 +65,7 @@
 				
 				<option value="file4">kic/boa/shell.go (87.5%)</option>
 				
-				<option value="file5">kic/cmd/fleet/create.go (30.1%)</option>
+				<option value="file5">kic/cmd/fleet/create.go (43.1%)</option>
 				
 				<option value="file6">kic/cmd/fleet/delete.go (0.0%)</option>
 				
@@ -73,7 +73,7 @@
 				
 				<option value="file8">kic/cmd/fleet/fleet.go (100.0%)</option>
 				
-				<option value="file9">kic/cmd/fleet/list.go (86.7%)</option>
+				<option value="file9">kic/cmd/fleet/list.go (46.7%)</option>
 				
 				<option value="file10">kic/cmd/fleet/ssh.go (0.0%)</option>
 				
@@ -229,7 +229,7 @@ func getStopWord(line string) string <span class="cov8" title="1">{
         <span class="cov8" title="1">if strings.HasPrefix(chk, "fltcommand") </span><span class="cov8" title="1">{
                 return "fltCommand"
         }</span>
-        <span class="cov8" title="1">if strings.HasPrefix(chk, "popcommand") </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if strings.HasPrefix(chk, "popcommand") </span><span class="cov8" title="1">{
                 return "popCommand"
         }</span>
 
@@ -263,12 +263,12 @@ func loadCommand(fileName string) <span class="cov8" title="1">{
                         // check for stop word
                         sw := getStopWord(chk)
                         if sw != "" </span><span class="cov8" title="1">{
-                                if strings.HasPrefix(sw, "popCommand") </span><span class="cov0" title="0">{
+                                if strings.HasPrefix(sw, "popCommand") </span><span class="cov8" title="1">{
                                         // popCommand resets the command to the parent or boaRootCmd
                                         addBoaCommand(fileName, boaCmd, modType, name, short, long, path, parent, hidden)
-                                        if boaCmd != nil </span><span class="cov0" title="0">{
+                                        if boaCmd != nil </span><span class="cov8" title="1">{
                                                 boaCmd = boaCmd.Parent()
-                                                if boaCmd == boaRootCmd </span><span class="cov0" title="0">{
+                                                if boaCmd == boaRootCmd </span><span class="cov8" title="1">{
                                                         boaCmd = nil
                                                 }</span>
                                         }
@@ -546,11 +546,23 @@ func addFltCommand(use string, short string, long string, command string) *cobra
                 Long:  long,
 
                 RunE: func(cmd *cobra.Command, args []string) error </span><span class="cov0" title="0">{
-                        script := filepath.Join(".", "cli", "vm", "scripts", command)
+                        // VM cli could be in ./cli (defalut) or ./gitops
+                        script := os.Getenv("AKDC_VM_REPO")
+
+                        if script == "" </span><span class="cov0" title="0">{
+                                script = "cli"
+                        }</span>
+
+                        <span class="cov0" title="0">script = filepath.Join(".", script, "vm", "scripts", command)
 
                         // add the paramaters
                         if len(args) &gt; 0 </span><span class="cov0" title="0">{
                                 script += " " + strings.Join(args, " ")
+                        }</span>
+
+                        // check-setup can run before the cli is fully setup
+                        <span class="cov0" title="0">if command == "check-setup" </span><span class="cov0" title="0">{
+                                script = "tail -n1 status"
                         }</span>
 
                         <span class="cov0" title="0">return ExecClusters(script, grep)</span>
@@ -851,10 +863,10 @@ func ReadHostIPs(grep string) ([]string, error) <span class="cov8" title="1">{
         if _, err := os.Stat("./ips"); err != nil </span><span class="cov8" title="1">{
                 file := ReadConfigValue("defaultIPs:")
                 if file != "" </span><span class="cov8" title="1">{
-                        command = "cat " + file + " | sort"
+                        command = "cat " + file + " | grep -v '^#' | sort"
                 }</span>
         } else<span class="cov0" title="0"> {
-                command = "cat ips | sort"
+                command = "cat ips | grep -v '^#' | sort"
         }</span>
 
         <span class="cov8" title="1">if command == "" </span><span class="cov0" title="0">{
@@ -1157,13 +1169,24 @@ var (
 
 // add kic fleet create specific flags
 func init() <span class="cov8" title="1">{
+        // get defaults from env var
+        // todo - convert to Viper
+        tRepo := os.Getenv("AKDC_REPO")
+        if tRepo == "" </span><span class="cov0" title="0">{
+                tRepo = "retaildevcrews/edge-gitops"
+        }</span>
+
+        <span class="cov8" title="1">tSsl := os.Getenv("AKDC_SSL")
+
+        tGitOps := os.Getenv("AKDC_GITOPS") == "true"
+
         CreateCmd.Flags().StringVarP(&amp;cluster, "cluster", "c", "", "Kubernetes cluster name (required)")
         CreateCmd.MarkFlagRequired("cluster")
         CreateCmd.Flags().StringVarP(&amp;group, "group", "g", "", "Azure resource group name")
         CreateCmd.Flags().StringVarP(&amp;location, "location", "l", "centralus", "Azure location")
-        CreateCmd.Flags().StringVarP(&amp;repo, "repo", "r", "retaildevcrews/edge-gitops", "GitOps repo name")
+        CreateCmd.Flags().StringVarP(&amp;repo, "repo", "r", tRepo, "GitOps repo name")
         CreateCmd.Flags().StringVarP(&amp;branch, "branch", "b", "", "GitOps branch name")
-        CreateCmd.Flags().StringVarP(&amp;ssl, "ssl", "s", "", "SSL domain name")
+        CreateCmd.Flags().StringVarP(&amp;ssl, "ssl", "s", tSsl, "SSL domain name")
         CreateCmd.Flags().StringVarP(&amp;pem, "pem", "p", "~/.ssh/certs.pem", "Path to SSL .pem file")
         CreateCmd.Flags().StringVarP(&amp;key, "key", "k", "~/.ssh/certs.key", "Path to SSL .key file")
         CreateCmd.Flags().StringVarP(&amp;dnsRG, "dns-resource-group", "", "tld", "DNS Resource Group")
@@ -1172,7 +1195,7 @@ func init() <span class="cov8" title="1">{
         CreateCmd.Flags().BoolVarP(&amp;debug, "debug", "d", false, "Create VM in debug mode")
         CreateCmd.Flags().BoolVarP(&amp;arcEnabled, "arc", "a", false, "Connect kubernetes cluster to Azure via Azure ARC")
         CreateCmd.Flags().BoolVarP(&amp;digitalOcean, "do", "", false, "Generate setup script for Digital Ocean droplet")
-        CreateCmd.Flags().BoolVarP(&amp;gitops, "gitops", "", false, "Generate GitOps targets in ./config")
+        CreateCmd.Flags().BoolVarP(&amp;gitops, "gitops", "", tGitOps, "Generate GitOps targets in ./config")
         CreateCmd.Flags().BoolVarP(&amp;gitopsOnly, "gitops-only", "", false, "Only generate GitOps targets in ./config")
         CreateCmd.Flags().BoolVarP(&amp;dryRun, "dry-run", "", false, "Show values that would be used")
         CreateCmd.Flags().BoolVarP(&amp;verbose, "verbose", "", false, "Show verbose output")
@@ -1412,7 +1435,7 @@ func runCreateCmd(cmd *cobra.Command, args []string) error <span class="cov8" ti
         }</span>
 
         // add the GitOps target
-        <span class="cov8" title="1">if gitops || gitopsOnly </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if gitops || gitopsOnly </span><span class="cov8" title="1">{
                 addTargetE(cluster)
                 cfmt.Info("Created GitOps config: ", cluster)
 
@@ -1552,17 +1575,37 @@ func createVMSetupScript() <span class="cov8" title="1">{
 
         // create the vm setup script from the template
         <span class="cov8" title="1">command := string(content)
-        command = strings.Replace(command, "{{cluster}}", cluster, -1)
-        command = strings.Replace(command, "{{dapr}}", strconv.FormatBool(dapr), -1)
-        command = strings.Replace(command, "{{debug}}", strconv.FormatBool(debug), -1)
-        command = strings.Replace(command, "{{fqdn}}", cluster+"."+ssl, -1)
-        command = strings.Replace(command, "{{repo}}", repo, -1)
-        command = strings.Replace(command, "{{branch}}", branch, -1)
-        command = strings.Replace(command, "{{group}}", group, -1)
-        command = strings.Replace(command, "{{arcEnabled}}", strconv.FormatBool(arcEnabled), -1)
-        command = strings.Replace(command, "{{do}}", strconv.FormatBool(digitalOcean), -1)
-        command = strings.Replace(command, "{{zone}}", ssl, -1)
-        command = strings.Replace(command, "{{dnsRG}}", dnsRG, -1)
+        command = strings.ReplaceAll(command, "{{cluster}}", cluster)
+        command = strings.ReplaceAll(command, "{{dapr}}", strconv.FormatBool(dapr))
+        command = strings.ReplaceAll(command, "{{debug}}", strconv.FormatBool(debug))
+        command = strings.ReplaceAll(command, "{{fqdn}}", cluster+"."+ssl)
+        command = strings.ReplaceAll(command, "{{repo}}", repo)
+        command = strings.ReplaceAll(command, "{{branch}}", branch)
+        command = strings.ReplaceAll(command, "{{group}}", group)
+        command = strings.ReplaceAll(command, "{{arcEnabled}}", strconv.FormatBool(arcEnabled))
+        command = strings.ReplaceAll(command, "{{do}}", strconv.FormatBool(digitalOcean))
+        command = strings.ReplaceAll(command, "{{zone}}", ssl)
+        command = strings.ReplaceAll(command, "{{dnsRG}}", dnsRG)
+
+        // todo - testing
+        env := ""
+
+        for _, val := range os.Environ() </span><span class="cov8" title="1">{
+                if strings.HasPrefix(val, "AKDC_") </span><span class="cov8" title="1">{
+                        split := strings.SplitN(val, "=", 2)
+                        if len(split) == 2 </span><span class="cov8" title="1">{
+                                val = strings.ReplaceAll(split[1], "\n", "")
+                                val = strings.ReplaceAll(val, "\"", "\\\"")
+                                line := fmt.Sprintf("  echo 'export %s=\"", split[0])
+                                line += val
+                                line += "\"'\n"
+
+                                env += line
+                        }</span>
+                }
+        }
+        <span class="cov8" title="1">command = strings.ReplaceAll(command, "{{environment}}", env)
+
         os.WriteFile("cluster-"+cluster+".sh", []byte(command), 0644)</span>
 }
 
@@ -1619,33 +1662,33 @@ func createVM(managedIdentityID string) string <span class="cov0" title="0">{
 }
 
 // get GitOps template
-func getConfigJson(cluster string) []byte <span class="cov0" title="0">{
+func getConfigJson(cluster string) []byte <span class="cov8" title="1">{
         region := cluster
         zone := cluster
         district := cluster
 
         cols := strings.Split(cluster, "-")
 
-        if len(cols) &gt; 0 </span><span class="cov0" title="0">{
+        if len(cols) &gt; 0 </span><span class="cov8" title="1">{
                 region = cols[0]
 
-                if len(cols) &gt; 1 </span><span class="cov0" title="0">{
+                if len(cols) &gt; 1 </span><span class="cov8" title="1">{
                         zone = strings.Join(cols[0:2], "-")
                 }</span>
 
-                <span class="cov0" title="0">if len(cols) &gt; 2 </span><span class="cov0" title="0">{
+                <span class="cov8" title="1">if len(cols) &gt; 2 </span><span class="cov0" title="0">{
                         district = strings.Join(cols[0:3], "-")
                 }</span>
         }
 
-        <span class="cov0" title="0">json := boa.ReadTextFileFromBoaDir("gitops-config.templ")
+        <span class="cov8" title="1">json := boa.ReadTextFileFromBoaDir("gitops-config.templ")
 
         if json == "" </span><span class="cov0" title="0">{
                 return nil
         }</span>
 
         // replace template values
-        <span class="cov0" title="0">json = strings.Replace(json, "{{cluster}}", cluster, -1)
+        <span class="cov8" title="1">json = strings.Replace(json, "{{cluster}}", cluster, -1)
         json = strings.Replace(json, "{{region}}", region, -1)
         json = strings.Replace(json, "{{district}}", district, -1)
         json = strings.Replace(json, "{{zone}}", zone, -1)
@@ -1655,29 +1698,29 @@ func getConfigJson(cluster string) []byte <span class="cov0" title="0">{
 }
 
 // add a target to GitOps
-func addTargetE(cluster string) error <span class="cov0" title="0">{
+func addTargetE(cluster string) error <span class="cov8" title="1">{
         // only run if --gitops specified
         if !(gitops || gitopsOnly) </span><span class="cov0" title="0">{
                 return nil
         }</span>
 
         // read the config.json file
-        <span class="cov0" title="0">json := getConfigJson(cluster)
+        <span class="cov8" title="1">json := getConfigJson(cluster)
 
         // make sure the json is valid
         if json == nil || len(json) &lt; 3 || strings.Contains(string(json), "{{") </span><span class="cov0" title="0">{
                 return cfmt.ErrorE("unable to read gitops-config.templ")
         }</span>
 
-        <span class="cov0" title="0">return addTargetWorkerE(json)</span>
+        <span class="cov8" title="1">return addTargetWorkerE(json)</span>
 }
 
 // add a target to GitOps
-func addTargetWorkerE(json []byte) error <span class="cov0" title="0">{
+func addTargetWorkerE(json []byte) error <span class="cov8" title="1">{
         configDir := filepath.Join(".", "config")
 
         // add the targets
-        if len(json) &gt; 0 &amp;&amp; !strings.Contains(string(json), "{{") </span><span class="cov0" title="0">{
+        if len(json) &gt; 0 &amp;&amp; !strings.Contains(string(json), "{{") </span><span class="cov8" title="1">{
                 // make sure the dirs exist
                 if _, err := os.Stat(configDir); err == nil </span><span class="cov0" title="0">{
                         // add cluster to the dirs
@@ -1701,7 +1744,7 @@ func addTargetWorkerE(json []byte) error <span class="cov0" title="0">{
                 }
         }
 
-        <span class="cov0" title="0">return nil</span>
+        <span class="cov8" title="1">return nil</span>
 }
 
 // update the GitOps repo with changes
@@ -1901,15 +1944,15 @@ func runFleetList(cmd *cobra.Command, args []string) error <span class="cov8" ti
                 return err
         }</span>
 
-        <span class="cov8" title="1">for _, line := range hostIPs </span><span class="cov8" title="1">{
+        <span class="cov8" title="1">for _, line := range hostIPs </span><span class="cov0" title="0">{
                 cols := strings.Split(line, "\t")
 
-                if len(cols) &gt; 1 </span><span class="cov8" title="1">{
+                if len(cols) &gt; 1 </span><span class="cov0" title="0">{
                         fmt.Print(cols[0])
-                        if len(cols[0]) &lt; 30 </span><span class="cov8" title="1">{
+                        if len(cols[0]) &lt; 30 </span><span class="cov0" title="0">{
                                 fmt.Print(strings.Repeat(" ", 30-len(cols[0])))
                         }</span>
-                        <span class="cov8" title="1">fmt.Println(cols[1])</span>
+                        <span class="cov0" title="0">fmt.Println(cols[1])</span>
                 } else<span class="cov0" title="0"> {
                         fmt.Println(line)
                 }</span>
