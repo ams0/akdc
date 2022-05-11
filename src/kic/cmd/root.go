@@ -5,89 +5,52 @@
 package cmd
 
 import (
+	"fmt"
 	"kic/boa"
+	"kic/boa/cfmt"
 	"kic/cmd/fleet"
-	"kic/cmd/targets"
-	"kic/cmd/test"
+	"kic/cmd/kic"
+	"kic/cmd/kivm"
+	"kic/cmd/kubekic"
 	"os"
 
 	"github.com/spf13/cobra"
 )
 
-// rootCmd represents the base command and adds commands, options, and flags
 var (
-	rootCmd = &cobra.Command{
-		Use:   "kic",
-		Short: "Retail Edge CLI",
-	}
+	// set TargetCli [and Version] in build via -ldflags - see Makefile
+	TargetCli = "flt"
+	Version   = "0.4.0"
+
+	// rootCmd represents the base command
+	rootCmd = &cobra.Command{}
 )
 
 // initialize the root command
-// standard cobra function
-// highly customized for boa support
 func init() {
-	// load the commands from the bin location ./.appName directory
-	boa.LoadCommands(rootCmd)
 
-	// add commands to kic
-	if rootCmd.Name() == "kic" {
-		addCommandIfNotExist("test", test.TestCmd)
-		addCommandIfNotExist("targets", targets.TargetsCmd)
+	// load the commands based on target
+	switch TargetCli {
+	case "kic":
+		rootCmd = kic.AddCommands()
+	case "kubekic":
+		rootCmd = kubekic.AddCommands()
+	case "kivm":
+		rootCmd = kivm.AddCommands()
+	case "flt":
+		rootCmd = fleet.LoadCommands()
+	default:
+		cfmt.ErrorE("unknown CLI")
+		os.Exit(1)
 	}
 
-	// add fleet commands
-	if rootCmd.Name() == "flt" {
-		// add missing commands
-		addCommandIfNotExist("create", fleet.CreateCmd)
-		addCommandIfNotExist("delete", fleet.DeleteCmd)
-		addCommandIfNotExist("exec", fleet.ExecCmd)
-		addCommandIfNotExist("list", fleet.ListCmd)
-		addCommandIfNotExist("ssh", fleet.SshCmd)
-		addCommandIfNotExist("targets", targets.TargetsCmd)
-
-		if check := boa.GetCommandByUse(rootCmd, "check"); check != nil {
-			if app := boa.GetCommandByUse(check, "app"); app != nil {
-				app.ValidArgsFunction = validArgsFleetCheckApp
-				app.Args = cobra.ExactValidArgs(1)
-			}
-		}
-	}
-
-	// this will set a new root if specified
-	// this will also remove any hidden commands so they can't execute
-	boa.SetNewRoot()
+	// add version command
+	boa.AddScriptCommand(rootCmd, "version", TargetCli+" version", fmt.Sprintf("echo \"%s\"", Version))
 }
 
 // execute the root command
-// standard cobra function
 func Execute() {
-	err := rootCmd.Execute()
-	if err != nil {
+	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
-	}
-}
-
-// validate flt check app arg
-// standard cobra function
-func validArgsFleetCheckApp(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-	apps, err := boa.ReadCompletionFile("flt-check-app-completion")
-
-	if err != nil {
-		return nil, cobra.ShellCompDirectiveNoFileComp
-	}
-
-	// only one arg
-	if len(args) != 0 {
-		return nil, cobra.ShellCompDirectiveNoFileComp
-	}
-
-	// sugest from the completion file
-	return apps, cobra.ShellCompDirectiveNoFileComp
-}
-
-// add the command to root if it doesn't exist
-func addCommandIfNotExist(name string, cmd *cobra.Command) {
-	if boa.GetCommandByUse(rootCmd, name) == nil {
-		rootCmd.AddCommand(cmd)
 	}
 }

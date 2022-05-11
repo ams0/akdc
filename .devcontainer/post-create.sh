@@ -44,5 +44,11 @@ git -C ../red-gitops pull
 git -C ../inner-loop pull
 git -C ../vtlog pull
 
+{
+    # create alias
+    echo ""
+    echo "alias path='echo \$PATH | sed \"s/:/\\\n/g\" | sort'"
+} >> "$HOME/.zshrc"
+
 echo "post-create complete"
 echo "$(date +'%Y-%m-%d %H:%M:%S')    post-create complete" >> "$HOME/status"

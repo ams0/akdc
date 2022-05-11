@@ -24,17 +24,4 @@ func TestBoa(t *testing.T) {
 	if c == nil {
 		t.Errorf("TestGetCommandByUse() failed, got nil")
 	}
-
-	// create a temp boa file
-	LoadCommands(root)
-
-	if root == nil {
-		t.Errorf("TestLoadCommands() failed, got nil")
-	}
-
-	nr := SetNewRoot()
-
-	if nr == nil {
-		t.Errorf("TestSetNewRoot() failed, got nil")
-	}
 }

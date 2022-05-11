@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"strings"
 )
 
 var (
@@ -63,4 +64,15 @@ func FAppendToFile(path string, text string) error {
 	}
 
 	return nil
+}
+
+func Title(val string) string {
+	ret := val
+
+	if val != "" {
+		ret = strings.ToUpper(val[0:1])
+		ret += val[1:]
+	}
+
+	return ret
 }

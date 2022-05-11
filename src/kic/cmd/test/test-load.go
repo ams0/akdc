@@ -9,7 +9,7 @@ import (
 	"kic/boa"
 	"kic/boa/cfmt"
 	"os"
-	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -68,13 +68,28 @@ func runTestLoadE(cmd *cobra.Command, args []string) error {
 		params += " --files " + fileLoad
 	}
 
+	// get the webv container
+	webv := os.Getenv("AKDC_WEBV")
+
+	if webv == "" {
+		webv = "ghcr.io/cse-labs/webv-red:latest"
+	}
+
 	// build the path to the script
-	path := filepath.Join(boa.GetBoaCommandPath(), "test-load")
+	path := "docker run --net host --rm " + webv + " --server "
+
+	if boa.GetBinName() == "kivm" {
+		path += "http://$AKDC_FQDN "
+	} else {
+		path += "http://localhost:30080 "
+	}
+
+	path += " " + params
+
+	if len(args) > 0 {
+		path += " " + strings.Join(args, " ")
+	}
 
 	// execute the file with "bash -c" if it exists
-	if _, err := os.Stat(path); err == nil {
-		return boa.ShellExecE(fmt.Sprintf("%s %s", path, params))
-	} else {
-		return cfmt.ErrorE(err)
-	}
+	return boa.ShellExecE(path)
 }

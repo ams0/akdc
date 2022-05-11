@@ -9,7 +9,7 @@ import (
 	"kic/boa"
 	"kic/boa/cfmt"
 	"os"
-	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -30,7 +30,7 @@ var (
 
 // add command specific options
 func init() {
-	//IntegrationCmd.Flags().StringVarP(&fileIntegration, "file", "f", "baseline.json", "Test file to use")
+	IntegrationCmd.Flags().StringVarP(&fileIntegration, "file", "f", "", "Test file to use")
 	IntegrationCmd.Flags().IntVarP(&maxErrors, "max-errors", "", 10, "Max validation errors before terminating test")
 	IntegrationCmd.Flags().StringVarP(&summary, "summary", "", "None", "Test summary display <None|Tsv|Xml>")
 }
@@ -54,18 +54,41 @@ func runTestIntegrationE(cmd *cobra.Command, args []string) error {
 		params += " --summary " + summary
 	}
 
+	if fileIntegration == "" {
+		if boa.GetBinName() == "kivm" {
+			fileIntegration = "imdb-baseline.json heartbeat-baseline.json "
+		} else {
+			fileIntegration = "imdb-baseline.json "
+		}
+	}
+
 	// add test-integration specific options to command line
-	// keep this arg last to override for innerloop test run
 	if fileIntegration != "" {
 		params += " --files " + fileIntegration
 	}
 
-	path := filepath.Join(boa.GetBoaCommandPath(), "test-integration")
+	// get the webv container
+	webv := os.Getenv("AKDC_WEBV")
+
+	if webv == "" {
+		webv = "ghcr.io/cse-labs/webv-red:latest"
+	}
+
+	// build the path to the script
+	path := "docker run --net host --rm " + webv + " --server "
+
+	if boa.GetBinName() == "kivm" {
+		path += "http://$AKDC_FQDN "
+	} else {
+		path += "http://localhost:30080 "
+	}
+
+	path += " " + params
+
+	if len(args) > 0 {
+		path += " " + strings.Join(args, " ")
+	}
 
 	// execute the file with "bash -c" if it exists
-	if _, err := os.Stat(path); err == nil {
-		return boa.ShellExecE(fmt.Sprintf("%s %s", path, params))
-	} else {
-		return cfmt.ErrorE(err)
-	}
+	return boa.ShellExecE(path)
 }

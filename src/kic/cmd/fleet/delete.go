@@ -7,7 +7,6 @@ package fleet
 import (
 	"fmt"
 	"kic/boa"
-	"kic/boa/cfmt"
 	"os"
 	"strings"
 
@@ -29,12 +28,14 @@ func runFleetDeleteE(cmd *cobra.Command, args []string) error {
 	res, _ := boa.ShellExecOut(fmt.Sprintf("az group exists -n %s", args[0]), false)
 
 	if strings.TrimSpace(res) == "true" {
-		cfmt.Info("Deleting Resource Group")
-		boa.ShellExecE(fmt.Sprintf("az group delete -n %s --yes --no-wait", args[0]))
+		fmt.Println("Deleting Resource Group")
+		boa.ShellExecE(fmt.Sprintf("az group delete -g %s --yes --no-wait", args[0]))
 	}
 
-	cfmt.Info("Deleting DNS Record")
-	return (boa.ShellExecE(fmt.Sprintf("az network dns record-set a delete -g tld -z cseretail.com --yes -n %s", args[0])))
+	// delete the DNS record (if exists)
+	boa.ShellExecE("flt dns delete " + args[0])
+
+	return nil
 }
 
 // validate kic fleet delete args

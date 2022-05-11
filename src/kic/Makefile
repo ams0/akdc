@@ -1,21 +1,23 @@
-.PHONY: all build test
+.PHONY: build test #all build test
 
-all : cover
+#all : cover
 
 build :
 	@# build
 	@gofmt -s -w .
-	@go build -o ../../bin/flt main.go
-	@go build -o ../../bin/kic main.go
-	@go build -o ../../vm/bin/kic main.go
+	@go build -o /workspaces/akdc/bin/flt -ldflags="-X 'kic/cmd.TargetCli=flt'" main.go
+	@go build -o /workspaces/akdc/bin/kic -ldflags="-X 'kic/cmd.TargetCli=kic'" main.go
+	@go build -o /workspaces/akdc/bin/kivm -ldflags="-X 'kic/cmd.TargetCli=kivm'" main.go
+	@go build -o /workspaces/akdc/vm/bin/kivm -ldflags="-X 'kic/cmd.TargetCli=kivm'" main.go
+	@go build -o /workspaces/akdc/kubecon/kic -ldflags="-X 'kic/cmd.TargetCli=kubekic'" main.go
 
 	# make complete
 
 test : build
-	@KIC_PATH=/workspaces/akdc/bin KIC_NAME=flt go test ./... -cover
+	@go test ./... -cover
 
 cover : build
-	@KIC_PATH=/workspaces/akdc/bin KIC_NAME=flt go test ./... -cover -coverprofile cover.out
+	@go test ./... -cover -coverprofile cover.out
 	@go tool cover -html cover.out -o cover.html
 
 	# coverage updated

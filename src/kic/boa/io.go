@@ -143,6 +143,11 @@ func GetBinName() string {
 
 // get the path to the commands (i.e. /bin/kic/.kic)
 func GetBoaPath() string {
+	ex := os.Getenv("KIC_CONFIG")
+	if ex != "" {
+		return ex
+	}
+
 	boaPath := GetBinDir()
 	app := GetBinName()
 	appConfig := "." + app
@@ -160,7 +165,8 @@ func GetBoaPath() string {
 	if strings.HasPrefix(app, "__debug") {
 		// assume package name == source directory
 		app = filepath.Base(boaPath)
-		appConfig = "." + app
+		// todo - fix this appConfig = "." + app
+		appConfig = ".flt"
 
 		if _, err := os.Stat(appConfig); err != nil {
 			// walk the path to find the first bin dir
@@ -180,11 +186,6 @@ func GetBoaPath() string {
 
 	// complete the path
 	return filepath.Join(boaPath, appConfig)
-}
-
-// get the path to the boa commands
-func GetBoaCommandPath() string {
-	return filepath.Join(GetBoaPath(), "commands")
 }
 
 // get the path to the repo base

@@ -2,7 +2,6 @@ package boa
 
 import (
 	"path/filepath"
-	"strings"
 	"testing"
 )
 
@@ -23,13 +22,6 @@ func TestReadHostIPs(t *testing.T) {
 
 	if s != nil {
 		t.Errorf("ReadHostIPs(grepNotFound) failed, got %v, want: %v", s, "")
-	}
-}
-func TestGetBoaCommandPath(t *testing.T) {
-	s := GetBoaCommandPath()
-
-	if !strings.HasSuffix(s, "/commands") {
-		t.Errorf("GetBoaCommandPath() failed, got %v, want: %v", s, "/commands")
 	}
 }
 

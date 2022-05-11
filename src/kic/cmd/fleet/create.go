@@ -10,6 +10,7 @@ import (
 	"kic/boa/cfmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 
@@ -18,7 +19,7 @@ import (
 
 var (
 	// variables for options
-	cluster           string
+	clusters          []string
 	group             string
 	location          string
 	repo              string
@@ -52,18 +53,12 @@ var (
 // add kic fleet create specific flags
 func init() {
 	// get defaults from env var
-	// todo - convert to Viper
 	tRepo := os.Getenv("AKDC_REPO")
-	if tRepo == "" {
-		tRepo = "retaildevcrews/edge-gitops"
-	}
-
 	tSsl := os.Getenv("AKDC_SSL")
-
 	tGitOps := os.Getenv("AKDC_GITOPS") == "true"
 
-	CreateCmd.Flags().StringVarP(&cluster, "cluster", "c", "", "Kubernetes cluster name (required)")
-	CreateCmd.MarkFlagRequired("cluster")
+	CreateCmd.Flags().StringSliceVarP(&clusters, "clusters", "c", []string{}, "Kubernetes cluster name(s) (required)")
+	CreateCmd.MarkFlagRequired("clusters")
 	CreateCmd.Flags().StringVarP(&group, "group", "g", "", "Azure resource group name")
 	CreateCmd.Flags().StringVarP(&location, "location", "l", "centralus", "Azure location")
 	CreateCmd.Flags().StringVarP(&repo, "repo", "r", tRepo, "GitOps repo name")
@@ -71,20 +66,20 @@ func init() {
 	CreateCmd.Flags().StringVarP(&ssl, "ssl", "s", tSsl, "SSL domain name")
 	CreateCmd.Flags().StringVarP(&pem, "pem", "p", "~/.ssh/certs.pem", "Path to SSL .pem file")
 	CreateCmd.Flags().StringVarP(&key, "key", "k", "~/.ssh/certs.key", "Path to SSL .key file")
-	CreateCmd.Flags().StringVarP(&dnsRG, "dns-resource-group", "", "tld", "DNS Resource Group")
-	CreateCmd.Flags().BoolVarP(&dapr, "dapr", "", false, "Install Dapr and Radius")
+	CreateCmd.Flags().StringVar(&dnsRG, "dns-resource-group", "tld", "DNS Resource Group")
+	CreateCmd.Flags().BoolVar(&dapr, "dapr", false, "Install Dapr and Radius")
 	CreateCmd.Flags().BoolVarP(&quiet, "quiet", "q", false, "Quiet mode")
 	CreateCmd.Flags().BoolVarP(&debug, "debug", "d", false, "Create VM in debug mode")
 	CreateCmd.Flags().BoolVarP(&arcEnabled, "arc", "a", false, "Connect kubernetes cluster to Azure via Azure ARC")
-	CreateCmd.Flags().BoolVarP(&digitalOcean, "do", "", false, "Generate setup script for Digital Ocean droplet")
-	CreateCmd.Flags().BoolVarP(&gitops, "gitops", "", tGitOps, "Generate GitOps targets in ./config")
-	CreateCmd.Flags().BoolVarP(&gitopsOnly, "gitops-only", "", false, "Only generate GitOps targets in ./config")
-	CreateCmd.Flags().BoolVarP(&dryRun, "dry-run", "", false, "Show values that would be used")
-	CreateCmd.Flags().BoolVarP(&verbose, "verbose", "", false, "Show verbose output")
-	CreateCmd.Flags().IntVarP(&cores, "cores", "", 4, "VM core count")
-	CreateCmd.Flags().StringVarP(&sku, "sku", "", "", "Azure VM SKU")
+	CreateCmd.Flags().BoolVar(&digitalOcean, "do", false, "Generate setup script for Digital Ocean droplet")
+	CreateCmd.Flags().BoolVar(&gitops, "gitops", tGitOps, "Generate GitOps targets in ./config")
+	CreateCmd.Flags().BoolVar(&gitopsOnly, "gitops-only", false, "Only generate GitOps targets in ./config")
+	CreateCmd.Flags().BoolVar(&dryRun, "dry-run", false, "Show values that would be used")
+	CreateCmd.Flags().BoolVar(&verbose, "verbose", false, "Show verbose output")
+	CreateCmd.Flags().IntVar(&cores, "cores", 4, "VM core count")
+	CreateCmd.Flags().StringVar(&sku, "sku", "", "Azure VM SKU")
 
-	CreateCmd.RegisterFlagCompletionFunc("cluster", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	CreateCmd.RegisterFlagCompletionFunc("clusters", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return getClusterComplete(), cobra.ShellCompDirectiveDefault
 	})
 
@@ -116,8 +111,15 @@ func getClusterComplete() []string {
 
 // validation function for CreateCmd
 func validateCreateCmd(cmd *cobra.Command, args []string) error {
+	hasError := false
+
+	if len(clusters) == 0 {
+		cfmt.ErrorE("--cluster is a required parameter")
+		hasError = true
+	}
+
 	// validate ssl and domain
-	hasError := validateSSL()
+	hasError = hasError && validateSSL()
 
 	// validate cluster name against reserved prefixes (if set)
 	hasError = hasError && validateClusterPrefix()
@@ -128,13 +130,19 @@ func validateCreateCmd(cmd *cobra.Command, args []string) error {
 	// validate cores
 	hasError = hasError && validateCores()
 
-	if hasError {
-		return fmt.Errorf("create command aborted")
-	}
-
 	// default resource group is cluster name
 	if group == "" {
-		group = cluster
+		if len(clusters) == 1 {
+			group = strings.TrimSpace(clusters[0])
+		} else {
+			hasError = true
+			cfmt.ErrorE("you must specify --resource-group")
+		}
+	}
+
+	if hasError {
+		cfmt.ErrorE("create command aborted")
+		os.Exit(1)
 	}
 
 	return nil
@@ -184,9 +192,8 @@ func validateCores() bool {
 // validate managed identity
 func validateManagedIdentity() bool {
 	if !digitalOcean && managedIdentityID == "" {
-		cfmt.ErrorE("managed identity is required")
+		cfmt.ErrorE("managed identity is not set")
 		fmt.Println("  export AKDC_MI=yourManagedIdentity")
-		return false
 	}
 
 	return true
@@ -194,18 +201,20 @@ func validateManagedIdentity() bool {
 
 // validate cluster prefix
 func validateClusterPrefix() bool {
-	cl := strings.ToLower(cluster)
+	for _, cluster := range clusters {
+		cl := strings.TrimSpace(strings.ToLower(cluster))
 
-	blocked := boa.ReadConfigValue("reservedClusterPrefixes:")
+		blocked := boa.ReadConfigValue("reservedClusterPrefixes:")
 
-	lines := strings.Split(blocked, " ")
+		lines := strings.Split(blocked, " ")
 
-	for _, line := range lines {
-		line = strings.ToLower(strings.TrimSpace(line))
+		for _, line := range lines {
+			line = strings.ToLower(strings.TrimSpace(line))
 
-		if line != "" && strings.HasPrefix(cl, line) {
-			cfmt.ErrorE("cluster name is invalid - reserved prefix")
-			return false
+			if line != "" && strings.HasPrefix(cl, line) {
+				cfmt.ErrorE("cluster name is invalid - reserved prefix")
+				return false
+			}
 		}
 	}
 
@@ -242,6 +251,8 @@ func validateVmSku(loc string, vmSku string) error {
 
 // validate PWD is a git repo
 func validateRepo() bool {
+	cfmt.Info("Validating parameters")
+
 	// required for --gitops
 	if gitops || gitopsOnly {
 		res, err := boa.ShellExecOut("git branch --show-current", false)
@@ -260,14 +271,20 @@ func validateRepo() bool {
 		}
 	}
 
-	return true
+	return branch != ""
 }
 
 // run the command
 func runCreateCmd(cmd *cobra.Command, args []string) error {
+	// trim the values
+	for i, cluster := range clusters {
+		clusters[i] = strings.TrimSpace(cluster)
+	}
+
 	if !digitalOcean {
 		// validate PWD is a git repo
 		if !validateRepo() {
+			cfmt.ErrorE("invalid repo")
 			return nil
 		}
 
@@ -318,8 +335,17 @@ func runCreateCmd(cmd *cobra.Command, args []string) error {
 
 	// add the GitOps target
 	if gitops || gitopsOnly {
-		addTargetE(cluster)
-		cfmt.Info("Created GitOps config: ", cluster)
+		for _, cluster := range clusters {
+			addTargetE(cluster)
+			cfmt.Info("Created GitOps config: ", cluster)
+		}
+
+		if len(clusters) > 1 {
+			if err := updateGitOpsRepoE(); err != nil {
+				cfmt.ErrorE("update GitOps repo failed")
+				return err
+			}
+		}
 
 		// exit
 		if gitopsOnly {
@@ -327,14 +353,10 @@ func runCreateCmd(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	// fail if the Azure VM exists
-	if vmExists() {
-		cfmt.ErrorE("Azure VM Exists: ", cluster)
-		return nil
-	}
-
 	// create the setup script from the template
-	createVMSetupScript()
+	for _, cluster := range clusters {
+		createVMSetupScript(cluster)
+	}
 
 	if digitalOcean {
 		// no more automation for Digital Ocean droplets
@@ -344,29 +366,67 @@ func runCreateCmd(cmd *cobra.Command, args []string) error {
 
 	// create the azure resource group
 	if err := createGroup(); err != nil {
-		cfmt.ErrorE("createGroup Failed: ", cluster)
+		cfmt.ErrorE("createGroup Failed: ", group)
 		return nil
 	}
 
+	ch := make(chan string)
+
+	max := 0
+	current := 0
+	// only run 5 go subs per core
+	maxRoutines := runtime.NumCPU() * 5
+
+	for _, cluster := range clusters {
+
+		if vmExists(cluster) {
+			os.Remove("cluster-" + cluster + ".sh")
+			cfmt.ErrorE("Azure VM Exists: ", cluster)
+		} else {
+
+			for current > maxRoutines {
+				<-ch
+				max--
+				current--
+			}
+
+			current++
+			max++
+			go createAzureVm(cluster, ch)
+		}
+	}
+
+	// wait for the go routines to finish
+	for max > 0 {
+		<-ch
+		max--
+	}
+
+	cfmt.Info("Fleet create complete")
+
+	return nil
+}
+
+func createAzureVm(cluster string, ch chan string) {
 	// create the vm and get the IP
-	ip := createVM(managedIdentityID)
+	ip := createVM(cluster, managedIdentityID)
 
 	// remove the cluster template
 	os.Remove("cluster-" + cluster + ".sh")
 
 	// success
 	if ip != "" {
-		cfmt.Info("VM Configured: ", cluster)
+		fmt.Println("VM Created: ", cluster)
 	} else {
 		cfmt.ErrorE("VM Creation Failed: ", cluster)
 	}
 
-	return nil
+	ch <- cluster
 }
 
 // handle --dry-run
 func doDryRun() error {
-	fmt.Println("Cluster:             ", cluster)
+	fmt.Println("Cluster:             ", clusters)
 	fmt.Println("Cores:               ", cores)
 	fmt.Println("Group:               ", group)
 
@@ -393,7 +453,6 @@ func doDryRun() error {
 	fmt.Println("Enable GitOps:       ", gitops)
 
 	if !digitalOcean {
-		fmt.Println("Cluster Exists:      ", vmExists())
 		fmt.Println("Group Exists:        ", groupExists())
 	}
 
@@ -407,7 +466,7 @@ func groupExists() bool {
 }
 
 // check to see if the VM exists in the RG
-func vmExists() bool {
+func vmExists(cluster string) bool {
 	command := fmt.Sprintf("az vm show -g %s --name %s --query 'name' -o tsv", group, cluster)
 	res, _ := boa.ShellExecOut(command, false)
 	return strings.EqualFold(cluster, strings.TrimSpace(res))
@@ -427,8 +486,7 @@ func createGroup() error {
 
 	cfmt.Info("Creating Azure Resource Group")
 
-	rgTags := "akdc=true server=" + cluster
-
+	rgTags := "akdc=true"
 	if ssl != "" {
 		rgTags += " zone=" + ssl
 	}
@@ -444,7 +502,7 @@ func createGroup() error {
 }
 
 // create vm setup script
-func createVMSetupScript() {
+func createVMSetupScript(cluster string) {
 	os.Remove("cluster-" + cluster + ".sh")
 
 	// create the custom VM script
@@ -455,12 +513,18 @@ func createVMSetupScript() {
 		return
 	}
 
+	// add the domain name if exists
+	fqdn := cluster
+	if ssl != "" {
+		fqdn += "." + ssl
+	}
+
 	// create the vm setup script from the template
 	command := string(content)
 	command = strings.ReplaceAll(command, "{{cluster}}", cluster)
 	command = strings.ReplaceAll(command, "{{dapr}}", strconv.FormatBool(dapr))
 	command = strings.ReplaceAll(command, "{{debug}}", strconv.FormatBool(debug))
-	command = strings.ReplaceAll(command, "{{fqdn}}", cluster+"."+ssl)
+	command = strings.ReplaceAll(command, "{{fqdn}}", fqdn)
 	command = strings.ReplaceAll(command, "{{repo}}", repo)
 	command = strings.ReplaceAll(command, "{{branch}}", branch)
 	command = strings.ReplaceAll(command, "{{group}}", group)
@@ -492,7 +556,7 @@ func createVMSetupScript() {
 }
 
 // create Azure VM
-func createVM(managedIdentityID string) string {
+func createVM(cluster string, managedIdentityID string) string {
 	cfmt.Info("Creating Azure VM: ", cluster)
 
 	command := "az vm create \\\n"
@@ -500,7 +564,11 @@ func createVM(managedIdentityID string) string {
 	command += " -l " + location + " \\\n"
 	command += " -n " + cluster + " \\\n"
 	command += " --admin-username akdc \\\n"
-	command += " --assign-identity " + managedIdentityID + "\\\n"
+
+	if managedIdentityID != "" {
+		command += " --assign-identity " + managedIdentityID + "\\\n"
+	}
+
 	command += " --size " + sku + " \\\n"
 	command += " --image Canonical:0001-com-ubuntu-server-focal:20_04-lts-gen2:latest \\\n"
 	command += " --os-disk-size-gb 128 \\\n"
@@ -519,15 +587,15 @@ func createVM(managedIdentityID string) string {
 		return ""
 	}
 
-	cfmt.Info("VM Created: ", cluster)
-	fmt.Println(cluster, ip)
+	// cfmt.Info("VM Created: ", cluster)
+	// fmt.Println(cluster, ip)
 	cfmt.FAppendToFile("ips", fmt.Sprintf("%s\t%s\n", cluster, ip))
 
-	cfmt.Info("Deleting NSG: ", cluster)
+	// cfmt.Info("Deleting NSG: ", cluster)
 	command = "az network nsg rule delete -g " + group + " --nsg-name " + cluster + "NSG -o table --name default-allow-ssh"
 	boa.ShellExecOut(command, false)
 
-	cfmt.Info("Creating SSH Rule: ", cluster)
+	// cfmt.Info("Creating SSH Rule: ", cluster)
 
 	command = "az network nsg rule create \\\n"
 	command += "-g " + group + " \\\n"
@@ -594,12 +662,12 @@ func addTargetE(cluster string) error {
 		return cfmt.ErrorE("unable to read gitops-config.templ")
 	}
 
-	return addTargetWorkerE(json)
+	return addTargetWorkerE(cluster, json)
 }
 
 // add a target to GitOps
-func addTargetWorkerE(json []byte) error {
-	configDir := filepath.Join(".", "config")
+func addTargetWorkerE(cluster string, json []byte) error {
+	configDir := "config"
 
 	// add the targets
 	if len(json) > 0 && !strings.Contains(string(json), "{{") {
@@ -622,6 +690,10 @@ func addTargetWorkerE(json []byte) error {
 				}
 			}
 
+			if len(clusters) > 1 {
+				return nil
+			}
+
 			return updateGitOpsRepoE()
 		}
 	}
@@ -639,7 +711,7 @@ func updateGitOpsRepoE() error {
 		}
 
 		// update the repo
-		if _, err := boa.ShellExecOut("git add .", false); err != nil {
+		if _, err := boa.ShellExecOut("git add config", false); err != nil {
 			return err
 		}
 

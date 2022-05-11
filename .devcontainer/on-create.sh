@@ -29,6 +29,7 @@ mkdir -p "$HOME/.oh-my-zsh/completions"
 
     # create aliases
     echo "alias mk='cd $REPO_BASE/src/kic && make build; cd \$OLDPWD'"
+    echo "alias path='echo \$PATH | sed \"s/:/\\\n/g\" | sort'"
     echo "export REPO_BASE=$PWD"
     echo "export AKDC_REPO=retaildevcrews/edge-gitops"
     echo "export AKDC_SSL=cseretail.com"

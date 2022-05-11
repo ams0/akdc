@@ -5,6 +5,11 @@
 .data
 ips
 cluster-*
+bin/kivm
+bin/flt
+bin/kic
+vm/bin/kivm
+kubecon/kic
 
 dotFiles/.**
 

@@ -110,20 +110,22 @@ func TestIntegration(t *testing.T) {
 }
 
 func TestFleet(t *testing.T) {
+	LoadCommands()
+
 	if FleetCmd == nil {
 		t.Errorf("TestFleet failed, got nil")
 		return
 	}
 
 	rlen := len(FleetCmd.Commands())
-	if rlen != 5 {
-		t.Errorf("FleetTest failed, got %d, wanted: 5", rlen)
+	if rlen != 16 {
+		t.Errorf("FleetTest failed, got %d, wanted: 16", rlen)
 	}
 
 	boa.ExecCmdNoErrorE(t, FleetCmd)
 	boa.ExecCmdNoErrorE(t, FleetCmd, "delete", "test___command", "-h")
 
-	boa.ExecCmdNoErrorE(t, FleetCmd, "create", "--ssl", "testing.com", "--arc", "--do", "-c", "test-cluster")
+	boa.ExecCmdNoErrorE(t, FleetCmd, "create", "--dry-run", "--ssl", "testing.com", "--arc", "--do", "-c", "test-cluster")
 	boa.ExecCmdNoErrorE(t, FleetCmd, "create", "--dry-run", "--ssl", "testing.com", "--arc", "-c", "test-cluster")
 	boa.ExecCmdNoErrorE(t, FleetCmd, "list")
 
