@@ -25,14 +25,24 @@ jobs:
           goarch: ${{ matrix.goarch }}
           project_path: "./src/kic"
           binary_name: "kic"
-          ldflags: "-s -w"
+          ldflags: "-s -w -X 'kic/cmd.TargetCli=kic'"
 
-      # add akdc CLI to release
+      # add flt CLI to release
       - uses: wangyoucao577/go-release-action@v1.25
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
           project_path: "./src/kic"
-          binary_name: "akdc"
-          ldflags: "-s -w"
+          binary_name: "flt"
+          ldflags: "-s -w -X 'kic/cmd.TargetCli=flt'"
+
+      # add flt CLI to release
+      - uses: wangyoucao577/go-release-action@v1.25
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          goos: ${{ matrix.goos }}
+          goarch: ${{ matrix.goarch }}
+          project_path: "./src/kic"
+          binary_name: "kivm"
+          ldflags: "-s -w -X 'kic/cmd.TargetCli=kivm'"
