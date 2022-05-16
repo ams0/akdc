@@ -20,7 +20,7 @@ import (
 var (
 	// set TargetCli [and Version] in build via -ldflags - see Makefile
 	TargetCli = "flt"
-	Version   = "0.4.0"
+	Version   = "0.4.1"
 
 	// rootCmd represents the base command
 	rootCmd = &cobra.Command{}
@@ -29,16 +29,31 @@ var (
 // initialize the root command
 func init() {
 
+	boa.LoadCommands(rootCmd)
+
 	// load the commands based on target
 	switch TargetCli {
 	case "kic":
-		rootCmd = kic.AddCommands()
+		if len(rootCmd.Commands()) == 0 {
+			rootCmd = kic.KicCmd
+		}
+
+		rootCmd = kic.LoadCommands(rootCmd)
 	case "kubekic":
-		rootCmd = kubekic.AddCommands()
+		// not dynamic
+		rootCmd = kubekic.KicCmd
 	case "kivm":
-		rootCmd = kivm.AddCommands()
+		if len(rootCmd.Commands()) == 0 {
+			rootCmd = kivm.KivmCmd
+		}
+
+		rootCmd = kivm.LoadCommands(rootCmd)
 	case "flt":
-		rootCmd = fleet.LoadCommands()
+		if len(rootCmd.Commands()) == 0 {
+			rootCmd = fleet.FleetCmd
+		}
+
+		rootCmd = fleet.LoadCommands(rootCmd)
 	default:
 		cfmt.ErrorE("unknown CLI")
 		os.Exit(1)

@@ -1,0 +1,19 @@
+# description to potentially read at runtime
+command
+	name: check
+	short: Check status on the local cluster
+
+boaCommand
+	path: check/flux
+
+boaCommand
+	path: check/heartbeat
+
+boaCommand
+	path: check/logs
+
+boaCommand
+	path: check/imdb
+
+boaCommand
+	path: check/setup

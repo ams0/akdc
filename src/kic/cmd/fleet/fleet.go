@@ -22,27 +22,34 @@ var (
 	grep string
 )
 
-func LoadCommands() *cobra.Command {
-	if len(FleetCmd.Commands()) == 0 {
-		FleetCmd.AddCommand(AzCmd)
-		FleetCmd.AddCommand(CheckCmd)
-		FleetCmd.AddCommand(CreateCmd)
-		FleetCmd.AddCommand(DeleteCmd)
-		FleetCmd.AddCommand(DnsCmd)
-		FleetCmd.AddCommand(ExecCmd)
-		FleetCmd.AddCommand(ListCmd)
-		FleetCmd.AddCommand(NewAppCmd)
-		FleetCmd.AddCommand(SshCmd)
-		FleetCmd.AddCommand(targets.TargetsCmd)
+func LoadCommands(parent *cobra.Command) *cobra.Command {
+	boa.AddCommandIfNotExist(parent, AzCmd)
+	boa.AddCommandIfNotExist(parent, CheckCmd)
+	boa.AddCommandIfNotExist(parent, CreateCmd)
+	boa.AddCommandIfNotExist(parent, DeleteCmd)
+	boa.AddCommandIfNotExist(parent, DnsCmd)
+	boa.AddCommandIfNotExist(parent, ExecCmd)
+	boa.AddCommandIfNotExist(parent, ListCmd)
+	boa.AddCommandIfNotExist(parent, SshCmd)
+	boa.AddCommandIfNotExist(parent, targets.TargetsCmd)
 
-		boa.AddScriptCommand(FleetCmd, "env", "List the environment variables", "env | grep AKDC | sort")
+	boa.AddCommandIfNotExist(parent, boa.CreateScriptCommand("env", "List the environment variables", "env | grep AKDC | sort"))
 
-		FleetCmd.AddCommand(boa.AddFltCommand("curl", "curl the specified endpoint on each cluster", "", "curl"))
-		FleetCmd.AddCommand(boa.AddFltCommand("arc-token", "Get Arc token from each cluster", "", "arc-token"))
-		FleetCmd.AddCommand(boa.AddFltCommand("patch", "Run a patch command on each cluster", "", "patch"))
-		FleetCmd.AddCommand(boa.AddFltCommand("pull", "Git pull the akdc repo", "", "pull"))
-		FleetCmd.AddCommand(boa.AddFltCommand("sync", "Sync (reconcile) flux on each cluster", "", "sync"))
+	boa.AddCommandIfNotExist(parent, boa.CreateFltCommand("curl", "curl the specified endpoint on each cluster", "", "curl"))
+	boa.AddCommandIfNotExist(parent, boa.CreateFltCommand("patch", "Run a patch command on each cluster", "", "patch"))
+	boa.AddCommandIfNotExist(parent, boa.CreateFltCommand("pull", "Git pull the akdc repo", "", "pull"))
+	boa.AddCommandIfNotExist(parent, boa.CreateFltCommand("sync", "Sync (reconcile) flux on each cluster", "", "sync"))
+
+	if az := boa.GetCommandByUse(parent, "az"); az != nil {
+		boa.AddCommandIfNotExist(az, boa.CreateFltCommand("arc-token", "Get Arc token from each cluster", "", "arc-token"))
 	}
 
-	return FleetCmd
+	// add tab completion to flt check app
+	if chk := boa.GetCommandByUse(parent, "check"); chk != nil {
+		if app := boa.GetCommandByUse(chk, "app"); app != nil {
+			app.ValidArgsFunction = validArgsFleetCheckApp
+		}
+	}
+
+	return parent
 }

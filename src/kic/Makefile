@@ -1,15 +1,16 @@
-.PHONY: build test #all build test
+.PHONY: build test cover all kubecon
 
-#all : cover
+all : cover
 
 build :
 	@# build
 	@gofmt -s -w .
-	@go build -o /workspaces/akdc/bin/flt -ldflags="-X 'kic/cmd.TargetCli=flt'" main.go
-	@go build -o /workspaces/akdc/bin/kic -ldflags="-X 'kic/cmd.TargetCli=kic'" main.go
-	@go build -o /workspaces/akdc/bin/kivm -ldflags="-X 'kic/cmd.TargetCli=kivm'" main.go
-	@go build -o /workspaces/akdc/vm/bin/kivm -ldflags="-X 'kic/cmd.TargetCli=kivm'" main.go
-	@go build -o /workspaces/akdc/kubecon/kic -ldflags="-X 'kic/cmd.TargetCli=kubekic'" main.go
+
+	@go build -o ../../bin/flt -ldflags="-X 'kic/cmd.TargetCli=flt'" main.go
+	@go build -o ../../bin/kic -ldflags="-X 'kic/cmd.TargetCli=kic'" main.go
+	@go build -o ../../bin/kivm -ldflags="-X 'kic/cmd.TargetCli=kivm'" main.go
+
+	@go build -o ../../vm/bin/kivm -ldflags="-X 'kic/cmd.TargetCli=kivm'" main.go
 
 	# make complete
 
@@ -21,3 +22,6 @@ cover : build
 	@go tool cover -html cover.out -o cover.html
 
 	# coverage updated
+
+kubecon :
+	@go build -o ../../kubecon/kic -ldflags="-X 'kic/cmd.TargetCli=kubekic'" main.go

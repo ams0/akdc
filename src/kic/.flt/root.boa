@@ -1,0 +1,31 @@
+###
+# root description and commands
+###
+
+root
+	name: flt
+	short: Retail Edge CLI
+	long: Retail Edge CLI\n\n  A dynamic CLI for automating many Kubernetes fleet tasks
+
+boaCommand
+	path: env
+
+fltCommand
+        path: curl
+        name: curl
+        short: curl the specified endpoint on each cluster
+
+fltCommand
+        path: patch
+        name: patch
+        short: Run a patch command on each cluster
+
+fltCommand
+        path: pull
+        name: pull
+        short: Git pull the akdc repo
+
+fltCommand
+        path: sync
+        name: sync
+        short: Sync (reconcile) flux on each cluster

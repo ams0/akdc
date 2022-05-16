@@ -50,7 +50,7 @@ echo "Creating cluster ..."
 
 ### todo - check az login
 
-cd $REPO_BASE/vm/setup || exit
+cd $HOME/gitops/vm/setup || exit
 
 ./akdc-pre-k8s.sh
 ./k8s-setup.sh

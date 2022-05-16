@@ -110,7 +110,7 @@ func TestIntegration(t *testing.T) {
 }
 
 func TestFleet(t *testing.T) {
-	LoadCommands()
+	LoadCommands(FleetCmd)
 
 	if FleetCmd == nil {
 		t.Errorf("TestFleet failed, got nil")
@@ -118,8 +118,8 @@ func TestFleet(t *testing.T) {
 	}
 
 	rlen := len(FleetCmd.Commands())
-	if rlen != 16 {
-		t.Errorf("FleetTest failed, got %d, wanted: 16", rlen)
+	if rlen != 14 {
+		t.Errorf("FleetTest failed, got %d, wanted: 14", rlen)
 	}
 
 	boa.ExecCmdNoErrorE(t, FleetCmd)

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# change to this directory
+#cd "$(dirname "${BASH_SOURCE[0]}")" || exit
+
+if [ "$AKDC_SSL" = "" ]
+then
+    docker run --net host --rm ghcr.io/cse-labs/webv-red:latest --server http://$AKDC_FQDN --files imdb-baseline.json "$@"
+else
+    docker run --net host --rm ghcr.io/cse-labs/webv-red:latest --server https://$AKDC_FQDN --files imdb-baseline.json "$@"
+fi

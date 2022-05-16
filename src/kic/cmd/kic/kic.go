@@ -18,22 +18,20 @@ var KicCmd = &cobra.Command{
 	Long:  "Kubernetes in Codespaces CLI\n\n  A CLI for automating many Kubernetes inner-loop tasks",
 }
 
-func AddCommands() *cobra.Command {
+func LoadCommands(parent *cobra.Command) *cobra.Command {
 
-	if len(KicCmd.Commands()) == 0 {
-		KicCmd.AddCommand(BuildCmd)
-		KicCmd.AddCommand(CheckCmd)
-		KicCmd.AddCommand(ClusterCmd)
-		KicCmd.AddCommand(targets.TargetsCmd)
-		KicCmd.AddCommand(test.TestCmd)
+	boa.AddCommandIfNotExist(parent, BuildCmd)
+	boa.AddCommandIfNotExist(parent, CheckCmd)
+	boa.AddCommandIfNotExist(parent, ClusterCmd)
+	boa.AddCommandIfNotExist(parent, targets.TargetsCmd)
+	boa.AddCommandIfNotExist(parent, test.TestCmd)
 
-		boa.AddScriptCommand(KicCmd, "env", "List the environment variables", kicEnvScript())
-		boa.AddScriptCommand(KicCmd, "events", "Get all Kubernetes events on the local dev cluster", kicEventsScript())
-		boa.AddScriptCommand(KicCmd, "pods", "Get all pods on the local dev cluster", kicPodsScript())
-		boa.AddScriptCommand(KicCmd, "svc", "Get all services on the local dev cluster", kicSvcScript())
-	}
+	boa.AddCommandIfNotExist(parent, boa.CreateScriptCommand("env", "List the environment variables", kicEnvScript()))
+	boa.AddCommandIfNotExist(parent, boa.CreateScriptCommand("events", "Get all Kubernetes events on the local dev cluster", kicEventsScript()))
+	boa.AddCommandIfNotExist(parent, boa.CreateScriptCommand("pods", "Get all pods on the local dev cluster", kicPodsScript()))
+	boa.AddCommandIfNotExist(parent, boa.CreateScriptCommand("svc", "Get all services on the local dev cluster", kicSvcScript()))
 
-	return KicCmd
+	return parent
 }
 
 func kicEnvScript() string {

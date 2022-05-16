@@ -17,15 +17,15 @@ var CheckCmd = &cobra.Command{
 }
 
 func init() {
-	checkAppCmd := boa.AddFltCommand("app", "Check app status on each cluster", "", "check-app")
+	checkAppCmd := boa.CreateFltCommand("app", "Check app status on each cluster", "", "check-app")
 	checkAppCmd.ValidArgsFunction = validArgsFleetCheckApp
 
 	CheckCmd.AddCommand(checkAppCmd)
 
-	CheckCmd.AddCommand(boa.AddFltCommand("flux", "Check flux status on each cluster", "", "check-flux"))
-	CheckCmd.AddCommand(boa.AddFltCommand("heartbeat", "Check https heartbeat on each cluster", "", "check-heartbeat"))
-	CheckCmd.AddCommand(boa.AddFltCommand("logs", "Check the cloudinit logs on each cluster", "", "check-logs"))
-	CheckCmd.AddCommand(boa.AddFltCommand("setup", "Check setup status on each cluster", "", "check-setup"))
+	CheckCmd.AddCommand(boa.CreateFltCommand("flux", "Check flux status on each cluster", "", "check-flux"))
+	CheckCmd.AddCommand(boa.CreateFltCommand("heartbeat", "Check https heartbeat on each cluster", "", "check-heartbeat"))
+	CheckCmd.AddCommand(boa.CreateFltCommand("logs", "Check the cloudinit logs on each cluster", "", "check-logs"))
+	CheckCmd.AddCommand(boa.CreateFltCommand("setup", "Check setup status on each cluster", "", "check-setup"))
 }
 
 // validate flt check app arg

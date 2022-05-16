@@ -17,9 +17,10 @@ var AzCmd = &cobra.Command{
 }
 
 func init() {
-	boa.AddScriptCommand(AzCmd, "groups", "List Azure groups", fltAzGroupsScript())
-	boa.AddScriptCommand(AzCmd, "login", "Login to Azure using the project's Service Principal", fltAzLoginScript())
-	boa.AddScriptCommand(AzCmd, "logout", "Logout of Azure", fltAzLogoutScript())
+	boa.AddCommandIfNotExist(AzCmd, boa.CreateScriptCommand("groups", "List Azure groups", fltAzGroupsScript()))
+	boa.AddCommandIfNotExist(AzCmd, boa.CreateScriptCommand("login", "Login to Azure using the project's Service Principal", fltAzLoginScript()))
+	boa.AddCommandIfNotExist(AzCmd, boa.CreateScriptCommand("logout", "Logout of Azure", fltAzLogoutScript()))
+	boa.AddCommandIfNotExist(AzCmd, boa.CreateScriptCommand("vms", "List Azure VMs in the resource group", fltAzVMsScript()))
 }
 
 func fltAzGroupsScript() string {
@@ -33,4 +34,39 @@ func fltAzLoginScript() string {
 func fltAzLogoutScript() string {
 
 	return "az logout"
+}
+
+func fltAzVMsScript() string {
+	return `
+		rg=$1
+
+		if [ "$rg" = "" ]
+		then
+			rg="$FLT_RG"
+		fi
+
+		if [ "$rg" = "" ]
+		then
+			rg="$(git branch --show-current)"
+		fi
+
+		if [ "$rg" = "" ]
+		then
+			echo "usage: flt az vms resourceGroup"
+			exit 0
+		fi
+
+		echo ""
+		echo "getting VMs in resource group: $rg"
+		echo ""
+
+		hdrsort()
+		{
+			read -r
+			printf "%s\\n" "$REPLY"
+			sort
+		}
+
+		az vm list --query '[].name' -o table -g $rg | hdrsort
+	`
 }

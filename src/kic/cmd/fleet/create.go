@@ -39,7 +39,7 @@ var (
 	cores             int
 	verbose           bool
 	sku               string
-	managedIdentityID = os.Getenv("AKDC_MI")
+	managedIdentityID string
 
 	// kic fleet create command
 	CreateCmd = &cobra.Command{
@@ -124,9 +124,6 @@ func validateCreateCmd(cmd *cobra.Command, args []string) error {
 	// validate cluster name against reserved prefixes (if set)
 	hasError = hasError && validateClusterPrefix()
 
-	// managed identity is required for Azure VMs
-	hasError = hasError && validateManagedIdentity()
-
 	// validate cores
 	hasError = hasError && validateCores()
 
@@ -172,6 +169,12 @@ func validateSSL() bool {
 			cfmt.ErrorE("malformed --ssl parameter")
 			hasError = true
 		}
+
+		if managedIdentityID == "" {
+			cfmt.ErrorE("managed identity is required to use --ssl")
+			fmt.Println("please export AKDC_MI or save to $HOME/.ssh/mi.key")
+			hasError = true
+		}
 	}
 	return hasError
 }
@@ -187,16 +190,6 @@ func validateCores() bool {
 	}
 
 	return ok
-}
-
-// validate managed identity
-func validateManagedIdentity() bool {
-	if !digitalOcean && managedIdentityID == "" {
-		cfmt.ErrorE("managed identity is not set")
-		fmt.Println("  export AKDC_MI=yourManagedIdentity")
-	}
-
-	return true
 }
 
 // validate cluster prefix
@@ -286,6 +279,19 @@ func runCreateCmd(cmd *cobra.Command, args []string) error {
 		if !validateRepo() {
 			cfmt.ErrorE("invalid repo")
 			return nil
+		}
+
+		// get mi from env var
+		if managedIdentityID == "" {
+			managedIdentityID = os.Getenv("AKDC_MI")
+		}
+
+		// read mi from $HOME/.ssh/mi.key
+		if managedIdentityID == "" {
+			path := os.Getenv("HOME") + "/.ssh/mi.key"
+			if _, err := os.Stat(path); err == nil {
+				managedIdentityID = boa.ReadTextFile(path)
+			}
 		}
 
 		// validate azure login
@@ -409,7 +415,7 @@ func runCreateCmd(cmd *cobra.Command, args []string) error {
 
 func createAzureVm(cluster string, ch chan string) {
 	// create the vm and get the IP
-	ip := createVM(cluster, managedIdentityID)
+	ip := createVM(cluster)
 
 	// remove the cluster template
 	os.Remove("cluster-" + cluster + ".sh")
@@ -434,7 +440,13 @@ func doDryRun() error {
 		fmt.Println("VM SKU:              ", sku)
 	}
 
-	fmt.Println("Managed Identity:    ", strings.Contains(managedIdentityID, "/Microsoft.ManagedIdentity/"))
+	mi := "n/a"
+	if strings.Contains(managedIdentityID, "/Microsoft.ManagedIdentity/") {
+		miParts := strings.Split(managedIdentityID, "/")
+		mi = miParts[len(miParts)-1]
+	}
+
+	fmt.Println("Managed Identity:    ", mi)
 	fmt.Println("Location:            ", location)
 	fmt.Println("Repo:                ", repo)
 	fmt.Println("Branch:              ", branch)
@@ -447,10 +459,10 @@ func doDryRun() error {
 		fmt.Println("SSL Domain:           none")
 	}
 
+	fmt.Println("Enable GitOps:       ", gitops)
 	fmt.Println("Enable Arc:          ", arcEnabled)
 	fmt.Println("Enable Dapr:         ", dapr)
 	fmt.Println("Enable Digital Ocean:", digitalOcean)
-	fmt.Println("Enable GitOps:       ", gitops)
 
 	if !digitalOcean {
 		fmt.Println("Group Exists:        ", groupExists())
@@ -532,6 +544,7 @@ func createVMSetupScript(cluster string) {
 	command = strings.ReplaceAll(command, "{{do}}", strconv.FormatBool(digitalOcean))
 	command = strings.ReplaceAll(command, "{{zone}}", ssl)
 	command = strings.ReplaceAll(command, "{{dnsRG}}", dnsRG)
+	command = strings.ReplaceAll(command, "{{mi}}", managedIdentityID)
 
 	// todo - testing
 	env := ""
@@ -556,7 +569,7 @@ func createVMSetupScript(cluster string) {
 }
 
 // create Azure VM
-func createVM(cluster string, managedIdentityID string) string {
+func createVM(cluster string) string {
 	cfmt.Info("Creating Azure VM: ", cluster)
 
 	command := "az vm create \\\n"

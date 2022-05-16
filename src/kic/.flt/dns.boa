@@ -1,0 +1,19 @@
+###
+# dns commands
+###
+
+command
+	name: dns
+	short: DNS commands
+
+boaCommand
+	path: dns/add
+
+boaCommand
+	path: dns/delete
+
+boaCommand
+	path: dns/list
+
+boaCommand
+	path: dns/show

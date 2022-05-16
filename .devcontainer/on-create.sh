@@ -5,17 +5,20 @@
 echo "on-create start"
 echo "$(date +'%Y-%m-%d %H:%M:%S')    on-create start" >> "$HOME/status"
 
+### change these as needed
 export REPO_BASE=$PWD
-export AKDC_REPO=retaildevcrews/edge-gitops
+export AKDC_SSL=cseretail.com
+export AKDC_GITOPS=true
+export AKDC_DNS_RG=tld
 
-export PATH="$PATH:$REPO_BASE/bin"
+export PATH="$PATH:$PWD/bin"
 export GOPATH="$HOME/go"
 
 mkdir -p "$HOME/.ssh"
 mkdir -p "$HOME/.oh-my-zsh/completions"
 
 {
-    echo "defaultIPs: /workspaces/edge-gitops/ips"
+    echo "defaultIPs: \$AKDC_REPO/ips"
     echo "reservedClusterPrefixes: corp-monitoring central-mo-kc central-tx-austin east-ga-atlanta east-nc-raleigh west-ca-sd west-wa-redmond west-wa-seattle"
 } > "$HOME/.kic"
 
@@ -24,24 +27,38 @@ mkdir -p "$HOME/.oh-my-zsh/completions"
     echo 'hsort() { read -r; printf "%s\\n" "$REPLY"; sort }'
 
     # add cli to path
-    echo "export PATH=\$PATH:$REPO_BASE/bin"
+    echo "export PATH=\$PATH:$PWD/bin"
     echo "export GOPATH=\$HOME/go"
 
+    # unset secrets
+    # todo - change prefix
+    echo "unset AKDC_SSL_KEY"
+    echo "unset AKDC_SSL_CERT"
+    echo "unset AKDC_ID_RSA"
+    echo "unset AKDC_ID_RSA_PUB"
+    echo "unset AKDC_LOKI_URL"
+    echo "unset AKDC_PROMETHEUS_KEY"
+    echo "unset AKDC_EVENT_HUB"
+    echo "unset AKDC_SP_ID"
+    echo "unset AKDC_SP_KEY"
+    echo "unset AKDC_TENANT"
+
     # create aliases
-    echo "alias mk='cd $REPO_BASE/src/kic && make build; cd \$OLDPWD'"
-    echo "alias path='echo \$PATH | sed \"s/:/\\\n/g\" | sort'"
-    echo "export REPO_BASE=$PWD"
-    echo "export AKDC_REPO=retaildevcrews/edge-gitops"
-    echo "export AKDC_SSL=cseretail.com"
-    echo "export AKDC_VM_REPO=cli"
-    echo "export AKDC_GITOPS=true"
-    echo "export AKDC_DNS_RG=tld"
+    echo "alias mk='cd $PWD/src/kic && make build; cd \$OLDPWD'"
+    echo "export AKDC_SSL=$AKDC_SSL"
+    echo "export AKDC_GITOPS=$AKDC_GITOPS"
+    echo "export AKDC_DNS_RG=$AKDC_DNS_RG"
+    echo "export AKDC_MI=$AKDC_MI"
+    echo "export REPO_BASE=$REPO_BASE"
+    echo ""
+
     echo "if [ \"\$PAT\" != \"\" ]"
     echo "then"
     echo ""
     echo "    export GITHUB_TOKEN=\$PAT"
     echo "    export AKDC_PAT=\$PAT"
     echo "fi"
+
     echo ""
     echo "compinit"
 } >> "$HOME/.zshrc"
@@ -66,19 +83,15 @@ go install -v github.com/go-delve/delve/cmd/dlv@latest
 go install -v honnef.co/go/tools/cmd/staticcheck@latest
 go install -v golang.org/x/tools/gopls@latest
 
-# clone repos
-cd ..
-git clone https://github.com/microsoft/webvalidate
-git clone https://github.com/cse-labs/imdb-app
-git clone https://github.com/cse-labs/kubernetes-in-codespaces inner-loop
-git clone https://github.com/retaildevcrews/edge-gitops
-git clone https://github.com/retaildevcrews/red-gitops
-git clone https://github.com/retaildevcrews/vtlog
-cd "$REPO_BASE" || exit
+# build the cli
+cd src/kic || exit
+make build
+cd "$OLDPWD" || exit
 
-echo "generating kic completion"
-kic completion zsh > "$HOME/.oh-my-zsh/completions/_kic"
+echo "generating completions"
 flt completion zsh > "$HOME/.oh-my-zsh/completions/_flt"
+kic completion zsh > "$HOME/.oh-my-zsh/completions/_kic"
+kivm completion zsh > "$HOME/.oh-my-zsh/completions/_kivm"
 
 # only run apt upgrade on pre-build
 if [ "$CODESPACE_NAME" = "null" ]

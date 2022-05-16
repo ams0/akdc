@@ -40,10 +40,10 @@ kic cluster delete
 echo ""
 echo "Creating cluster ..."
 
-k3d cluster create --registry-use k3d-registry.localhost:5500 --config "$REPO_BASE/.devcontainer/k3d.yaml"
-kubectl wait node --for condition=ready --all --timeout=30s
-sleep 10
-kubectl wait pod -l k8s-app=kube-dns -n kube-system --for condition=ready --timeout 30s
+k3d cluster create \
+    --registry-use k3d-registry.localhost:5500 \
+    --k3s-server-arg '--no-deploy=traefik' \
+    --config "$REPO_BASE/.devcontainer/k3d.yaml"
 
 `
 }

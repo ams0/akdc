@@ -1,0 +1,27 @@
+###
+# root description and commands
+###
+
+root
+	name: kivm
+	short: Kubernetes in Codespaces CLI
+	long: Kubernetes in Codespaces CLI\n\n  A dynamic CLI for automating many Kubernetes fleet tasks
+
+boaCommand
+	path: pods
+
+boaCommand
+	path: az-login
+
+boaCommand
+	path: pull
+
+boaCommand
+	path: svc
+
+boaCommand
+	path: events
+
+# root commands with no sub-commands
+boaCommand
+	path: sync

@@ -10,6 +10,9 @@ bin/flt
 bin/kic
 vm/bin/kivm
 kubecon/kic
+src/kic/flt
+src/kic/kic
+src/kic/kivm
 
 dotFiles/.**
 

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# name: rebuild
+# short: Create and bootstrap a local k3d cluster and deploy the apps
+
+# change to this directory
+cd "$HOME/gitops/vm/setup" || exit
+
+kivm cluster delete
+
+./akdc-pre-k8s.sh
+./k8s-setup.sh
+./akdc-pre-flux.sh
+./flux-setup.sh
+./akdc-pre-arc.sh
+./arc-setup.sh
+./akdc-post.sh

@@ -6,7 +6,6 @@ package fleet
 
 import (
 	"kic/boa"
-	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -24,23 +23,26 @@ func init() {
 	boa.AddScriptCommand(DnsCmd, "show", "Get a DNS entry by host name", fltDnsShowScript())
 }
 
-func runDeleteCmd(cmd *cobra.Command, args []string) error {
-
-	script := fltDnsDeleteScript()
-
-	if len(args) > 0 {
-		script = strings.ReplaceAll(script, "$1", args[0])
-	}
-
-	boa.ShellExecE(script)
-
-	return nil
-}
-
 func fltDnsAddScript() string {
 
 	return `
-set -e
+if ! az account show -o table > /dev/null
+then
+    echo "Please login to Azure"
+    exit 0
+fi
+
+if [ "$AKDC_DNS_RG" = "" ]
+then
+    echo "Please export AKDC_DNS_RG"
+    exit 0
+fi
+
+if [ "$AKDC_SSL" = "" ]
+then
+    echo "Please export AKDC_SSL"
+    exit 0
+fi
 
 host=$1
 pip=$2
@@ -88,7 +90,23 @@ fi
 func fltDnsDeleteScript() string {
 
 	return `
-set -e
+if ! az account show -o table > /dev/null
+then
+    echo "Please login to Azure"
+    exit 0
+fi
+
+if [ "$AKDC_DNS_RG" = "" ]
+then
+    echo "Please export AKDC_DNS_RG"
+    exit 0
+fi
+
+if [ "$AKDC_SSL" = "" ]
+then
+    echo "Please export AKDC_SSL"
+    exit 0
+fi
 
 host=$1
 
@@ -126,11 +144,21 @@ az network dns record-set a delete \
 func fltDnsListScript() string {
 
 	return `
-#!/bin/bash
-
 if ! az account show -o table > /dev/null
 then
     echo "Please login to Azure"
+    exit 0
+fi
+
+if [ "$AKDC_DNS_RG" = "" ]
+then
+    echo "Please export AKDC_DNS_RG"
+    exit 0
+fi
+
+if [ "$AKDC_SSL" = "" ]
+then
+    echo "Please export AKDC_SSL"
     exit 0
 fi
 
@@ -142,9 +170,23 @@ az network dns record-set a list -g "$AKDC_DNS_RG" -z "$AKDC_SSL" --query '[].na
 func fltDnsShowScript() string {
 
 	return `
-#!/bin/bash
+if ! az account show -o table > /dev/null
+then
+    echo "Please login to Azure"
+    exit 0
+fi
 
-set -e
+if [ "$AKDC_DNS_RG" = "" ]
+then
+    echo "Please export AKDC_DNS_RG"
+    exit 0
+fi
+
+if [ "$AKDC_SSL" = "" ]
+then
+    echo "Please export AKDC_SSL"
+    exit 0
+fi
 
 host=$1
 

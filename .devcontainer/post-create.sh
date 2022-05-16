@@ -36,19 +36,10 @@ chmod 600 "$HOME"/.ssh/*.key
 # update oh-my-zsh
 git -C "$HOME/.oh-my-zsh" pull
 
-# update repos
-git -C ../webvalidate pull
-git -C ../imdb-app pull
-git -C ../edge-gitops pull
-git -C ../red-gitops pull
-git -C ../inner-loop pull
-git -C ../vtlog pull
-
-{
-    # create alias
-    echo ""
-    echo "alias path='echo \$PATH | sed \"s/:/\\\n/g\" | sort'"
-} >> "$HOME/.zshrc"
+# build the cli
+cd src/kic || exit
+make build
+cd "$OLDPWD" || exit
 
 echo "post-create complete"
 echo "$(date +'%Y-%m-%d %H:%M:%S')    post-create complete" >> "$HOME/status"

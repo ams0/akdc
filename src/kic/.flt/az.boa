@@ -1,0 +1,24 @@
+###
+# Azure commands
+###
+
+command
+	name: az
+	short: Azure CLI commands (customized)
+
+boaCommand
+	path: az/groups
+
+boaCommand
+	path: az/login
+
+boaCommand
+	path: az/logout
+
+boaCommand
+	path: az/vms
+
+fltCommand
+	name: arc-token
+	short: Get Arc token from each cluster
+	path: arc-token

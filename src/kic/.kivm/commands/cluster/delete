@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# name: delete
+# short: Delete the k3d cluster
+
+k3d cluster delete

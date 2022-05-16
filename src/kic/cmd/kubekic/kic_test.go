@@ -12,21 +12,22 @@ import (
 )
 
 func TestKic(t *testing.T) {
-	AddCommands()
-
 	if KicCmd == nil {
 		t.Errorf("KicFleet failed, got nil")
 		return
 	}
 
 	rlen := len(KicCmd.Commands())
-	if rlen != 8 {
-		t.Errorf("FleetTest failed, got %d, wanted: 8", rlen)
+	if rlen != 7 {
+		t.Errorf("FleetTest failed, got %d, wanted: 7", rlen)
 	}
 
 	boa.ExecCmdNoErrorE(t, KicCmd)
+	boa.ExecCmdNoErrorE(t, KicCmd, "check")
+	boa.ExecCmdNoErrorE(t, KicCmd, "cluster")
 	boa.ExecCmdNoErrorE(t, KicCmd, "check", "bad-param")
 	boa.ExecCmdNoErrorE(t, KicCmd, "events")
 	boa.ExecCmdNoErrorE(t, KicCmd, "pods")
 	boa.ExecCmdNoErrorE(t, KicCmd, "svc")
+	boa.ExecCmdNoErrorE(t, KicCmd, "test")
 }

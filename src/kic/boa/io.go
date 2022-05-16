@@ -100,8 +100,10 @@ func ReadCompletionFile(fileName string) ([]string, error) {
 
 // get the path to the executable's directory
 func GetBinDir() string {
+	env := strings.ToUpper(GetBinName() + "_PATH")
+
 	// read from env var
-	ex := os.Getenv("KIC_PATH")
+	ex := os.Getenv(env)
 	if ex != "" {
 		return ex
 	}
@@ -125,12 +127,6 @@ func GetBinDir() string {
 
 // get the file name from the executing directory
 func GetBinName() string {
-	// read from env var
-	ex := os.Getenv("KIC_NAME")
-	if ex != "" {
-		return ex
-	}
-
 	ex, err := os.Executable()
 
 	if err != nil {
@@ -186,6 +182,11 @@ func GetBoaPath() string {
 
 	// complete the path
 	return filepath.Join(boaPath, appConfig)
+}
+
+// get the path to the boa commands
+func GetBoaCommandPath() string {
+	return filepath.Join(GetBoaPath(), "commands")
 }
 
 // get the path to the repo base

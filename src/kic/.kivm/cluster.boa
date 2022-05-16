@@ -1,0 +1,16 @@
+###
+# cluster commands
+###
+
+command
+	name: cluster
+	short: k3d cluster commands
+
+boaCommand
+	path: cluster/rebuild
+
+boaCommand
+	path: cluster/delete
+
+boaCommand
+	path: cluster/jumpbox

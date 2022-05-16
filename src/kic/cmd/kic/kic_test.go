@@ -6,7 +6,7 @@ import (
 )
 
 func TestKic(t *testing.T) {
-	AddCommands()
+	KicCmd = LoadCommands(KicCmd)
 
 	if KicCmd == nil {
 		t.Errorf("KicFleet failed, got nil")
@@ -20,9 +20,13 @@ func TestKic(t *testing.T) {
 
 	boa.ExecCmdNoErrorE(t, KicCmd)
 	// boa.ExecCmdWithErrorE(t, "Use \"kic [command] --help\" for more information about a command.", KicCmd, "check", "bad-param")
+	boa.ExecCmdNoErrorE(t, KicCmd, "check")
 	boa.ExecCmdNoErrorE(t, KicCmd, "check", "bad-param")
+	boa.ExecCmdNoErrorE(t, KicCmd, "cluster")
 	boa.ExecCmdNoErrorE(t, KicCmd, "env")
 	boa.ExecCmdNoErrorE(t, KicCmd, "events")
 	boa.ExecCmdNoErrorE(t, KicCmd, "pods")
 	boa.ExecCmdNoErrorE(t, KicCmd, "svc")
+	boa.ExecCmdNoErrorE(t, KicCmd, "targets")
+	boa.ExecCmdNoErrorE(t, KicCmd, "test")
 }

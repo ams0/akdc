@@ -8,7 +8,6 @@ package kubekic
 
 import (
 	"kic/boa"
-	"kic/cmd/targets"
 	"kic/cmd/test"
 
 	"github.com/spf13/cobra"
@@ -20,22 +19,18 @@ var KicCmd = &cobra.Command{
 	Long:  "Kubernetes in Codespaces CLI\n\n  A CLI for automating many Kubernetes inner-loop tasks",
 }
 
-func AddCommands() *cobra.Command {
+func init() {
 
-	if len(KicCmd.Commands()) == 0 {
-		KicCmd.AddCommand(BuildCmd)
-		KicCmd.AddCommand(CheckCmd)
-		KicCmd.AddCommand(ClusterCmd)
-		KicCmd.AddCommand(test.TestCmd)
-		KicCmd.AddCommand(targets.TargetsCmd)
+	KicCmd.AddCommand(BuildCmd)
+	KicCmd.AddCommand(CheckCmd)
+	KicCmd.AddCommand(ClusterCmd)
+	KicCmd.AddCommand(test.TestCmd)
+	//KicCmd.AddCommand(targets.TargetsCmd)
 
-		boa.AddScriptCommand(KicCmd, "pods", "Get all pods on the local dev cluster", kicPodsScript())
-		boa.AddScriptCommand(KicCmd, "svc", "Get all services on the local dev cluster", kicSvcScript())
-		boa.AddScriptCommand(KicCmd, "events", "Get all Kubernetes events on the local dev cluster", kicEventsScript())
-		// boa.AddScriptCommand(KicCmd, "env", "List the environment variables", kicEnvScript())
-	}
-
-	return KicCmd
+	boa.AddScriptCommand(KicCmd, "pods", "Get all pods on the local dev cluster", kicPodsScript())
+	boa.AddScriptCommand(KicCmd, "svc", "Get all services on the local dev cluster", kicSvcScript())
+	boa.AddScriptCommand(KicCmd, "events", "Get all Kubernetes events on the local dev cluster", kicEventsScript())
+	// boa.AddScriptCommand(KicCmd, "env", "List the environment variables", kicEnvScript())
 }
 
 func kicPodsScript() string {
