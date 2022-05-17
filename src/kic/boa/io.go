@@ -100,15 +100,7 @@ func ReadCompletionFile(fileName string) ([]string, error) {
 
 // get the path to the executable's directory
 func GetBinDir() string {
-	env := strings.ToUpper(GetBinName() + "_PATH")
-
-	// read from env var
-	ex := os.Getenv(env)
-	if ex != "" {
-		return ex
-	}
-
-	ex, _ = os.Getwd()
+	ex, _ := os.Getwd()
 
 	// return the working directory on tests
 	if strings.HasPrefix(ex, "/tmp/") || strings.HasPrefix(GetBinName(), "__debug") {
@@ -127,6 +119,11 @@ func GetBinDir() string {
 
 // get the file name from the executing directory
 func GetBinName() string {
+	// use cached bin name
+	if binName != "" {
+		return binName
+	}
+
 	ex, err := os.Executable()
 
 	if err != nil {
@@ -134,39 +131,40 @@ func GetBinName() string {
 	}
 
 	// get the parent of bin
-	return filepath.Base(ex)
+	binName = filepath.Base(ex)
+	return binName
 }
 
 // get the path to the commands (i.e. /bin/kic/.kic)
 func GetBoaPath() string {
-	ex := os.Getenv("KIC_CONFIG")
-	if ex != "" {
-		return ex
+	// use cached boa path
+	if boaPath != "" {
+		return boaPath
 	}
 
-	boaPath := GetBinDir()
 	app := GetBinName()
 	appConfig := "." + app
 
-	// check current directory first
+	// check current directory tree first
 	if local, err := os.Getwd(); err == nil {
-		local = filepath.Join(local, appConfig)
+		for local != "/" {
+			path := filepath.Join(local, appConfig)
+			if _, err := os.Stat(path); err == nil {
+				boaPath = path
+				return path
+			}
 
-		if _, err := os.Stat(local); err == nil {
-			return local
+			local = filepath.Dir(local)
 		}
 	}
 
+	path := GetBinDir()
+
 	// running in debugger
 	if strings.HasPrefix(app, "__debug") {
-		// assume package name == source directory
-		app = filepath.Base(boaPath)
-		// todo - fix this appConfig = "." + app
-		appConfig = ".flt"
-
 		if _, err := os.Stat(appConfig); err != nil {
 			// walk the path to find the first bin dir
-			tpath := filepath.Dir(boaPath)
+			tpath := filepath.Dir(path)
 			_, err := os.Stat(filepath.Join(tpath, "bin", appConfig))
 
 			for err != nil && tpath != "/" {
@@ -175,13 +173,25 @@ func GetBoaPath() string {
 			}
 
 			if tpath != "/" {
-				boaPath = filepath.Join(tpath, "bin")
+				path = filepath.Join(tpath, "bin")
 			}
 		}
 	}
 
+	// read from env var
+	env := strings.ToUpper(GetBinName() + "_PATH")
+	ex := os.Getenv(env)
+	if ex != "" {
+		return ex
+	}
+
+	if ex != "" {
+		return ex
+	}
+
 	// complete the path
-	return filepath.Join(boaPath, appConfig)
+	boaPath = filepath.Join(path, appConfig)
+	return boaPath
 }
 
 // get the path to the boa commands
@@ -189,33 +199,10 @@ func GetBoaCommandPath() string {
 	return filepath.Join(GetBoaPath(), "commands")
 }
 
-// get the path to the repo base
-func GetRepoBase() string {
-	base := os.Getenv("REPO_BASE")
-
-	if base == "" {
-		ex, err := os.Executable()
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		base = filepath.Dir(ex)
-		base = filepath.Dir(base)
-
-		if strings.HasSuffix(base, "src") {
-			base = filepath.Dir(base)
-		}
-	}
-
-	return base
-}
-
 // read a text file from the boa directory
 // i.e. /bin/kic/.kic
 func ReadTextFileFromBoaDir(name string) string {
-	path := filepath.Join(GetBoaPath(), name)
-	return ReadTextFile(path)
+	return ReadTextFile(filepath.Join(GetBoaPath(), name))
 }
 
 // read a file and return the text
@@ -232,6 +219,11 @@ func ReadTextFile(path string) string {
 // read lines from a text file
 func ReadLinesFromFile(path string) []string {
 	return strings.Split(ReadTextFile(path), "\n")
+}
+
+// read lines from a text file
+func ReadLinesFromBoaFile(name string) []string {
+	return strings.Split(ReadTextFileFromBoaDir(name), "\n")
 }
 
 // check for dangerous characters sent to bash
