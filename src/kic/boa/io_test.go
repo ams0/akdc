@@ -13,6 +13,21 @@ func TestReadConfigValue(t *testing.T) {
 	}
 }
 
+func TestIo(t *testing.T) {
+	if s := GetBinDir(); s == "" {
+		t.Errorf("GetBinDir failed")
+	}
+	if s := GetBinName(); s == "" {
+		t.Errorf("GetBinName failed")
+	}
+	if s := GetBoaPath(); s == "" {
+		t.Errorf("GetBoaPath failed")
+	}
+	if s := GetBoaCommandPath(); s == "" {
+		t.Errorf("GetBoaCommandPath failed")
+	}
+}
+
 func TestReadHostIPs(t *testing.T) {
 	s, err := ReadHostIPs("grepNotFound")
 
@@ -25,19 +40,12 @@ func TestReadHostIPs(t *testing.T) {
 	}
 }
 
-func TestGetRepoBase(t *testing.T) {
-	s := GetRepoBase()
-
-	if s == "" {
-		t.Errorf("GetRepoBase() failed, got empty string")
-	}
-}
-
 func TestReadTextFileFromBoaDir(t *testing.T) {
 	// create a temp boa file
+	name := "testio.boa"
 	path := GetBoaPath()
 	ShellExecE("mkdir -p " + path)
-	file := filepath.Join(path, "testio.boa")
+	file := filepath.Join(path, name)
 	ShellExecE("echo 'command' > " + file)
 	ShellExecE("echo '' >> " + file)
 	ShellExecE("echo 'name: test2' >> " + file)
@@ -45,13 +53,13 @@ func TestReadTextFileFromBoaDir(t *testing.T) {
 	ShellExecE("echo 'short: testing2' >> " + file)
 	ShellExecE("echo '' >> " + file)
 
-	s := ReadTextFileFromBoaDir("testio.boa")
+	s := ReadTextFileFromBoaDir(name)
 
 	if s == "" {
 		t.Errorf("ReadTextFileFromBoaDir(testio.boa) failed, got empty string")
 	}
 
-	lines := ReadLinesFromFile(file)
+	lines := ReadLinesFromBoaFile(name)
 
 	if len(lines) < 1 {
 		t.Errorf("ReadLinesFromFile(testio.boa) failed, got empty array")
