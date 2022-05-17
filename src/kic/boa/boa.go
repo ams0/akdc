@@ -18,6 +18,7 @@ import (
 
 var boaPath string
 var boaCommandPath string
+var binName string
 
 var boaRootCmd *cobra.Command
 
@@ -601,24 +602,32 @@ func ExecCluster(host string, ip string, cmd string, ch chan string) {
 
 // add a script command to a command in the command tree
 func AddScriptCommand(parent *cobra.Command, name string, short string, script string) error {
-	if script == "" {
-		cfmt.ErrorE("script is required", name, short)
-		os.Exit(1)
+	// check params
+	if name == "" || short == "" || script == "" {
+		return cfmt.ErrorE("name, short, and script are required", name, short)
 	}
 
-	// name and short are required
-	if name == "" || short == "" {
-		return fmt.Errorf("name and short are required")
+	// create the command
+	cmd := CreateScriptCommand(name, short, script)
+
+	if cmd == nil {
+		return cfmt.ErrorE("failed to add script command", name, short)
 	}
 
 	// add the command
-	parent.AddCommand(CreateScriptCommand(name, short, script))
+	parent.AddCommand(cmd)
 
 	return nil
 }
 
 // create a command that runs the script
 func CreateScriptCommand(use string, short string, command string) *cobra.Command {
+	// use, short, and command are required
+	if use == "" || short == "" || command == "" {
+		cfmt.ErrorE("CreateScriptCommand: invalid parameters", use, short)
+		return nil
+	}
+
 	runCmd := &cobra.Command{
 		Use:   use,
 		Short: short,
